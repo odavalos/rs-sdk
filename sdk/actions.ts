@@ -748,7 +748,8 @@ export class BotActions {
         const MAX_DOOR_RETRIES = 3;
         let doorRetryCount = 0;
         let poorProgressCount = 0;
-        const blockedDoors = new Set<string>(); // Doors we failed to open (locked etc.)
+        const blockedDoors = new Set<string>(); // Doors confirmed locked
+        const doorFailCounts = new Map<string, number>(); // Tracks reach failures per door
 
         // Try to open a blocking door. Returns true if door was opened.
         const tryOpenDoor = async (): Promise<boolean> => {
@@ -767,7 +768,10 @@ export class BotActions {
             if (nearest) {
                 const level = this.sdk.getState()?.player?.level ?? 0;
                 const key = `${nearest.x},${nearest.z}`;
-                if (!blockedDoors.has(key)) {
+                const fails = (doorFailCounts.get(key) ?? 0) + 1;
+                doorFailCounts.set(key, fails);
+                // Only permanently block after 3 reach failures
+                if (fails >= 3 && !blockedDoors.has(key)) {
                     blockedDoors.add(key);
                     blockDoor(level, nearest.x, nearest.z);
                     console.log(`[walkTo] Blocked impassable door at (${nearest.x}, ${nearest.z}) — re-routing`);
@@ -811,20 +815,33 @@ export class BotActions {
                         if (dist <= 15) {
                             // Find which required door is closest to this waypoint
                             for (const door of requiredDoors) {
-                                const doorKey = `${door.x},${door.z}`;
-                                if (blockedDoors.has(doorKey)) break; // Already known locked
+                                const dk = `${door.x},${door.z}`;
+                                if (blockedDoors.has(dk)) break; // Already known locked
                                 const doorDist = Math.abs(door.x - wp.x) + Math.abs(door.z - wp.z);
                                 if (doorDist <= 1) {
-                                    const opened = await this.helpers.openDoorAt(door.x, door.z);
-                                    if (opened) {
-                                        requiredDoorKeys.delete(doorKey);
+                                    const result = await this.helpers.openDoorAt(door.x, door.z);
+                                    if (result === 'opened' || result === 'already_open') {
+                                        requiredDoorKeys.delete(dk);
                                         await this.sdk.waitForTicks(1);
-                                    } else {
-                                        // Door failed to open (locked, etc.) — block in pathfinder
-                                        blockedDoors.add(doorKey);
+                                    } else if (result === 'locked') {
+                                        // Definitely locked — block permanently in pathfinder
+                                        blockedDoors.add(dk);
                                         blockDoor(door.level, door.x, door.z);
-                                        requiredDoorKeys.delete(doorKey);
-                                        console.log(`[walkTo] Blocked impassable door at (${door.x}, ${door.z}) — re-routing`);
+                                        requiredDoorKeys.delete(dk);
+                                        console.log(`[walkTo] Blocked locked door at (${door.x}, ${door.z}) — re-routing`);
+                                        break; // Re-query path on next iteration
+                                    } else {
+                                        // cant_reach or not_found — transient failure, track attempts
+                                        const fails = (doorFailCounts.get(dk) ?? 0) + 1;
+                                        doorFailCounts.set(dk, fails);
+                                        if (fails >= 3) {
+                                            blockedDoors.add(dk);
+                                            blockDoor(door.level, door.x, door.z);
+                                            requiredDoorKeys.delete(dk);
+                                            console.log(`[walkTo] Blocked impassable door at (${door.x}, ${door.z}) after ${fails} failures — re-routing`);
+                                        } else {
+                                            console.log(`[walkTo] Door at (${door.x}, ${door.z}) ${result} (attempt ${fails}/3) — retrying`);
+                                        }
                                         break; // Re-query path on next iteration
                                     }
                                     break;
