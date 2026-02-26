@@ -17,6 +17,8 @@ The goals of this project are to provide a rich testing environment for goal-dir
 
 There is currently a [leaderboard](https://rs-sdk-demo.fly.dev/hiscores) for bots running on the demo server, with rankings based on highest total level per lowest account playtime.
 
+See the [benchmark comparing models](https://github.com/MaxBittker/rs-bench) for evaluation results across different LLMs.
+
 > [!NOTE]
 > RS-SDK is a fork of the LostCity engine/client, an amazing project without which rs-sdk would not be possible. 
 > Find their [code here](https://github.com/LostCityRS/Server) or read their [history and ethos](https://lostcity.rs/t/faq-what-is-lost-city/16)
