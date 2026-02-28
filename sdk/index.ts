@@ -396,29 +396,20 @@ export class BotSDK {
 
     /**
      * Launch native browser to client URL.
-     * Uses platform-specific open command (open on macOS, start on Windows, xdg-open on Linux).
+     * Uses the `open` package for cross-platform support (macOS, Windows, Linux, WSL).
+     * Falls back to printing the URL if no browser can be opened.
      */
     async launchBrowser(): Promise<void> {
         const url = this.buildClientUrl();
         console.log(`[BotSDK] Opening browser: ${url}`);
 
-        const { exec } = await import('child_process');
-
-        const command = process.platform === 'darwin'
-            ? `open "${url}"`
-            : process.platform === 'win32'
-                ? `start "" "${url}"`
-                : `xdg-open "${url}"`;
-
-        return new Promise((resolve, reject) => {
-            exec(command, (error) => {
-                if (error) {
-                    reject(new Error(`Failed to open browser: ${error.message}`));
-                } else {
-                    resolve();
-                }
-            });
-        });
+        try {
+            const open = (await import('open')).default;
+            await open(url);
+        } catch (e) {
+            console.warn(`[BotSDK] Could not open browser automatically.`);
+            console.warn(`[BotSDK] Open this URL manually: ${url}`);
+        }
     }
 
     /**

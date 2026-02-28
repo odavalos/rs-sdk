@@ -28,13 +28,14 @@ function updateRepo(cwd: string) {
     });
 }
 
-function runOnOs(exec: string, cwd?: string) {
-    const start = (process.platform == 'darwin' ? 'open' : process.platform == 'win32' ? 'start' : 'xdg-open');
-
-    child_process.execSync(`${start} ${exec}`, {
-        stdio: 'inherit',
-        cwd
-    });
+async function runOnOs(url: string) {
+    try {
+        const open = (await import('open')).default;
+        await open(url);
+    } catch (e) {
+        console.warn(`Could not open browser automatically.`);
+        console.warn(`Open this URL manually: ${url}`);
+    }
 }
 
 let config = {
@@ -146,10 +147,9 @@ async function main() {
     } else if (choice === 'web') {
         if (!revInfo[config.rev]?.webclient) {
             console.log('This version does not have a webclient available (yet?), sorry.');
-        } else if (process.platform === 'win32' || process.platform === 'darwin') {
-            runOnOs('http://localhost/rs2.cgi');
         } else {
-            runOnOs('http://localhost:8888/rs2.cgi');
+            const port = (process.platform === 'win32' || process.platform === 'darwin') ? '' : ':8888';
+            await runOnOs(`http://localhost${port}/rs2.cgi`);
         }
     } else if (choice === 'java') {
         const command = process.platform === 'win32' ? 'gradlew' : './gradlew';
