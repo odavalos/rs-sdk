@@ -221,6 +221,13 @@ export type hiscore_outfit = {
     items: string;
     date: Generated<Timestamp>;
 };
+export type hiscore_bank = {
+    account_id: number;
+    profile: Generated<string>;
+    value: number;
+    items: string;
+    date: Generated<Timestamp>;
+};
 export type DB = {
     account: account;
     account_login: account_login;
@@ -230,6 +237,7 @@ export type DB = {
     hiscore: hiscore;
     hiscore_large: hiscore_large;
     hiscore_outfit: hiscore_outfit;
+    hiscore_bank: hiscore_bank;
     ignorelist: ignorelist;
     input_report: input_report;
     input_report_event_raw: input_report_event_raw;

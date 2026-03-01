@@ -188,6 +188,16 @@ model hiscore_outfit {
     @@id([account_id, profile])
 }
 
+model hiscore_bank {
+    account_id Int
+    profile    String   @default("main")
+    value      Int
+    items      String   @db.Text
+    date       DateTime @default(now()) @updatedAt
+
+    @@id([account_id, profile])
+}
+
 // social
 
 model friendlist {

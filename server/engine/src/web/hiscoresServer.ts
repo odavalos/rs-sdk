@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 import Environment from '#/util/Environment.js';
-import { handleHiscoresPage, handleHiscoresPlayerPage, handleHiscoresOutfitPage } from './pages/hiscores.js';
+import { handleHiscoresPage, handleHiscoresPlayerPage, handleHiscoresOutfitPage, handleHiscoresBankPage } from './pages/hiscores.js';
 import { handlePublicFiles } from './pages/static.js';
 
 const PACK_DIR = path.resolve(import.meta.dir, '../../data/pack');
@@ -124,6 +124,9 @@ export function startHiscoresWeb() {
 
             const hiscoresOutfitResponse = await handleHiscoresOutfitPage(url);
             if (hiscoresOutfitResponse) return hiscoresOutfitResponse;
+
+            const hiscoresBankResponse = await handleHiscoresBankPage(url);
+            if (hiscoresBankResponse) return hiscoresBankResponse;
 
             // Static files (decoration images)
             const publicFilesResponse = handlePublicFiles(url);

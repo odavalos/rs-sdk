@@ -38,6 +38,20 @@ function formatGold(value: number): string {
     return value.toLocaleString();
 }
 
+// Format stack count with K/M/B suffixes, no decimals
+function formatStackCount(count: number): string {
+    if (count >= 1_000_000_000) {
+        return `${Math.floor(count / 1_000_000_000)}B`;
+    }
+    if (count >= 1_000_000) {
+        return `${Math.floor(count / 1_000_000)}M`;
+    }
+    if (count >= 1_000) {
+        return `${Math.floor(count / 1_000)}K`;
+    }
+    return `${count}`;
+}
+
 // Format playtime (in game ticks) to human-readable string
 function formatPlaytime(ticks: number): string {
     const totalSeconds = Math.floor(ticks * (Environment.NODE_TICKRATE / 1000));
@@ -361,7 +375,8 @@ export async function handleHiscoresPage(url: URL): Promise<Response | null> {
         const icon = s.name === 'Overall' ? '' : `<img src="/img/skill/${s.name.toLowerCase()}.png" width="15" height="15" style="vertical-align:middle;margin-right:3px">`;
         return `<tr><td><a href="/hiscores?category=${s.id}&profile=${profile}" class="c">${icon}${s.name}</a></td></tr>`;
     }).join('\n')
-        + `\n<tr><td>&nbsp;</td></tr>\n<tr><td><a href="/hiscores/outfit?profile=${profile}" class="c text-orange">Equipment</a></td></tr>`;
+        + `\n<tr><td>&nbsp;</td></tr>\n<tr><td><a href="/hiscores/outfit?profile=${profile}" class="c text-orange">Equipment</a></td></tr>`
+        + `\n<tr><td><a href="/hiscores/bank?profile=${profile}" class="c text-orange">Bank</a></td></tr>`;
 
     // Build data rows
     const rankCol = rows.map(r => `${r.rank}<br>`).join('\n');
@@ -648,7 +663,8 @@ export async function handleHiscoresOutfitPage(url: URL): Promise<Response | nul
         const icon = s.name === 'Overall' ? '' : `<img src="/img/skill/${s.name.toLowerCase()}.png" width="15" height="15" style="vertical-align:middle;margin-right:3px">`;
         return `<tr><td><a href="/hiscores?category=${s.id}&profile=${profile}" class="c">${icon}${s.name}</a></td></tr>`;
     }).join('\n')
-        + `\n<tr><td>&nbsp;</td></tr>\n<tr><td><a href="/hiscores/outfit?profile=${profile}" class="c text-orange">Equipment</a></td></tr>`;
+        + `\n<tr><td>&nbsp;</td></tr>\n<tr><td><a href="/hiscores/outfit?profile=${profile}" class="c text-orange">Equipment</a></td></tr>`
+        + `\n<tr><td><a href="/hiscores/bank?profile=${profile}" class="c text-orange">Bank</a></td></tr>`;
 
     const html = `<!DOCTYPE html>
 <html>
@@ -770,6 +786,218 @@ export async function handleHiscoresOutfitPage(url: URL): Promise<Response | nul
                 if (isNaN(id)) continue;
                 try {
                     const icon = viewer.renderItemIconAsImageData(id);
+                    if (icon) {
+                        el.getContext('2d').putImageData(icon, 0, 0);
+                        rendered++;
+                    } else {
+                        el.style.display = 'none';
+                        const fallback = document.createElement('span');
+                        fallback.textContent = el.title.split(' (')[0];
+                        fallback.title = el.title;
+                        el.parentNode.insertBefore(fallback, el);
+                        failed++;
+                    }
+                } catch (renderErr) {
+                    failed++;
+                }
+            }
+        } catch (err) {
+            console.error('ItemViewer init failed:', err);
+            for (const el of icons) {
+                const fallback = document.createElement('span');
+                fallback.textContent = el.title.split(' (')[0];
+                fallback.title = el.title;
+                el.parentNode.insertBefore(fallback, el);
+                el.style.display = 'none';
+            }
+        }
+    }
+</script>
+</body>
+</html>`;
+
+    return new Response(html, { headers: { 'Content-Type': 'text/html' } });
+}
+
+// Bank value leaderboard handler
+export async function handleHiscoresBankPage(url: URL): Promise<Response | null> {
+    const match = url.pathname.match(/^\/hi(?:gh)?scores\/bank\/?$/);
+    if (!match) return null;
+
+    const profile = url.searchParams.get('profile') || 'main';
+
+    let query = db
+        .selectFrom('hiscore_bank')
+        .innerJoin('account', 'account.id', 'hiscore_bank.account_id')
+        .select(['account.username', 'hiscore_bank.value', 'hiscore_bank.items'])
+        .where('hiscore_bank.profile', '=', profile)
+        .where('account.staffmodlevel', '<=', 1)
+        .orderBy('hiscore_bank.value', 'desc')
+        .limit(50);
+    if (hiddenNames.length > 0) {
+        query = query.where(eb => eb.not(eb(eb.fn('lower', ['account.username']), 'in', hiddenNames)));
+    }
+
+    const results = await query.execute();
+
+    const rows = results.map((r, i) => {
+        let itemsList = '';
+        try {
+            const items = JSON.parse(r.items) as { id?: number; name: string; value: number; count: number }[];
+            // Show up to 6 items per person
+            itemsList = items.slice(0, 6).map(item => {
+                const countLabel = item.count > 1 ? formatStackCount(item.count) : '';
+                if (item.id != null) {
+                    return `<span style="display:inline-block;position:relative;vertical-align:middle;margin:0 1px;width:32px;height:32px"><canvas class="item-icon" data-item-id="${item.id}" data-item-count="${item.count}" title="${escapeHtml(item.name)}${countLabel ? ' ' + countLabel : ''} (${item.value.toLocaleString()} gp)" width="32" height="32" style="image-rendering:pixelated"></canvas>${countLabel ? `<span style="position:absolute;bottom:0;right:1px;font-size:9px;color:#ff0;text-shadow:-1px 0 #000,0 1px #000,1px 0 #000,0 -1px #000;line-height:1">${countLabel}</span>` : ''}</span>`;
+                }
+                return `<span title="${item.value.toLocaleString()} gp">${escapeHtml(item.name)}${countLabel ? ' ' + countLabel : ''}</span>`;
+            }).join('');
+        } catch {
+            itemsList = escapeHtml(r.items);
+        }
+        return `
+            <tr>
+                <td align="right">${i + 1}</td>
+                <td><a href="/hiscores/player/${encodeURIComponent(r.username)}?profile=${profile}" class="c">${escapeHtml(r.username)}</a></td>
+                <td align="right" class="yellow" title="${r.value.toLocaleString()} gp">${formatGold(r.value)}</td>
+                <td style="font-size:11px">${itemsList}</td>
+            </tr>
+        `;
+    });
+
+    // Sidebar skill links
+    const skillOptions = [
+        { id: 0, name: 'Overall' },
+        ...ENABLED_SKILLS.map(s => ({ id: s.id + 1, name: s.name }))
+    ];
+    const skillLinks = skillOptions.map(s => {
+        const icon = s.name === 'Overall' ? '' : `<img src="/img/skill/${s.name.toLowerCase()}.png" width="15" height="15" style="vertical-align:middle;margin-right:3px">`;
+        return `<tr><td><a href="/hiscores?category=${s.id}&profile=${profile}" class="c">${icon}${s.name}</a></td></tr>`;
+    }).join('\n')
+        + `\n<tr><td>&nbsp;</td></tr>\n<tr><td><a href="/hiscores/outfit?profile=${profile}" class="c text-orange">Equipment</a></td></tr>`
+        + `\n<tr><td><a href="/hiscores/bank?profile=${profile}" class="c text-orange">Bank</a></td></tr>`;
+
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+    <title>Bank Hiscores</title>
+    <style>${HISCORES_STYLES}</style>
+</head>
+<body>
+<table width="100%" height="100%" cellpadding="0" cellspacing="0">
+    <tr>
+        <td valign="middle">
+            <center>
+                <div style="width: 600px; position: relative;">
+
+<!-- Top edge decoration -->
+<table cellpadding="0" cellspacing="0">
+    <tr>
+        <td valign="top"><img src="/img/edge_a.jpg" width="100" height="43"></td>
+        <td valign="top"><img src="/img/edge_c.jpg" width="400" height="42"></td>
+        <td valign="top"><img src="/img/edge_d.jpg" width="100" height="43"></td>
+    </tr>
+</table>
+
+<!-- Main content area -->
+<table width="600" cellpadding="0" cellspacing="0" border="0" background="/img/background2.jpg">
+    <tr>
+        <td valign="bottom">
+            <center>
+                <br>
+                <!-- Title box -->
+                <table width="350" bgcolor="black" cellpadding="4">
+                    <tr>
+                        <td class="e">
+                            <center>
+                                <b>Bank Hiscores</b><br>
+                                <a href="/" class="c">Main menu</a> | <a href="/hiscores?profile=${profile}" class="c">All Hiscores</a>
+                            </center>
+                        </td>
+                    </tr>
+                </table>
+                <br>
+
+                <!-- Two column layout: skills + data -->
+                <table>
+                    <tr>
+                        <td width="160" valign="top">
+                            <center>
+                                <b>Select hiscore table</b><br>
+                                <table width="150" height="400" bgcolor="black" cellpadding="4">
+                                    <tr>
+                                        <td class="e" valign="top">
+                                            <center>
+                                                <table height="380" cellspacing="1" cellpadding="0">
+                                                    ${skillLinks}
+                                                </table>
+                                            </center>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </center>
+                        </td>
+
+                        <td width="400" valign="top">
+                            <center>
+                                <b>Bank</b><br>
+                                <table width="420" bgcolor="black" cellpadding="4">
+                                    <tr>
+                                        <td class="e" valign="top">
+                                            ${rows.length > 0 ? `<table width="100%" cellspacing="2" cellpadding="2">
+                                                <tr>
+                                                    <td><b>#</b></td>
+                                                    <td><b>Name</b></td>
+                                                    <td align="right"><b>Value</b></td>
+                                                    <td><b>Top Items</b></td>
+                                                </tr>
+                                                ${rows.join('')}
+                                            </table>` : '<center><br>No bank data found</center>'}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </center>
+                        </td>
+                    </tr>
+                </table>
+
+                <br>
+            </center>
+        </td>
+    </tr>
+</table>
+
+<!-- Bottom edge decoration -->
+<table cellpadding="0" cellspacing="0">
+    <tr>
+        <td valign="top"><img src="/img/edge_g2.jpg" width="100" height="43"></td>
+        <td valign="top"><img src="/img/edge_c.jpg" width="400" height="42"></td>
+        <td valign="top"><img src="/img/edge_h2.jpg" width="100" height="43"></td>
+    </tr>
+</table>
+
+                </div>
+            </center>
+        </td>
+    </tr>
+</table>
+<!-- Hidden canvas required by viewer internals -->
+<canvas id="canvas" width="256" height="256" style="display:none"></canvas>
+<script type="module">
+    import { ItemViewer } from '/viewer/viewer.js';
+
+    const icons = document.querySelectorAll('canvas.item-icon');
+    if (icons.length > 0) {
+        const viewer = new ItemViewer();
+        try {
+            await viewer.init('');
+            let rendered = 0, failed = 0;
+            for (const el of icons) {
+                const id = parseInt(el.dataset.itemId);
+                const count = parseInt(el.dataset.itemCount) || 1;
+                if (isNaN(id)) continue;
+                try {
+                    const icon = viewer.renderItemIconAsImageData(id, count);
                     if (icon) {
                         el.getContext('2d').putImageData(icon, 0, 0);
                         rendered++;

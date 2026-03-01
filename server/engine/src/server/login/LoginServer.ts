@@ -137,6 +137,39 @@ async function updateHiscores(account: { id: number, staffmodlevel: number } | u
             }
         }
     }
+
+    // Update bank hiscore
+    const bankInvId = InvType.getId('bank');
+    if (bankInvId !== -1) {
+        const bank = player.getInventory(bankInvId);
+        if (bank) {
+            const bankItems: { id: number; name: string; value: number; count: number }[] = [];
+            let bankTotalValue = 0;
+            for (let slot = 0; slot < bank.capacity; slot++) {
+                const item = bank.get(slot);
+                if (item) {
+                    const objType = ObjType.get(item.id);
+                    if (objType) {
+                        const value = objType.cost * item.count;
+                        bankItems.push({ id: item.id, name: objType.name || `obj_${item.id}`, value, count: item.count });
+                        bankTotalValue += value;
+                    }
+                }
+            }
+
+            if (bankItems.length > 0) {
+                // Sort by value descending so the most valuable items appear first
+                bankItems.sort((a, b) => b.value - a.value);
+                const bankItemsJson = JSON.stringify(bankItems);
+                const existingBank = await db.selectFrom('hiscore_bank').select('value').where('account_id', '=', account.id).where('profile', '=', profile).executeTakeFirst();
+                if (existingBank) {
+                    await db.updateTable('hiscore_bank').set({ value: bankTotalValue, items: bankItemsJson, date: toDbDate(new Date()) }).where('account_id', '=', account.id).where('profile', '=', profile).execute();
+                } else {
+                    await db.insertInto('hiscore_bank').values({ account_id: account.id, profile, value: bankTotalValue, items: bankItemsJson }).execute();
+                }
+            }
+        }
+    }
 }
 
 export default class LoginServer {
