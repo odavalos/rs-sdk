@@ -31,7 +31,7 @@ export type ScriptFunction = (ctx: ScriptContext) => Promise<any>;
 export interface RunOptions {
     /** Overall timeout in ms (default: none) */
     timeout?: number;
-    /** Existing connection - use instead of process.env for MCP context */
+    /** Existing connection - use instead of process.env */
     connection?: { bot: BotActions; sdk: BotSDK };
     /** Connect if not connected (default: true) */
     autoConnect?: boolean;
@@ -201,7 +201,7 @@ async function getOrCreateConnection(): Promise<BotConnection> {
  * });
  *
  * @example
- * // With existing connection (MCP context)
+ * // With existing connection
  * await runScript(async (ctx) => {
  *   await ctx.bot.chopTree();
  * }, { connection: { bot, sdk } });
@@ -218,7 +218,7 @@ export async function runScript(
         onDisconnect = 'error',
         reconnectTimeout = 60000
     } = options;
-    // Default disconnectAfter to true for CLI (managed connections), false for MCP (external connections)
+    // Default disconnectAfter to true for CLI (managed connections), false for external connections
     const disconnectAfter = options.disconnectAfter ?? !connection;
 
     const startTime = Date.now();

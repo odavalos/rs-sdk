@@ -27,48 +27,33 @@ This automatically creates:
 - `bots/{username}/lab_log.md` - Session notes template
 - `bots/{username}/script.ts` - Ready-to-run starter script
 
-## MCP Integration (Interactive Mode)
+## CLI Daemon (Interactive Mode)
 
-The MCP server auto-discovers via `.mcp.json` when you open the project in Claude Code.
+The CLI supports a daemon mode for persistent bot connections and inline code execution.
 
 ### Quick Start
 
-1. Install dependencies: `bun install` (from project root)
-2. Open project in Claude Code — approve the MCP server when prompted
-3. Control your bot with suggestions.
+```bash
+# Execute code on a bot (auto-starts daemon if needed)
+bun sdk/cli.ts mybot exec "return sdk.getState()?.player"
 
-### Tools
+# Execute via heredoc (avoids shell quoting)
+bun sdk/cli.ts mybot exec <<'EOF'
+await bot.chopTree()
+return sdk.getInventory()
+EOF
 
-| Tool | Description |
-|------|-------------|
-| `execute_code(bot_name, code)` | Run code on a bot. Auto-connects on first use. |
-| `list_bots()` | List connected bots |
-| `disconnect_bot(name)` | Disconnect a bot |
+# Check state (uses daemon if running, otherwise one-shot)
+bun sdk/cli.ts mybot state
+bun sdk/cli.ts mybot state --json
 
-### Example
-
-```typescript
-// Just execute - auto-connects on first use
-execute_code({
-  bot_name: "mybot",
-  code: `
-    const state = sdk.getState();
-    console.log('Position:', state.player.worldX, state.player.worldZ);
-
-    // Chop trees for 1 minute
-    const endTime = Date.now() + 60_000;
-    while (Date.now() < endTime) {
-      const tree = sdk.findNearbyLoc(/^tree$/i);
-      if (tree) await bot.chopTree(tree);
-    }
-
-    return sdk.getInventory();
-  `
-})
+# Stop the daemon
+bun sdk/cli.ts mybot stop
 ```
 
+The daemon holds the bot connection alive between commands. It auto-starts on first `exec` and shuts down after 5 minutes of idle time.
 
-See `mcp/README.md` for detailed API reference.
+Code runs in an async context with `bot` (BotActions) and `sdk` (BotSDK) available as globals.
 
 ## Session Workflow
 
