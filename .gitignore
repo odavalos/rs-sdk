@@ -18,6 +18,9 @@ result
 bots/*/
 !bots/_template/
 
+# Daemon type checker temp file
+sdk/__exec_check.ts
+
 # SDK is copied into Docker via Dockerfile; don't duplicate it under server/
 server/sdk/
 jobs/

@@ -12,7 +12,8 @@ import { BotSDK, deriveGatewayUrl } from './index';
 import { BotActions } from './actions';
 import { formatWorldState } from './formatter';
 import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'fs';
-import { join } from 'path';
+import { join, resolve } from 'path';
+import { Project, type Diagnostic } from 'ts-morph';
 
 // --- Config ---
 const IDLE_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
@@ -138,11 +139,82 @@ async function main() {
         }
     });
 
+    // --- Type checker (ts-morph) ---
+    const projectRoot = resolve(__dirname, '..');
+    const checkFilePath = resolve(projectRoot, 'sdk', '__exec_check.ts');
+    let tsProject: Project | null = null;
+
+    // Initialize in background so it doesn't delay daemon startup
+    const tsProjectReady = (async () => {
+        try {
+            tsProject = new Project({
+                tsConfigFilePath: resolve(projectRoot, 'tsconfig.json'),
+                skipAddingFilesFromTsConfig: true,
+            });
+            // Add SDK source files so imports resolve
+            tsProject.addSourceFilesAtPaths([
+                resolve(projectRoot, 'sdk', 'types.ts'),
+                resolve(projectRoot, 'sdk', 'index.ts'),
+                resolve(projectRoot, 'sdk', 'actions.ts'),
+                resolve(projectRoot, 'sdk', 'actions-helpers.ts'),
+                resolve(projectRoot, 'sdk', 'pathfinding.ts'),
+            ]);
+            console.error('[daemon] Type checker ready');
+        } catch (err: any) {
+            console.error(`[daemon] Type checker failed to initialize: ${err.message}`);
+            tsProject = null;
+        }
+    })();
+
+    function typeCheck(code: string): string[] {
+        if (!tsProject) return [];
+
+        const wrapped = [
+            'import { BotActions } from "./actions";',
+            'import { BotSDK } from "./index";',
+            'import type * as Types from "./types";',
+            'async function __exec(bot: BotActions, sdk: BotSDK) {',
+            code,
+            '}',
+        ].join('\n');
+
+        // Create or overwrite the virtual source file
+        let sourceFile = tsProject.getSourceFile(checkFilePath);
+        if (sourceFile) {
+            sourceFile.replaceWithText(wrapped);
+        } else {
+            sourceFile = tsProject.createSourceFile(checkFilePath, wrapped);
+        }
+
+        const diagnostics = sourceFile.getPreEmitDiagnostics();
+        if (diagnostics.length === 0) return [];
+
+        // Line offset: user code starts at line 5 (0-indexed: 4)
+        const headerLines = 4;
+
+        return diagnostics.map((d: Diagnostic) => {
+            const line = d.getLineNumber();
+            const msg = d.getMessageText();
+            const msgStr = typeof msg === 'string' ? msg : msg.getMessageText();
+            const userLine = line ? line - headerLines : '?';
+            return `line ${userLine}: ${msgStr}`;
+        });
+    }
+
     // --- Code execution ---
     const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
     const transpiler = new Bun.Transpiler({ loader: 'ts', target: 'bun' });
 
-    async function executeCode(code: string, timeoutMs: number): Promise<{ logs: string[]; result: any; error?: string }> {
+    async function executeCode(code: string, timeoutMs: number): Promise<{ logs: string[]; result: any; error?: string; typeWarnings?: string[] }> {
+        // Run type check (non-blocking — don't prevent execution)
+        await tsProjectReady;
+        let typeWarnings: string[] = [];
+        try {
+            typeWarnings = typeCheck(code);
+        } catch (err: any) {
+            console.error(`[daemon] Type check error: ${err.message}`);
+        }
+
         const logs: string[] = [];
         const origLog = console.log;
         const origWarn = console.warn;
@@ -156,7 +228,7 @@ async function main() {
             try {
                 jsCode = transpiler.transformSync(code);
             } catch (err: any) {
-                return { logs, result: undefined, error: `TypeScript syntax error: ${err.message}` };
+                return { logs, result: undefined, error: `TypeScript syntax error: ${err.message}`, typeWarnings };
             }
 
             const fn = new AsyncFunction('bot', 'sdk', jsCode);
@@ -191,17 +263,24 @@ async function main() {
                 if (!signal.aborted) abortController.abort('Execution finished');
             }
 
-            return { logs, result };
+            return { logs, result, typeWarnings };
         } catch (err: any) {
-            return { logs, result: undefined, error: `${err.message}\n${err.stack}` };
+            return { logs, result: undefined, error: `${err.message}\n${err.stack}`, typeWarnings };
         } finally {
             console.log = origLog;
             console.warn = origWarn;
         }
     }
 
-    function buildOutput(execResult: { logs: string[]; result: any; error?: string }): string {
+    function buildOutput(execResult: { logs: string[]; result: any; error?: string; typeWarnings?: string[] }): string {
         const parts: string[] = [];
+
+        // Type warnings first so they're visible before output
+        if (execResult.typeWarnings && execResult.typeWarnings.length > 0) {
+            parts.push('── Type Warnings ──');
+            parts.push(execResult.typeWarnings.join('\n'));
+            parts.push('');
+        }
 
         if (execResult.logs.length > 0) {
             parts.push('── Console ──');

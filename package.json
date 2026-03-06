@@ -11,6 +11,7 @@
   "dependencies": {
     "@inquirer/prompts": "^7.5.3",
     "open": "^11.0.0",
-    "tmi.js": "^1.8.5"
+    "tmi.js": "^1.8.5",
+    "ts-morph": "^27.0.2"
   }
 }
