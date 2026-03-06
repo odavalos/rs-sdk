@@ -11,6 +11,21 @@ import NpcType from '#/config/NpcType.js';
 import LocType from '#/config/LocType.js';
 import type LinkList from '#/datastruct/LinkList.js';
 
+const ROCK_COLOR_TO_ORE: Record<number, string> = {
+    14596: 'copper',
+    6242: 'iron',
+    13741: 'tin',
+    4226: 'coal',
+    23108: 'gold',
+    19026: 'silver',
+    6346: 'mithril',
+    6438: 'adamantite',
+    8721: 'runite',
+    18854: 'clay',
+    382: 'blurite',
+    15407: 'gem',
+};
+
 import {
     SKILL_NAMES,
     INVENTORY_INTERFACE_ID,
@@ -730,9 +745,14 @@ export class BotStateCollector implements ScanProvider {
                                         }
                                     }
                                 }
+                                let name = locType.name;
+                                const recolor = locType.recol_d?.[0];
+                                if (recolor !== undefined && ROCK_COLOR_TO_ORE[recolor]) {
+                                    name = 'Rocks ' + ROCK_COLOR_TO_ORE[recolor] + ' ore';
+                                }
                                 locs.push({
                                     id: locId,
-                                    name: locType.name,
+                                    name,
                                     x: baseX + tileX,
                                     z: baseZ + tileZ,
                                     distance,
