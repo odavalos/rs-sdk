@@ -11,20 +11,6 @@ import NpcType from '#/config/NpcType.js';
 import LocType from '#/config/LocType.js';
 import type LinkList from '#/datastruct/LinkList.js';
 
-const ROCK_COLOR_TO_ORE: Record<number, string> = {
-    14596: 'copper',
-    6242: 'iron',
-    13741: 'tin',
-    4226: 'coal',
-    23108: 'gold',
-    19026: 'silver',
-    6346: 'mithril',
-    6438: 'adamantite',
-    8721: 'runite',
-    18854: 'clay',
-    382: 'blurite',
-    15407: 'gem',
-};
 
 import {
     SKILL_NAMES,
@@ -66,6 +52,22 @@ interface PrayerComponentMap {
     /** Varp IDs for each prayer (indexed 0-14) */
     varpIds: number[];
 }
+
+const ROCK_ID_TO_ORE: Record<number, string> = {
+    2090: 'copper', 2091: 'copper', 3042: 'copper',
+    2094: 'tin', 2095: 'tin', 3043: 'tin',
+    2092: 'iron', 2093: 'iron',
+    2096: 'coal', 2097: 'coal',
+    2098: 'gold', 2099: 'gold',
+    2100: 'silver', 2101: 'silver',
+    2102: 'mithril', 2103: 'mithril',
+    2104: 'adamantite', 2105: 'adamantite',
+    2106: 'runite', 2107: 'runite',
+    2108: 'clay', 2109: 'clay',
+    2110: 'blurite',
+    2111: 'gem',
+    2491: 'rune essence',
+};
 
 export class BotStateCollector implements ScanProvider {
     private client: Client;
@@ -745,11 +747,8 @@ export class BotStateCollector implements ScanProvider {
                                         }
                                     }
                                 }
-                                let name = locType.name;
-                                const recolor = locType.recol_d?.[0];
-                                if (recolor !== undefined && ROCK_COLOR_TO_ORE[recolor]) {
-                                    name = 'Rocks ' + ROCK_COLOR_TO_ORE[recolor] + ' ore';
-                                }
+                                const oreType = ROCK_ID_TO_ORE[locId];
+                                const name = oreType ? `Rocks ${oreType} ore` : locType.name;
                                 locs.push({
                                     id: locId,
                                     name,
