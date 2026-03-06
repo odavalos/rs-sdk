@@ -140,6 +140,7 @@ async function main() {
 
     // --- Code execution ---
     const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+    const transpiler = new Bun.Transpiler({ loader: 'ts', target: 'bun' });
 
     async function executeCode(code: string, timeoutMs: number): Promise<{ logs: string[]; result: any; error?: string }> {
         const logs: string[] = [];
@@ -150,7 +151,15 @@ async function main() {
         console.warn = (...args) => logs.push('[warn] ' + args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' '));
 
         try {
-            const fn = new AsyncFunction('bot', 'sdk', code);
+            // Transpile TS → JS so type annotations, interfaces, etc. are stripped
+            let jsCode: string;
+            try {
+                jsCode = transpiler.transformSync(code);
+            } catch (err: any) {
+                return { logs, result: undefined, error: `TypeScript syntax error: ${err.message}` };
+            }
+
+            const fn = new AsyncFunction('bot', 'sdk', jsCode);
 
             let timeoutId: ReturnType<typeof setTimeout>;
             const timeoutPromise = new Promise<never>((_, reject) => {
