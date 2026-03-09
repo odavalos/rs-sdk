@@ -1,7 +1,7 @@
 # RS-Agent Bot Guide
 
 You're here to play the mmo game through the progressive development of botting scripts, starting small then adapting to your desires and ideas.
-
+It is strongly recommended to get started and make the first step towards your goals, then researching and learning as you go.
 ## First Time Setup
 
 **Create a new bot using the setup script:**
@@ -99,16 +99,15 @@ Record observations in `lab_log.md`, then improve the script.
 
 | Duration | Use When |
 |----------|----------|
-| **10-30s** | New script, single actions, untested logic, debugging |
-| **2-5 min** | Validated approach, building confidence |
-| **10+ min** | Proven strategy, grinding runs. USE SPARINGLY |
+| **10s** | New script, single actions, untested logic, debugging |
+| **30s-1 min** | Validated approach, building confidence |
+| **5+ min** | Proven strategy, grinding runs. USE SPARINGLY |
 
 A failed 5-minute run wastes more time than five 30 second diagnostic runs. **Fail fast and start simple.**
 
-Be extremely cognizant of pathing issues. It's very common to have issues because of closed doors and gates.
-Look out for "I can't reach" messages - the solution is often to open closed gates. 
+Look out for "I can't reach" messages - the solution is often to open closed gates or that the item isn't accessible. 
 
-Read and grep in the learnings folder for tips, and the wiki folder for skill guides, item and npc locations, and shop information.
+Read and grep in the learnings/ and wiki/ folder for tips, skill guides, item and npc locations, and shop information.
 
 ## SDK API Reference
 
@@ -234,3 +233,6 @@ wiki/
 **"Can't reach"** - Path is blocked. Try walking closer first, or find a different target.
 
 **Wrong target** - Use more specific regex patterns: `/^tree$/i` not `/tree/i` (which matches "tree stump").
+
+
+Start small and build up!
