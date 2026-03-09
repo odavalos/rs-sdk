@@ -83,11 +83,11 @@ function logStats(ctx: ScriptContext, tracker: GPTracker, label: string): void {
     const cyclesStr = tracker.gpPerCycle.length > 0
         ? ` | Cycles: [${tracker.gpPerCycle.join(', ')}]`
         : '';
-    ctx.log(`[${label}] GP: ${gpEarned} | Fletch: ${level} | Logs: ${tracker.logsChopped} | Fletched: ${tracker.productsFletched} | Sold: ${tracker.itemsSold}${cyclesStr}`);
+    console.log(`[${label}] GP: ${gpEarned} | Fletch: ${level} | Logs: ${tracker.logsChopped} | Fletched: ${tracker.productsFletched} | Sold: ${tracker.itemsSold}${cyclesStr}`);
 }
 
 async function fletchingGP(ctx: ScriptContext) {
-    const { bot, sdk, log } = ctx;
+    const { bot, sdk } = ctx;
 
     // Initialize tracking
     const tracker: GPTracker = {
@@ -105,28 +105,28 @@ async function fletchingGP(ctx: ScriptContext) {
     // First: Find and pick up a knife from the ground
     const hasKnife = () => !!sdk.findInventoryItem(/knife/i);
     if (!hasKnife()) {
-        log('Looking for knife on ground...');
+        console.log('Looking for knife on ground...');
 
         // Try to find and pickup knife
         for (let attempt = 0; attempt < 5 && !hasKnife(); attempt++) {
             const knife = sdk.findGroundItem(/knife/i);
             if (knife) {
-                log(`Found knife at (${knife.x}, ${knife.z}), picking up...`);
+                console.log(`Found knife at (${knife.x}, ${knife.z}), picking up...`);
                 const result = await bot.pickupItem(knife);
                 if (result.success) {
-                    log('Got knife!');
+                    console.log('Got knife!');
                     break;
                 } else {
-                    log(`Pickup failed: ${result.message}`);
+                    console.log(`Pickup failed: ${result.message}`);
                 }
             } else {
-                log(`No knife visible (attempt ${attempt + 1})`);
+                console.log(`No knife visible (attempt ${attempt + 1})`);
             }
             await sleep(1000);
         }
 
         if (!hasKnife()) {
-            log('WARNING: No knife found - will try to continue anyway');
+            console.log('WARNING: No knife found - will try to continue anyway');
         }
     }
 
@@ -145,7 +145,7 @@ async function fletchingGP(ctx: ScriptContext) {
         if (currentHp < maxHp - 3) {
             const food = sdk.findInventoryItem(/bread|shrimp|fish/i);
             if (food) {
-                log(`HP low (${currentHp}/${maxHp}), eating ${food.name}...`);
+                console.log(`HP low (${currentHp}/${maxHp}), eating ${food.name}...`);
                 await bot.eatFood(food);
             }
         }
@@ -159,17 +159,17 @@ async function fletchingGP(ctx: ScriptContext) {
             }
             // Try closing shop up to 5 times, then walk away to force close
             for (let attempt = 0; attempt < 5; attempt++) {
-                log(`Closing shop (attempt ${attempt + 1})...`);
+                console.log(`Closing shop (attempt ${attempt + 1})...`);
                 await sdk.sendCloseShop();
                 await sleep(600);
                 if (!ctx.sdk.getState()?.shop.isOpen) {
-                    log('Shop closed successfully');
+                    console.log('Shop closed successfully');
                     break;
                 }
             }
             // If STILL open after 5 attempts, walk away to force close
             if (ctx.sdk.getState()?.shop.isOpen) {
-                log('Shop stuck, walking away to force close...');
+                console.log('Shop stuck, walking away to force close...');
                 await bot.walkTo(NORMAL_TREES_AREA.x, NORMAL_TREES_AREA.z);
             }
             continue;
@@ -189,7 +189,7 @@ async function fletchingGP(ctx: ScriptContext) {
 
         // Log state every time we have logs (for debugging)
         if (logs.total >= MIN_LOGS_TO_FLETCH) {
-            log(`Decision: ${logs.oak} oak + ${logs.normal} normal logs, ${sellableCount} sellable, ${freeSlots} free slots`);
+            console.log(`Decision: ${logs.oak} oak + ${logs.normal} normal logs, ${sellableCount} sellable, ${freeSlots} free slots`);
         }
 
         // Decision tree:
@@ -199,7 +199,7 @@ async function fletchingGP(ctx: ScriptContext) {
 
         if (sellableCount > 0 && (freeSlots < 8 || sellableCount >= 6)) {
             // === SELLING PHASE ===
-            log(`Selling ${sellableCount} items...`);
+            console.log(`Selling ${sellableCount} items...`);
 
             // Walk to general store
             await bot.walkTo(GENERAL_STORE.x, GENERAL_STORE.z);
@@ -207,7 +207,7 @@ async function fletchingGP(ctx: ScriptContext) {
             // Open shop
             const shopResult = await bot.openShop(/shop.*keeper|general/i);
             if (!shopResult.success) {
-                log(`Failed to open shop: ${shopResult.message}`);
+                console.log(`Failed to open shop: ${shopResult.message}`);
                 await sleep(1000);
                 continue;
             }
@@ -237,9 +237,9 @@ async function fletchingGP(ctx: ScriptContext) {
                         const sold = sellResult.amountSold ?? 1;
                         totalItemsSold += sold;
                         tracker.itemsSold += sold;
-                        log(`Sold ${item.name} (+${gpGained} GP)`);
+                        console.log(`Sold ${item.name} (+${gpGained} GP)`);
                     } else if (sellResult.rejected) {
-                        log(`Shop won't buy ${item.name}`);
+                        console.log(`Shop won't buy ${item.name}`);
                         break;
                     } else {
                         // No GP gain and not successful, move to next pattern
@@ -253,13 +253,13 @@ async function fletchingGP(ctx: ScriptContext) {
             const cycleGP = gpAfter - gpBefore;
             tracker.sellCycles++;
             tracker.gpPerCycle.push(cycleGP);
-            log(`Sell cycle #${tracker.sellCycles} complete: +${cycleGP} GP, ${totalItemsSold} items`);
+            console.log(`Sell cycle #${tracker.sellCycles} complete: +${cycleGP} GP, ${totalItemsSold} items`);
 
             // Log saturation warning if GP per cycle is dropping significantly
             if (tracker.gpPerCycle.length >= 2) {
                 const lastCycleGP = tracker.gpPerCycle[tracker.gpPerCycle.length - 2];
                 if (lastCycleGP !== undefined && cycleGP < lastCycleGP * 0.6) {
-                    log(`WARNING: Shop saturation detected: GP dropped from ${lastCycleGP} to ${cycleGP}`);
+                    console.log(`WARNING: Shop saturation detected: GP dropped from ${lastCycleGP} to ${cycleGP}`);
                 }
             }
 
@@ -267,7 +267,7 @@ async function fletchingGP(ctx: ScriptContext) {
             for (let i = 0; i < 5; i++) {
                 const currentState = ctx.sdk.getState();
                 if (currentState?.dialog.isOpen) {
-                    log('Dismissing dialog before closing shop...');
+                    console.log('Dismissing dialog before closing shop...');
                     await sdk.sendClickDialog(0);
                     await sleep(300);
                 } else {
@@ -281,7 +281,7 @@ async function fletchingGP(ctx: ScriptContext) {
 
             // If shop still open, force close
             if (ctx.sdk.getState()?.shop.isOpen) {
-                log('Shop still open after closeShop, forcing close...');
+                console.log('Shop still open after closeShop, forcing close...');
                 await sdk.sendCloseShop();
                 await sleep(500);
             }
@@ -289,7 +289,7 @@ async function fletchingGP(ctx: ScriptContext) {
             // Update GP tracking
             tracker.currentGP = getGP(ctx);
             const gpEarned = tracker.currentGP - tracker.startingGP;
-            log(`Total GP earned so far: ${gpEarned}`);
+            console.log(`Total GP earned so far: ${gpEarned}`);
             logStats(ctx, tracker, 'AFTER SELL');
 
         } else if (logs.total >= MIN_LOGS_TO_FLETCH && (logs.total >= LOGS_BEFORE_FLETCH || freeSlots <= 3)) {
@@ -310,13 +310,13 @@ async function fletchingGP(ctx: ScriptContext) {
 
             // Skip if we only have oak logs but can't fletch them
             if (logs.normal === 0 && !useOakLogs) {
-                log(`Can't fletch oak logs at level ${fletchLevel}, need 20+`);
+                console.log(`Can't fletch oak logs at level ${fletchLevel}, need 20+`);
                 await sleep(500);
                 continue;
             }
 
             const product = getBestProduct(fletchLevel, logType)!;
-            log(`Fletching ${logType} logs into ${product} (level ${fletchLevel})...`);
+            console.log(`Fletching ${logType} logs into ${product} (level ${fletchLevel})...`);
 
             // Fletch all logs with timeout protection
             let fletchedThisBatch = 0;
@@ -350,13 +350,13 @@ async function fletchingGP(ctx: ScriptContext) {
                     // Check if we leveled up
                     const newLevel = getFletchingLevel(ctx);
                     if (newLevel !== fletchLevel) {
-                        log(`Fletching level up! Now level ${newLevel}`);
+                        console.log(`Fletching level up! Now level ${newLevel}`);
                     }
                 } else {
                     consecutiveFailures++;
-                    log(`Fletch failed (${consecutiveFailures}/3): ${fletchResult.message}`);
+                    console.log(`Fletch failed (${consecutiveFailures}/3): ${fletchResult.message}`);
                     if (consecutiveFailures >= 3) {
-                        log(`Too many fletch failures, moving on...`);
+                        console.log(`Too many fletch failures, moving on...`);
                         break;
                     }
                     // Wait a bit before retry
@@ -366,7 +366,7 @@ async function fletchingGP(ctx: ScriptContext) {
             }
 
             if (fletchedThisBatch > 0) {
-                log(`Fletched ${fletchedThisBatch} items`);
+                console.log(`Fletched ${fletchedThisBatch} items`);
             }
 
         } else {
@@ -379,7 +379,7 @@ async function fletchingGP(ctx: ScriptContext) {
 
             if (!tree) {
                 const targetArea = useOaks ? OAK_TREES_AREA : NORMAL_TREES_AREA;
-                log(`No trees nearby, walking to ${useOaks ? 'oak' : 'normal'} trees...`);
+                console.log(`No trees nearby, walking to ${useOaks ? 'oak' : 'normal'} trees...`);
                 await bot.walkTo(targetArea.x, targetArea.z);
                 await sleep(500);
                 continue;
@@ -420,21 +420,20 @@ async function main() {
 
     try {
         await runScript(async (ctx) => {
-            const { log } = ctx;
 
-            log('=== Fletching GP Maximizer ===');
-            log('Goal: Maximize GP from fletching and selling longbows in 10 minutes');
+            console.log('=== Fletching GP Maximizer ===');
+            console.log('Goal: Maximize GP from fletching and selling longbows in 10 minutes');
 
             // Wait for state to initialize
             await new Promise(r => setTimeout(r, 2000));
 
             const state = ctx.sdk.getState();
             if (!state?.player) {
-                ctx.error('No player state');
+                console.error('No player state');
                 return;
             }
 
-            log(`Starting at (${state.player.worldX}, ${state.player.worldZ})`);
+            console.log(`Starting at (${state.player.worldX}, ${state.player.worldZ})`);
 
             // Dismiss any startup dialogs
             await ctx.bot.dismissBlockingUI();
@@ -442,7 +441,7 @@ async function main() {
             // Run the fletching loop
             await fletchingGP(ctx);
 
-            log('=== Script Complete ===');
+            console.log('=== Script Complete ===');
         }, {
             connection: { bot: session.bot, sdk: session.sdk },
             timeout: 10 * 60 * 1000,  // 10 minutes

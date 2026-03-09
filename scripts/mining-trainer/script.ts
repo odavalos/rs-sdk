@@ -46,7 +46,7 @@ function getMiningStats(ctx: ScriptContext): { level: number; xp: number } {
 function logProgress(ctx: ScriptContext, label: string): void {
     const stats = getMiningStats(ctx);
     const invCount = ctx.sdk.getState()?.inventory.length ?? 0;
-    ctx.log(`[${label}] Mining Lv${stats.level} (${stats.xp} XP) | Inv: ${invCount}/28`);
+    console.log(`[${label}] Mining Lv${stats.level} (${stats.xp} XP) | Inv: ${invCount}/28`);
 }
 
 // Rock info with ore type from prospecting
@@ -90,7 +90,7 @@ function findRocks(ctx: ScriptContext): RockInfo[] {
 
 // Prospect a rock to find ore type
 async function prospectRock(ctx: ScriptContext, rock: RockInfo): Promise<string | null> {
-    const { sdk, log } = ctx;
+    const { sdk } = ctx;
     const startTick = ctx.sdk.getState()?.tick ?? 0;
 
     await sdk.sendInteractLoc(rock.x, rock.z, rock.id, rock.prospectOpIndex);
@@ -185,7 +185,7 @@ async function walkSmallSteps(
     targetZ: number,
     stepSize: number = 12
 ): Promise<{ x: number; z: number }> {
-    const { sdk, log } = ctx;
+    const { sdk } = ctx;
 
     const MAX_STEPS = 20;
     for (let step = 0; step < MAX_STEPS; step++) {
@@ -242,14 +242,14 @@ async function walkWithWaypoints(
     waypoints: Array<{ x: number; z: number }>,
     label: string
 ): Promise<{ foundRocks: boolean }> {
-    const { bot, sdk, log } = ctx;
+    const { bot, sdk } = ctx;
 
     for (let i = 0; i < waypoints.length; i++) {
         const wp = waypoints[i];
         if (!wp) continue;
         const state = ctx.sdk.getState();
         const playerPos = state?.player ? `(${state.player.worldX}, ${state.player.worldZ})` : '?';
-        log(`Walking to waypoint ${i + 1}/${waypoints.length}: (${wp.x}, ${wp.z}) from ${playerPos}`);
+        console.log(`Walking to waypoint ${i + 1}/${waypoints.length}: (${wp.x}, ${wp.z}) from ${playerPos}`);
 
         // Don't stop early for rocks - we need to reach the copper/tin area
         // (The mine has gold/coal near the entrance, copper/tin further in)
@@ -264,7 +264,7 @@ async function walkWithWaypoints(
 
         // If walkTo failed and we're still far, try small steps
         if (!result.success && dist > 5) {
-            log(`Server pathfinder failed, trying small steps...`);
+            console.log(`Server pathfinder failed, trying small steps...`);
             const pos = await walkSmallSteps(ctx, wp.x, wp.z);
             currentX = pos.x;
             currentZ = pos.z;
@@ -273,7 +273,7 @@ async function walkWithWaypoints(
             // Continue walking to target - don't stop for rocks
         }
 
-        log(`Waypoint ${i + 1}: now at (${currentX}, ${currentZ}), ${dist.toFixed(0)} tiles from target`);
+        console.log(`Waypoint ${i + 1}: now at (${currentX}, ${currentZ}), ${dist.toFixed(0)} tiles from target`);
 
         // Brief pause between waypoints
         await new Promise(r => setTimeout(r, 300));
@@ -281,7 +281,7 @@ async function walkWithWaypoints(
 
     const finalState = ctx.sdk.getState();
     const finalPos = finalState?.player ? `(${finalState.player.worldX}, ${finalState.player.worldZ})` : '?';
-    log(`${label} - final position: ${finalPos}`);
+    console.log(`${label} - final position: ${finalPos}`);
     return { foundRocks: false };
 }
 
@@ -295,7 +295,7 @@ async function main() {
 
     try {
         await runScript(async (ctx) => {
-            const { bot, sdk, log } = ctx;
+            const { bot, sdk } = ctx;
 
             // Log initial state
             logProgress(ctx, 'START');
@@ -308,22 +308,22 @@ async function main() {
                 // Check if already equipped
                 pickaxe = sdk.findEquipmentItem(/pickaxe/i);
                 if (!pickaxe) {
-                    log('ERROR: No pickaxe in inventory or equipped!');
+                    console.log('ERROR: No pickaxe in inventory or equipped!');
                     return;
                 }
-                log(`Found ${pickaxe.name} already equipped`);
+                console.log(`Found ${pickaxe.name} already equipped`);
             } else {
-                log(`Found ${pickaxe.name} in inventory - equipping it...`);
+                console.log(`Found ${pickaxe.name} in inventory - equipping it...`);
                 const equipResult = await bot.equipItem(pickaxe);
                 if (equipResult.success) {
-                    log('Pickaxe equipped!');
+                    console.log('Pickaxe equipped!');
                 } else {
-                    log(`Failed to equip pickaxe: ${equipResult.message} - will try mining anyway`);
+                    console.log(`Failed to equip pickaxe: ${equipResult.message} - will try mining anyway`);
                 }
             }
 
             // Walk to SE Varrock mine (safer than Al Kharid - no scorpions)
-            log('Walking to SE Varrock mine...');
+            console.log('Walking to SE Varrock mine...');
             await walkWithWaypoints(ctx, WAYPOINTS_TO_MINE, 'ARRIVED AT MINE');
 
             // Check current position and look for rocks
@@ -338,7 +338,7 @@ async function main() {
             // Look for rocks in the area - if none found, try walking around
             let rocks = findRocks(ctx);
             if (rocks.length === 0) {
-                log(`No rocks at (${currentPos.x}, ${currentPos.z}), searching nearby...`);
+                console.log(`No rocks at (${currentPos.x}, ${currentPos.z}), searching nearby...`);
                 // Try walking to nearby locations to find rocks
                 const searchOffsets = [
                     { x: -10, z: 0 }, { x: 10, z: 0 },
@@ -348,7 +348,7 @@ async function main() {
                 for (const offset of searchOffsets) {
                     const searchX = currentPos.x + offset.x;
                     const searchZ = currentPos.z + offset.z;
-                    log(`Searching at (${searchX}, ${searchZ})...`);
+                    console.log(`Searching at (${searchX}, ${searchZ})...`);
                     await walkSmallSteps(ctx, searchX, searchZ, 8);
 
                     rocks = findRocks(ctx);
@@ -358,7 +358,7 @@ async function main() {
                             actualMineLocation.x = newPos.worldX;
                             actualMineLocation.z = newPos.worldZ;
                         }
-                        log(`Found ${rocks.length} rocks at (${actualMineLocation.x}, ${actualMineLocation.z})!`);
+                        console.log(`Found ${rocks.length} rocks at (${actualMineLocation.x}, ${actualMineLocation.z})!`);
                         break;
                     }
                 }
@@ -402,9 +402,9 @@ async function main() {
 
                 // Check if inventory is full - drop ore
                 if (isInventoryFull(ctx)) {
-                    log('Inventory full, dropping ore...');
+                    console.log('Inventory full, dropping ore...');
                     const dropped = await dropOre(ctx);
-                    log(`Dropped ${dropped} ores`);
+                    console.log(`Dropped ${dropped} ores`);
                     continue;
                 }
 
@@ -418,10 +418,10 @@ async function main() {
                         Math.pow(player.worldZ - actualMineLocation.z, 2)
                     );
                     if (distFromMine > 5) {
-                        log(`No rocks nearby, returning to mine center (${distFromMine.toFixed(0)} tiles away)...`);
+                        console.log(`No rocks nearby, returning to mine center (${distFromMine.toFixed(0)} tiles away)...`);
                         await walkSmallSteps(ctx, actualMineLocation.x, actualMineLocation.z, 8);
                     } else {
-                        log('No rocks nearby, waiting for respawn...');
+                        console.log('No rocks nearby, waiting for respawn...');
                         await new Promise(r => setTimeout(r, 1500));
                     }
                     continue;
@@ -450,10 +450,10 @@ async function main() {
                     }
 
                     // Unknown rock - prospect it
-                    log(`Prospecting rock id=${rock.id} dist=${rock.distance}...`);
+                    console.log(`Prospecting rock id=${rock.id} dist=${rock.distance}...`);
                     const oreType = await prospectRock(ctx, rock);
                     if (oreType) {
-                        log(`Rock ${rock.id} = ${oreType}`);
+                        console.log(`Rock ${rock.id} = ${oreType}`);
                         oreTypeCache.set(rock.id, oreType);
 
                         if (oreType !== 'empty' && canMineOre(oreType, currentStats.level)) {
@@ -466,11 +466,11 @@ async function main() {
 
                 if (!targetRock) {
                     consecutiveFailures++;
-                    log(`No mineable rocks found (failure ${consecutiveFailures}/${MAX_FAILURES})`);
+                    console.log(`No mineable rocks found (failure ${consecutiveFailures}/${MAX_FAILURES})`);
 
                     if (consecutiveFailures >= MAX_FAILURES) {
-                        log('ERROR: No mineable rocks at this location! Need copper/tin at level 1.');
-                        log('Cached ore types: ' + Array.from(oreTypeCache.entries()).map(([id, ore]) => `${id}=${ore}`).join(', '));
+                        console.log('ERROR: No mineable rocks at this location! Need copper/tin at level 1.');
+                        console.log('Cached ore types: ' + Array.from(oreTypeCache.entries()).map(([id, ore]) => `${id}=${ore}`).join(', '));
                         return;  // Exit script - wrong mine location
                     }
 
@@ -479,7 +479,7 @@ async function main() {
                 }
 
                 // Mine the rock
-                log(`Mining ${targetRock.oreType} rock id=${targetRock.id} dist=${targetRock.distance}`);
+                console.log(`Mining ${targetRock.oreType} rock id=${targetRock.id} dist=${targetRock.distance}`);
                 const startXp = currentStats.xp;
                 const startTick = ctx.sdk.getState()?.tick ?? 0;
 
@@ -488,7 +488,7 @@ async function main() {
                 );
 
                 if (!mineResult.success) {
-                    log(`Mine action failed: ${mineResult.message}`);
+                    console.log(`Mine action failed: ${mineResult.message}`);
                     consecutiveFailures++;
                     await new Promise(r => setTimeout(r, 500));
                     continue;
@@ -518,7 +518,7 @@ async function main() {
                     consecutiveFailures = 0;
                 } catch {
                     consecutiveFailures++;
-                    log(`Mining timeout (failure ${consecutiveFailures}/${MAX_FAILURES})`);
+                    console.log(`Mining timeout (failure ${consecutiveFailures}/${MAX_FAILURES})`);
                 }
 
                 await new Promise(r => setTimeout(r, 200));

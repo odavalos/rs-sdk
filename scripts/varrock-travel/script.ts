@@ -66,21 +66,21 @@ async function walkToWaypoint(
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
         const dist = distanceTo(ctx, x, z);
         if (dist <= tolerance) {
-            ctx.log(`Already at ${name}`);
+            console.log(`Already at ${name}`);
             return true;
         }
 
-        ctx.log(`Walking to ${name} (${x}, ${z}) - attempt ${attempt}/${MAX_ATTEMPTS}`);
+        console.log(`Walking to ${name} (${x}, ${z}) - attempt ${attempt}/${MAX_ATTEMPTS}`);
         const result = await ctx.bot.walkTo(x, z, tolerance);
 
         const newDist = distanceTo(ctx, x, z);
         if (newDist <= tolerance) {
-            ctx.log(`Reached ${name}`);
+            console.log(`Reached ${name}`);
             return true;
         }
 
         if (!result.success) {
-            ctx.warn(`Walk attempt ${attempt} failed: ${result.message}`);
+            console.warn(`Walk attempt ${attempt} failed: ${result.message}`);
         }
 
         // Small delay before retry
@@ -88,7 +88,7 @@ async function walkToWaypoint(
     }
 
     const finalDist = distanceTo(ctx, x, z);
-    ctx.warn(`Could not reach ${name} - distance: ${finalDist.toFixed(0)} tiles`);
+    console.warn(`Could not reach ${name} - distance: ${finalDist.toFixed(0)} tiles`);
     return finalDist <= tolerance * 2; // Allow some leeway to continue
 }
 
@@ -103,12 +103,12 @@ async function travelToVarrock(ctx: ScriptContext): Promise<void> {
     const startZ = state.player.worldZ;
     const startTime = Date.now();
 
-    ctx.log(`Start: (${startX}, ${startZ})`);
-    ctx.log(`Destination: Varrock (${VARROCK.x}, ${VARROCK.z})`);
-    ctx.log(`Total waypoints: ${WAYPOINTS.length}`);
+    console.log(`Start: (${startX}, ${startZ})`);
+    console.log(`Destination: Varrock (${VARROCK.x}, ${VARROCK.z})`);
+    console.log(`Total waypoints: ${WAYPOINTS.length}`);
 
     if (isInVarrock(ctx)) {
-        ctx.log('Already in Varrock!');
+        console.log('Already in Varrock!');
         return;
     }
 
@@ -119,7 +119,7 @@ async function travelToVarrock(ctx: ScriptContext): Promise<void> {
 
         // Skip waypoints we're already past
         if (distanceTo(ctx, wp.x, wp.z) <= WAYPOINT_TOLERANCE) {
-            ctx.log(`Skipping ${wp.name} - already there`);
+            console.log(`Skipping ${wp.name} - already there`);
             continue;
         }
 
@@ -131,12 +131,12 @@ async function travelToVarrock(ctx: ScriptContext): Promise<void> {
         if (!success && !isInVarrock(ctx)) {
             // Log position and continue trying
             const pos = ctx.sdk.getState()?.player;
-            ctx.warn(`Stuck at (${pos?.worldX}, ${pos?.worldZ}) - trying next waypoint`);
+            console.warn(`Stuck at (${pos?.worldX}, ${pos?.worldZ}) - trying next waypoint`);
         }
 
         // Check if we've reached Varrock early
         if (isInVarrock(ctx)) {
-            ctx.log('Reached Varrock area!');
+            console.log('Reached Varrock area!');
             break;
         }
     }
@@ -147,15 +147,15 @@ async function travelToVarrock(ctx: ScriptContext): Promise<void> {
     const endZ = endState?.player?.worldZ ?? 0;
     const finalDist = distanceTo(ctx, VARROCK.x, VARROCK.z);
 
-    ctx.log(`End position: (${endX}, ${endZ})`);
-    ctx.log(`Distance to target: ${finalDist.toFixed(0)} tiles`);
-    ctx.log(`Time: ${elapsed.toFixed(1)}s`);
+    console.log(`End position: (${endX}, ${endZ})`);
+    console.log(`Distance to target: ${finalDist.toFixed(0)} tiles`);
+    console.log(`Time: ${elapsed.toFixed(1)}s`);
 
     if (!isInVarrock(ctx) && finalDist > FINAL_TOLERANCE * 2) {
         throw new Error(`Failed to reach Varrock - stuck at (${endX}, ${endZ})`);
     }
 
-    ctx.log('Successfully reached Varrock!');
+    console.log('Successfully reached Varrock!');
 }
 
 // Run the script

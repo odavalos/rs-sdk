@@ -96,19 +96,19 @@ async function walkToWithDoors(ctx: ScriptContext, destX: number, destZ: number,
 
         if (doors.length > 0) {
             const door = doors[0]!;
-            ctx.log(`Opening ${door.name} at (${door.x}, ${door.z})...`);
+            console.log(`Opening ${door.name} at (${door.x}, ${door.z})...`);
             const openResult = await ctx.bot.openDoor(door);
             if (openResult.success) {
-                ctx.log(`Opened ${door.name}`);
+                console.log(`Opened ${door.name}`);
                 continue; // Try walking again
             } else {
-                ctx.warn(`Failed to open ${door.name}: ${openResult.message}`);
+                console.warn(`Failed to open ${door.name}: ${openResult.message}`);
             }
         }
 
         // If no doors found and walk failed, we might be stuck
         if (!walkResult.success) {
-            ctx.warn(`Walk failed: ${walkResult.message}`);
+            console.warn(`Walk failed: ${walkResult.message}`);
             return false;
         }
     }
@@ -130,11 +130,11 @@ function isInAlKharid(ctx: ScriptContext): boolean {
 async function sellShortbow(ctx: ScriptContext): Promise<boolean> {
     const shortbow = ctx.sdk.findInventoryItem(/^shortbow$/i);
     if (!shortbow) {
-        ctx.log('No shortbow to sell');
+        console.log('No shortbow to sell');
         return false;
     }
 
-    ctx.log('Selling shortbow for toll money (20gp)...');
+    console.log('Selling shortbow for toll money (20gp)...');
 
     // Walk to general store
     await walkToWithDoors(ctx, LOCATIONS.lumbridgeGeneralStore.x, LOCATIONS.lumbridgeGeneralStore.z);
@@ -142,20 +142,20 @@ async function sellShortbow(ctx: ScriptContext): Promise<boolean> {
     // Open shop
     const shopResult = await ctx.bot.openShop(/shop keeper|shop assistant/i);
     if (!shopResult.success) {
-        ctx.warn(`Failed to open shop: ${shopResult.message}`);
+        console.warn(`Failed to open shop: ${shopResult.message}`);
         return false;
     }
 
     // Sell the shortbow
     const sellResult = await ctx.bot.sellToShop(/shortbow/i);
     if (!sellResult.success) {
-        ctx.warn(`Failed to sell shortbow: ${sellResult.message}`);
+        console.warn(`Failed to sell shortbow: ${sellResult.message}`);
     }
 
     // Close shop
     await ctx.bot.closeShop();
 
-    ctx.log('Sold shortbow for 20gp');
+    console.log('Sold shortbow for 20gp');
     return true;
 }
 
@@ -165,28 +165,28 @@ async function sellShortbow(ctx: ScriptContext): Promise<boolean> {
 async function payTollAndEnterAlKharid(ctx: ScriptContext): Promise<boolean> {
     const coins = countCoins(ctx);
     if (coins < 10) {
-        ctx.warn(`Not enough coins for toll (have ${coins}, need 10)`);
+        console.warn(`Not enough coins for toll (have ${coins}, need 10)`);
         return false;
     }
 
-    ctx.log('Walking to Al-Kharid toll gate...');
+    console.log('Walking to Al-Kharid toll gate...');
     await walkToWithDoors(ctx, LOCATIONS.alKharidTollGate.x, LOCATIONS.alKharidTollGate.z);
 
     // Find and click the gate
     const state = ctx.sdk.getState();
     const gate = state?.nearbyLocs.find(l => /gate/i.test(l.name));
     if (!gate) {
-        ctx.warn('Cannot find toll gate');
+        console.warn('Cannot find toll gate');
         return false;
     }
 
     const openOpt = gate.optionsWithIndex.find(o => /open|pay/i.test(o.text));
     if (!openOpt) {
-        ctx.warn('Cannot find open option on gate');
+        console.warn('Cannot find open option on gate');
         return false;
     }
 
-    ctx.log('Opening toll gate...');
+    console.log('Opening toll gate...');
     await ctx.sdk.sendInteractLoc(gate.x, gate.z, gate.id, openOpt.opIndex);
     await new Promise(r => setTimeout(r, 800));
 
@@ -199,7 +199,7 @@ async function payTollAndEnterAlKharid(ctx: ScriptContext): Promise<boolean> {
         }
         const yesOpt = s.dialog.options.find(o => /yes/i.test(o.text));
         if (yesOpt) {
-            ctx.log('Paying 10gp toll...');
+            console.log('Paying 10gp toll...');
             await ctx.sdk.sendClickDialog(yesOpt.index);
             break;
         }
@@ -220,11 +220,11 @@ async function payTollAndEnterAlKharid(ctx: ScriptContext): Promise<boolean> {
     for (let i = 0; i < 5; i++) {
         // Check if already in
         if (isInAlKharid(ctx)) {
-            ctx.log('Entered Al-Kharid!');
+            console.log('Entered Al-Kharid!');
             return true;
         }
 
-        ctx.log(`Walking through toll gate (attempt ${i + 1})...`);
+        console.log(`Walking through toll gate (attempt ${i + 1})...`);
         await ctx.bot.walkTo(LOCATIONS.alKharidInside.x, LOCATIONS.alKharidInside.z);
         await new Promise(r => setTimeout(r, 800));
     }
@@ -237,7 +237,7 @@ async function payTollAndEnterAlKharid(ctx: ScriptContext): Promise<boolean> {
  * From script_best_practices.md - Karim uses dialog system
  */
 async function buyKebabs(ctx: ScriptContext, quantity: number = 5): Promise<boolean> {
-    ctx.log(`Buying ${quantity} kebabs via dialog...`);
+    console.log(`Buying ${quantity} kebabs via dialog...`);
 
     // Walk to kebab seller (3273, 3180)
     await walkToWithDoors(ctx, 3273, 3180);
@@ -248,21 +248,21 @@ async function buyKebabs(ctx: ScriptContext, quantity: number = 5): Promise<bool
         // Check if we have enough coins (1gp per kebab)
         const coins = countCoins(ctx);
         if (coins < 1) {
-            ctx.warn('Not enough coins to buy kebab');
+            console.warn('Not enough coins to buy kebab');
             break;
         }
 
         // Find kebab seller (Karim)
         const seller = ctx.sdk.findNearbyNpc(/kebab/i);
         if (!seller) {
-            ctx.warn('Cannot find kebab seller');
+            console.warn('Cannot find kebab seller');
             return false;
         }
 
         // Talk to kebab seller
         const talkOpt = seller.optionsWithIndex.find(o => /talk/i.test(o.text));
         if (!talkOpt) {
-            ctx.warn('Cannot find talk option on kebab seller');
+            console.warn('Cannot find talk option on kebab seller');
             return false;
         }
 
@@ -307,7 +307,7 @@ async function buyKebabs(ctx: ScriptContext, quantity: number = 5): Promise<bool
 
     const kebabsAfter = ctx.sdk.findInventoryItem(/^kebab$/i)?.count ?? 0;
     const bought = kebabsAfter - kebabsBefore;
-    ctx.log(`Bought ${bought} kebabs (now have ${kebabsAfter})`);
+    console.log(`Bought ${bought} kebabs (now have ${kebabsAfter})`);
     return bought > 0;
 }
 
@@ -399,14 +399,14 @@ async function attemptPickpocket(
     // Find the Pickpocket option
     const pickpocketOpt = target.optionsWithIndex.find(o => /pickpocket/i.test(o.text));
     if (!pickpocketOpt) {
-        ctx.warn(`No pickpocket option on ${target.name}`);
+        console.warn(`No pickpocket option on ${target.name}`);
         return 'error';
     }
 
     // Send the pickpocket action
     const result = await ctx.sdk.sendInteractNpc(target.index, pickpocketOpt.opIndex);
     if (!result.success) {
-        ctx.warn(`Pickpocket action failed: ${result.message}`);
+        console.warn(`Pickpocket action failed: ${result.message}`);
         return 'error';
     }
 
@@ -450,7 +450,7 @@ async function attemptPickpocket(
             const gained = coinsAfter - coinsBefore;
             stats.successfulPickpockets++;
             stats.coinsEarned += gained;
-            ctx.log(`Pickpocketed ${target.name}! +${gained} coins (total: ${stats.coinsEarned})`);
+            console.log(`Pickpocketed ${target.name}! +${gained} coins (total: ${stats.coinsEarned})`);
             return 'success';
         }
 
@@ -460,7 +460,7 @@ async function attemptPickpocket(
                 const text = msg.text.toLowerCase();
                 if (text.includes("you fail") || text.includes("stunned") || text.includes("caught")) {
                     stats.failedPickpockets++;
-                    ctx.log(`Failed pickpocket - stunned for ${STUN_MS}ms`);
+                    console.log(`Failed pickpocket - stunned for ${STUN_MS}ms`);
                     // Wait out the stun duration
                     await new Promise(r => setTimeout(r, STUN_MS));
                     stats.stunTimeMs += STUN_MS;
@@ -503,21 +503,21 @@ async function thievingLoop(ctx: ScriptContext): Promise<void> {
         tollAttempted: false,
     };
 
-    ctx.log('=== Thieving GP Maximizer v11 Started ===');
-    ctx.log(`Starting coins: ${stats.startCoins}`);
-    ctx.log(`Starting thieving XP: ${stats.startThievingXp}`);
+    console.log('=== Thieving GP Maximizer v11 Started ===');
+    console.log(`Starting coins: ${stats.startCoins}`);
+    console.log(`Starting thieving XP: ${stats.startThievingXp}`);
 
     // Main loop
     while (true) {
         const currentState = ctx.sdk.getState();
         if (!currentState) {
-            ctx.warn('Lost game state');
+            console.warn('Lost game state');
             break;
         }
 
         // Dismiss any dialogs first
         if (currentState.dialog.isOpen) {
-            ctx.log('Dismissing dialog...');
+            console.log('Dismissing dialog...');
             await ctx.sdk.sendClickDialog(0);
             await new Promise(r => setTimeout(r, 600));
             continue;
@@ -527,7 +527,7 @@ async function thievingLoop(ctx: ScriptContext): Promise<void> {
         if (shouldEat(ctx)) {
             const food = ctx.sdk.findInventoryItem(/^(bread|shrimps?|cooked meat|anchovies|trout|salmon|lobster|swordfish|cake|chocolate cake|kebab)$/i);
             if (food) {
-                ctx.log(`HP low - eating ${food.name}`);
+                console.log(`HP low - eating ${food.name}`);
                 await ctx.bot.eatFood(food);
                 stats.foodEaten++;
                 continue;
@@ -536,7 +536,7 @@ async function thievingLoop(ctx: ScriptContext): Promise<void> {
             if (setup.paidToll && isInAlKharid(ctx)) {
                 const coins = countCoins(ctx);
                 if (coins >= 5) {
-                    ctx.log('Out of food in Al-Kharid - buying more kebabs...');
+                    console.log('Out of food in Al-Kharid - buying more kebabs...');
                     await buyKebabs(ctx, 5);
                         continue;
                 }
@@ -554,10 +554,10 @@ async function thievingLoop(ctx: ScriptContext): Promise<void> {
         // Move to best zone if not there
         if (!isInZone(ctx, bestZone)) {
             const zoneName = bestZone === ZONES.farmers ? 'Farmers' : 'Lumbridge';
-            ctx.log(`Level ${thievingLevel}: Moving to ${zoneName} (${bestZone.coins} GP each)...`);
+            console.log(`Level ${thievingLevel}: Moving to ${zoneName} (${bestZone.coins} GP each)...`);
             const arrived = await walkToWithDoors(ctx, bestZone.x, bestZone.z);
             if (!arrived) {
-                ctx.warn('Failed to reach zone, trying again...');
+                console.warn('Failed to reach zone, trying again...');
             }
             continue;
         }
@@ -568,7 +568,7 @@ async function thievingLoop(ctx: ScriptContext): Promise<void> {
         if (!target) {
             // No targets nearby - walk TO the zone center (not random)
             // This is where the target spawns, so walking there helps
-            ctx.log(`No targets nearby - walking to ${bestZone === ZONES.farmers ? 'Farmer spawn' : 'zone'}...`);
+            console.log(`No targets nearby - walking to ${bestZone === ZONES.farmers ? 'Farmer spawn' : 'zone'}...`);
             await ctx.bot.walkTo(bestZone.x, bestZone.z);
             continue;
         }
@@ -596,12 +596,12 @@ function logStats(ctx: ScriptContext, stats: ThievingStats): void {
         ? ((stats.successfulPickpockets / stats.pickpocketAttempts) * 100).toFixed(1)
         : '0.0';
 
-    ctx.log(`--- Stats after ${stats.pickpocketAttempts} attempts ---`);
-    ctx.log(`Success rate: ${successRate}% (${stats.successfulPickpockets}/${stats.pickpocketAttempts})`);
-    ctx.log(`Coins earned: ${stats.coinsEarned} GP`);
-    ctx.log(`Thieving XP gained: +${xpGained}`);
-    ctx.log(`Food eaten: ${stats.foodEaten}`);
-    ctx.log(`Time stunned: ${(stats.stunTimeMs / 1000).toFixed(1)}s`);
+    console.log(`--- Stats after ${stats.pickpocketAttempts} attempts ---`);
+    console.log(`Success rate: ${successRate}% (${stats.successfulPickpockets}/${stats.pickpocketAttempts})`);
+    console.log(`Coins earned: ${stats.coinsEarned} GP`);
+    console.log(`Thieving XP gained: +${xpGained}`);
+    console.log(`Food eaten: ${stats.foodEaten}`);
+    console.log(`Time stunned: ${(stats.stunTimeMs / 1000).toFixed(1)}s`);
 }
 
 // Main script
@@ -622,9 +622,9 @@ async function main() {
                     const thieving = state.skills.find(s => s.name === 'Thieving');
                     const coins = ctx.sdk.findInventoryItem(/^coins$/i);
 
-                    ctx.log('=== Final Results ===');
-                    ctx.log(`Thieving: Level ${thieving?.baseLevel ?? 1} (${thieving?.experience ?? 0} XP)`);
-                    ctx.log(`Total coins in inventory: ${coins?.count ?? 0}`);
+                    console.log('=== Final Results ===');
+                    console.log(`Thieving: Level ${thieving?.baseLevel ?? 1} (${thieving?.experience ?? 0} XP)`);
+                    console.log(`Total coins in inventory: ${coins?.count ?? 0}`);
                 }
             }
         }, {

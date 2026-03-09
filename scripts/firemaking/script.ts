@@ -116,7 +116,7 @@ async function dismissDialogs(ctx: ScriptContext, stats: Stats, maxCount: number
  * Phase 1: Chop trees until we have some logs
  */
 async function chopTrees(ctx: ScriptContext, stats: Stats, targetLogs: number = 5): Promise<void> {
-    ctx.log(`Chopping trees until we have ${targetLogs} logs...`);
+    console.log(`Chopping trees until we have ${targetLogs} logs...`);
     let attempts = 0;
     let noTreeCount = 0;
 
@@ -132,7 +132,7 @@ async function chopTrees(ctx: ScriptContext, stats: Stats, targetLogs: number = 
         if (!tree) {
             noTreeCount++;
             if (noTreeCount % 20 === 0) {
-                ctx.log('Waiting for tree to respawn...');
+                console.log('Waiting for tree to respawn...');
                 // Walk around a bit to find more trees
                 const pos = getPlayerPos(ctx);
                 if (pos) {
@@ -156,21 +156,21 @@ async function chopTrees(ctx: ScriptContext, stats: Stats, targetLogs: number = 
             const logsAfter = countLogs(ctx);
             if (logsAfter > logsBefore) {
                 stats.logsCut += logsAfter - logsBefore;
-                ctx.log(`Got logs! Total: ${stats.logsCut} (inventory: ${logsAfter})`);
+                console.log(`Got logs! Total: ${stats.logsCut} (inventory: ${logsAfter})`);
             }
         }
 
         await new Promise(r => setTimeout(r, 200));
     }
 
-    ctx.log(`Finished chopping: ${countLogs(ctx)} logs in inventory`);
+    console.log(`Finished chopping: ${countLogs(ctx)} logs in inventory`);
 }
 
 /**
  * Phase 2: Burn all logs
  */
 async function burnLogs(ctx: ScriptContext, stats: Stats): Promise<void> {
-    ctx.log('Burning logs...');
+    console.log('Burning logs...');
 
     while (countLogs(ctx) > 0) {
         // Dismiss any dialogs
@@ -184,13 +184,13 @@ async function burnLogs(ctx: ScriptContext, stats: Stats): Promise<void> {
 
         if (result.success) {
             stats.logsBurned++;
-            ctx.log(`Burned log! FM XP: +${result.xpGained}, Level: ${getFiremakingLevel(ctx)}`);
+            console.log(`Burned log! FM XP: +${result.xpGained}, Level: ${getFiremakingLevel(ctx)}`);
         } else {
-            ctx.warn(`Failed to burn log: ${result.message}`);
+            console.warn(`Failed to burn log: ${result.message}`);
             // If we failed, try moving to a different spot
             const pos = getPlayerPos(ctx);
             if (pos && result.message.includes('location')) {
-                ctx.log('Moving to find a better spot...');
+                console.log('Moving to find a better spot...');
                 const offsetX = (Math.random() - 0.5) * 6;
                 const offsetZ = (Math.random() - 0.5) * 6;
                 await ctx.sdk.sendWalk(pos.x + offsetX, pos.z + offsetZ, true);
@@ -200,7 +200,7 @@ async function burnLogs(ctx: ScriptContext, stats: Stats): Promise<void> {
 
         // Check if we're already at target level
         if (getFiremakingLevel(ctx) >= 10) {
-            ctx.log('Reached level 10!');
+            console.log('Reached level 10!');
             return;
         }
 
@@ -220,26 +220,26 @@ function logFinalStats(ctx: ScriptContext, stats: Stats) {
     const wcXpGained = (woodcutting?.experience ?? 0) - stats.startWoodcuttingXp;
     const duration = (Date.now() - stats.startTime) / 1000;
 
-    ctx.log('');
-    ctx.log('=== Final Results ===');
-    ctx.log(`Duration: ${Math.round(duration)}s`);
-    ctx.log(`--- Woodcutting ---`);
-    ctx.log(`  Level: ${woodcutting?.baseLevel ?? '?'}`);
-    ctx.log(`  XP Gained: ${wcXpGained}`);
-    ctx.log(`  Logs Cut: ${stats.logsCut}`);
-    ctx.log(`--- Firemaking ---`);
-    ctx.log(`  Level: ${firemaking?.baseLevel ?? '?'}`);
-    ctx.log(`  XP Gained: ${fmXpGained}`);
-    ctx.log(`  Logs Burned: ${stats.logsBurned}`);
+    console.log('');
+    console.log('=== Final Results ===');
+    console.log(`Duration: ${Math.round(duration)}s`);
+    console.log(`--- Woodcutting ---`);
+    console.log(`  Level: ${woodcutting?.baseLevel ?? '?'}`);
+    console.log(`  XP Gained: ${wcXpGained}`);
+    console.log(`  Logs Cut: ${stats.logsCut}`);
+    console.log(`--- Firemaking ---`);
+    console.log(`  Level: ${firemaking?.baseLevel ?? '?'}`);
+    console.log(`  XP Gained: ${fmXpGained}`);
+    console.log(`  Logs Burned: ${stats.logsBurned}`);
 }
 
 /**
  * Main loop: chop → burn → repeat until level 10
  */
 async function mainLoop(ctx: ScriptContext, stats: Stats): Promise<void> {
-    ctx.log('=== Firemaking Training Script ===');
-    ctx.log(`Starting levels: Firemaking ${getFiremakingLevel(ctx)}, Woodcutting ${getWoodcuttingLevel(ctx)}`);
-    ctx.log(`Position: (${ctx.sdk.getState()?.player?.worldX}, ${ctx.sdk.getState()?.player?.worldZ})`);
+    console.log('=== Firemaking Training Script ===');
+    console.log(`Starting levels: Firemaking ${getFiremakingLevel(ctx)}, Woodcutting ${getWoodcuttingLevel(ctx)}`);
+    console.log(`Position: (${ctx.sdk.getState()?.player?.worldX}, ${ctx.sdk.getState()?.player?.worldZ})`);
 
     // Verify we have the required items
     if (!hasTinderbox(ctx)) {
@@ -248,7 +248,7 @@ async function mainLoop(ctx: ScriptContext, stats: Stats): Promise<void> {
     if (!hasAxe(ctx)) {
         throw new Error('No axe in inventory or equipped!');
     }
-    ctx.log('Tinderbox and axe confirmed.');
+    console.log('Tinderbox and axe confirmed.');
 
     await ctx.bot.dismissBlockingUI();
     // progress auto-tracked
@@ -256,8 +256,8 @@ async function mainLoop(ctx: ScriptContext, stats: Stats): Promise<void> {
     let cycle = 0;
     while (getFiremakingLevel(ctx) < 10) {
         cycle++;
-        ctx.log(`\n--- Cycle ${cycle} ---`);
-        ctx.log(`Current FM Level: ${getFiremakingLevel(ctx)}`);
+        console.log(`\n--- Cycle ${cycle} ---`);
+        console.log(`Current FM Level: ${getFiremakingLevel(ctx)}`);
 
         // Phase 1: Chop trees to get logs
         await chopTrees(ctx, stats, 5);
@@ -268,7 +268,7 @@ async function mainLoop(ctx: ScriptContext, stats: Stats): Promise<void> {
         // progress auto-tracked
     }
 
-    ctx.log('\n*** GOAL ACHIEVED: Firemaking Level 10+ ***');
+    console.log('\n*** GOAL ACHIEVED: Firemaking Level 10+ ***');
 }
 
 // Main entry point
@@ -295,7 +295,7 @@ async function main() {
                 await mainLoop(ctx, stats);
             } catch (e) {
                 if (e instanceof Error) {
-                    ctx.error(`Script aborted: ${e.message}`);
+                    console.error(`Script aborted: ${e.message}`);
                 } else {
                     throw e;
                 }

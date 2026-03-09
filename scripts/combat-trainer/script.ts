@@ -75,7 +75,7 @@ async function dropBonesIfNeeded(ctx: ScriptContext): Promise<void> {
         const bones = inventory.filter(i => /^bones$/i.test(i.name));
 
         if (bones.length > 0) {
-            ctx.log(`Dropping ${bones.length} bones to make room for hides...`);
+            console.log(`Dropping ${bones.length} bones to make room for hides...`);
             for (const bone of bones.slice(0, 5)) {  // Drop up to 5 bones at a time
                 await ctx.sdk.sendDropItem(bone.slot);
                 await new Promise(r => setTimeout(r, 300));
@@ -239,7 +239,7 @@ async function cycleCombatStyle(ctx: ScriptContext): Promise<void> {
 
     // Always set style if it differs from what we last set (don't trust game state)
     if (lastSetStyle !== target.style) {
-        ctx.log(`Setting ${target.name} style (slot ${currentStyleIndex}/7)`);
+        console.log(`Setting ${target.name} style (slot ${currentStyleIndex}/7)`);
         await ctx.sdk.sendSetCombatStyle(target.style);
         lastSetStyle = target.style;
     }
@@ -356,22 +356,22 @@ async function waitForCombatEnd(
  * Sell cow hides at Lumbridge general store.
  */
 async function sellHides(ctx: ScriptContext, stats: CombatStats): Promise<boolean> {
-    ctx.log('=== Selling Cow Hides ===');
+    console.log('=== Selling Cow Hides ===');
     stats.phase = 'selling';
 
     const hideCount = countCowhides(ctx);
     if (hideCount === 0) {
-        ctx.warn('No cow hides to sell!');
+        console.warn('No cow hides to sell!');
         stats.phase = 'farming';
         return false;
     }
 
-    ctx.log(`Walking to Lumbridge general store with ${hideCount} hides...`);
+    console.log(`Walking to Lumbridge general store with ${hideCount} hides...`);
     await ctx.bot.walkTo(LOCATIONS.LUMBRIDGE_GENERAL_STORE.x, LOCATIONS.LUMBRIDGE_GENERAL_STORE.z);
 
     const shopResult = await ctx.bot.openShop(/shop.?keeper/i);
     if (!shopResult.success) {
-        ctx.warn('Failed to open general store');
+        console.warn('Failed to open general store');
         stats.phase = 'farming';
         return false;
     }
@@ -386,18 +386,18 @@ async function sellHides(ctx: ScriptContext, stats: CombatStats): Promise<boolea
         if (sellResult.success) {
             soldCount++;
         } else {
-            ctx.warn(`Failed to sell hide: ${sellResult.message}`);
+            console.warn(`Failed to sell hide: ${sellResult.message}`);
             break;
         }
     }
 
-    ctx.log(`Sold ${soldCount} cow hides!`);
+    console.log(`Sold ${soldCount} cow hides!`);
     await ctx.bot.closeShop();
 
     // Check coins
     const coins = ctx.sdk.findInventoryItem(/^coins$/i);
     const coinCount = coins?.count ?? 0;
-    ctx.log(`Total coins: ${coinCount}`);
+    console.log(`Total coins: ${coinCount}`);
 
     return true;
 }
@@ -409,7 +409,7 @@ async function sellHides(ctx: ScriptContext, stats: CombatStats): Promise<boolea
  * 3. Return to cow field
  */
 async function buyIronScimitar(ctx: ScriptContext, stats: CombatStats): Promise<boolean> {
-    ctx.log('=== Buying Iron Scimitar ===');
+    console.log('=== Buying Iron Scimitar ===');
     stats.phase = 'buying';
 
     // Check we have enough coins
@@ -417,17 +417,17 @@ async function buyIronScimitar(ctx: ScriptContext, stats: CombatStats): Promise<
     let coinCount = coins?.count ?? 0;
 
     if (coinCount < COINS_NEEDED) {
-        ctx.warn(`Not enough coins (${coinCount}/${COINS_NEEDED})`);
+        console.warn(`Not enough coins (${coinCount}/${COINS_NEEDED})`);
         stats.phase = 'farming';
         return false;
     }
 
     // Walk to Al Kharid gate
-    ctx.log('Walking to Al Kharid gate...');
+    console.log('Walking to Al Kharid gate...');
     await ctx.bot.walkTo(LOCATIONS.ALKHARID_GATE.x, LOCATIONS.ALKHARID_GATE.z);
 
     // Handle toll gate
-    ctx.log('Opening toll gate...');
+    console.log('Opening toll gate...');
     const gate = ctx.sdk.getState()?.nearbyLocs.find(l => /gate/i.test(l.name));
     if (gate) {
         const openOpt = gate.optionsWithIndex.find(o => /open/i.test(o.text));
@@ -446,7 +446,7 @@ async function buyIronScimitar(ctx: ScriptContext, stats: CombatStats): Promise<
         }
         const yesOpt = s.dialog.options.find(o => /yes/i.test(o.text));
         if (yesOpt) {
-            ctx.log('Paying 10gp toll...');
+            console.log('Paying 10gp toll...');
             await ctx.sdk.sendClickDialog(yesOpt.index);
             break;
         }
@@ -459,7 +459,7 @@ async function buyIronScimitar(ctx: ScriptContext, stats: CombatStats): Promise<
     for (let i = 0; i < 10; i++) {
         const state = ctx.sdk.getState();
         if ((state?.player?.worldX ?? 0) >= 3270) {
-            ctx.log('Entered Al Kharid!');
+            console.log('Entered Al Kharid!');
             break;
         }
         if (state?.dialog.isOpen) {
@@ -473,48 +473,48 @@ async function buyIronScimitar(ctx: ScriptContext, stats: CombatStats): Promise<
 
     // Verify in Al Kharid
     if ((ctx.sdk.getState()?.player?.worldX ?? 0) < 3270) {
-        ctx.warn('Failed to enter Al Kharid');
+        console.warn('Failed to enter Al Kharid');
         stats.phase = 'farming';
         return false;
     }
 
     // Walk to Zeke's shop
-    ctx.log('Walking to Zeke\'s Scimitar Shop...');
+    console.log('Walking to Zeke\'s Scimitar Shop...');
     await ctx.bot.walkTo(LOCATIONS.ALKHARID_SCIMITAR_SHOP.x, LOCATIONS.ALKHARID_SCIMITAR_SHOP.z);
 
     // Buy iron scimitar
     const scimitarShop = await ctx.bot.openShop(/zeke/i);
     if (!scimitarShop.success) {
-        ctx.warn('Failed to open scimitar shop');
+        console.warn('Failed to open scimitar shop');
         stats.phase = 'training';
         return false;
     }
 
     const buyScim = await ctx.bot.buyFromShop(/iron scimitar/i, 1);
     if (buyScim.success) {
-        ctx.log('*** IRON SCIMITAR PURCHASED! ***');
+        console.log('*** IRON SCIMITAR PURCHASED! ***');
         stats.weaponUpgraded = true;
     } else {
-        ctx.warn(`Failed to buy scimitar: ${buyScim.message}`);
+        console.warn(`Failed to buy scimitar: ${buyScim.message}`);
     }
     await ctx.bot.closeShop();
 
     // Equip the scimitar
     const scimitar = ctx.sdk.findInventoryItem(/iron scimitar/i);
     if (scimitar) {
-        ctx.log('Equipping iron scimitar...');
+        console.log('Equipping iron scimitar...');
         await ctx.bot.equipItem(scimitar);
     }
 
     // Return to cow field
-    ctx.log('Returning to cow field...');
+    console.log('Returning to cow field...');
     // Walk back through gate (no toll to exit)
     await ctx.bot.walkTo(3267, 3227);  // Outside gate
     await new Promise(r => setTimeout(r, 500));
     await ctx.bot.walkTo(LOCATIONS.COW_FIELD.x, LOCATIONS.COW_FIELD.z);
 
     stats.phase = 'training';
-    ctx.log('=== Ready to train with Iron Scimitar! ===');
+    console.log('=== Ready to train with Iron Scimitar! ===');
     return true;
 }
 
@@ -548,9 +548,9 @@ async function combatTrainingLoop(ctx: ScriptContext): Promise<void> {
         lastTimeBasedLog: now,
     };
 
-    ctx.log('=== Combat Trainer - Cow Hide Strategy ===');
-    ctx.log(`Goal: Collect ${HIDES_NEEDED} cow hides → Sell → Buy Iron Scimitar → Train`);
-    ctx.log(`Starting XP - Atk: ${stats.startXp.atk}, Str: ${stats.startXp.str}, Def: ${stats.startXp.def}, HP: ${stats.startXp.hp}`);
+    console.log('=== Combat Trainer - Cow Hide Strategy ===');
+    console.log(`Goal: Collect ${HIDES_NEEDED} cow hides → Sell → Buy Iron Scimitar → Train`);
+    console.log(`Starting XP - Atk: ${stats.startXp.atk}, Str: ${stats.startXp.str}, Def: ${stats.startXp.def}, HP: ${stats.startXp.hp}`);
 
     // Initialize style cycling timer now (not at module load)
     resetStyleCycling();
@@ -558,25 +558,25 @@ async function combatTrainingLoop(ctx: ScriptContext): Promise<void> {
     // Equip starting gear
     const sword = ctx.sdk.findInventoryItem(/bronze sword/i);
     if (sword) {
-        ctx.log(`Equipping ${sword.name}...`);
+        console.log(`Equipping ${sword.name}...`);
         await ctx.bot.equipItem(sword);
     }
 
     const shield = ctx.sdk.findInventoryItem(/wooden shield/i);
     if (shield) {
-        ctx.log(`Equipping ${shield.name}...`);
+        console.log(`Equipping ${shield.name}...`);
         await ctx.bot.equipItem(shield);
     }
 
     // Walk to cow field
-    ctx.log('Walking to cow field...');
+    console.log('Walking to cow field...');
     await ctx.bot.walkTo(LOCATIONS.COW_FIELD.x, LOCATIONS.COW_FIELD.z);
 
     // Main training loop
     while (true) {
         const currentState = ctx.sdk.getState();
         if (!currentState) {
-            ctx.warn('Lost game state');
+            console.warn('Lost game state');
             break;
         }
 
@@ -608,14 +608,14 @@ async function combatTrainingLoop(ctx: ScriptContext): Promise<void> {
         if (stats.phase === 'farming' && !stats.weaponUpgraded) {
             // Check if we have enough hides to sell
             if (hideCount >= HIDES_NEEDED) {
-                ctx.log(`Collected ${hideCount} hides! Time to sell and buy scimitar!`);
+                console.log(`Collected ${hideCount} hides! Time to sell and buy scimitar!`);
                 await sellHides(ctx, stats);
                 continue;
             }
 
             // Also check if we already have enough coins (from previous attempts or loot)
             if (coinCount >= COINS_NEEDED) {
-                ctx.log(`Already have ${coinCount} coins! Skipping to buy scimitar!`);
+                console.log(`Already have ${coinCount} coins! Skipping to buy scimitar!`);
                 await buyIronScimitar(ctx, stats);
                 continue;
             }
@@ -630,7 +630,7 @@ async function combatTrainingLoop(ctx: ScriptContext): Promise<void> {
             if (newCoinCount >= COINS_NEEDED) {
                 await buyIronScimitar(ctx, stats);
             } else {
-                ctx.log(`Only ${newCoinCount} coins, need ${COINS_NEEDED}. Collecting more hides...`);
+                console.log(`Only ${newCoinCount} coins, need ${COINS_NEEDED}. Collecting more hides...`);
                 stats.phase = 'farming';
             }
             continue;
@@ -665,7 +665,7 @@ async function combatTrainingLoop(ctx: ScriptContext): Promise<void> {
                 if (/cow\s?hide|cowhide/i.test(item.name)) {
                     stats.hidesCollected += item.count ?? 1;
                     const totalHides = countCowhides(ctx);
-                    ctx.log(`Picked up cowhide (${totalHides}/${HIDES_NEEDED})`);
+                    console.log(`Picked up cowhide (${totalHides}/${HIDES_NEEDED})`);
                 } else if (/coins/i.test(item.name)) {
                     stats.coinsCollected += item.count ?? 1;
                 }
@@ -678,7 +678,7 @@ async function combatTrainingLoop(ctx: ScriptContext): Promise<void> {
         // Find a cow to attack
         const target = findBestTarget(ctx);
         if (!target) {
-            ctx.log('No cows nearby - walking to cow field...');
+            console.log('No cows nearby - walking to cow field...');
             await ctx.bot.walkTo(LOCATIONS.COW_FIELD.x, LOCATIONS.COW_FIELD.z);
             continue;
         }
@@ -693,7 +693,7 @@ async function combatTrainingLoop(ctx: ScriptContext): Promise<void> {
         // Attack the cow
         const attackResult = await ctx.bot.attackNpc(target);
         if (!attackResult.success) {
-            ctx.warn(`Attack failed: ${attackResult.message}`);
+            console.warn(`Attack failed: ${attackResult.message}`);
             // Mark NPC as busy if already in combat (won't retry for 15s)
             if (attackResult.reason === 'already_in_combat') {
                 markNpcBusy(target.index);
@@ -708,7 +708,7 @@ async function combatTrainingLoop(ctx: ScriptContext): Promise<void> {
         // Wait for combat to complete
         const combatResult = await waitForCombatEnd(ctx, target, stats);
         if (combatResult === 'kill') {
-            ctx.log(`Kill #${stats.kills}! (Hides: ${hideCount}/${HIDES_NEEDED})`);
+            console.log(`Kill #${stats.kills}! (Hides: ${hideCount}/${HIDES_NEEDED})`);
         }
     }
 }
@@ -742,11 +742,11 @@ function logStats(ctx: ScriptContext, stats: CombatStats): void {
     const elapsedMinutes = Math.round(elapsedMs / 60_000);
     const xpPerHour = elapsedMs > 60_000 ? Math.round(totalXp / (elapsedMs / 3_600_000)) : 0;
 
-    ctx.log(`--- Stats after ${elapsedMinutes}m / ${stats.kills} kills (Phase: ${stats.phase}) ---`);
-    ctx.log(`XP: Atk +${xpGained.atk}, Str +${xpGained.str}, Def +${xpGained.def}, HP +${xpGained.hp} (Total: +${totalXp})`);
-    ctx.log(`XP/hour: ~${xpPerHour.toLocaleString()}`);
-    ctx.log(`Hides: ${hides}/${HIDES_NEEDED}, Coins: ${stats.coinsCollected}`);
-    ctx.log(`Weapon: ${stats.weaponUpgraded ? 'IRON SCIMITAR!' : 'Bronze Sword'}`);
+    console.log(`--- Stats after ${elapsedMinutes}m / ${stats.kills} kills (Phase: ${stats.phase}) ---`);
+    console.log(`XP: Atk +${xpGained.atk}, Str +${xpGained.str}, Def +${xpGained.def}, HP +${xpGained.hp} (Total: +${totalXp})`);
+    console.log(`XP/hour: ~${xpPerHour.toLocaleString()}`);
+    console.log(`Hides: ${hides}/${HIDES_NEEDED}, Coins: ${stats.coinsCollected}`);
+    console.log(`Weapon: ${stats.weaponUpgraded ? 'IRON SCIMITAR!' : 'Bronze Sword'}`);
 }
 
 async function main() {
@@ -773,14 +773,14 @@ async function main() {
                     const scimitar = ctx.sdk.findInventoryItem(/iron scimitar/i) ||
                                     state.equipment?.find(e => /iron scimitar/i.test(e.name));
 
-                    ctx.log('=== Final Results ===');
-                    ctx.log(`Combat Level: ${state.player?.combatLevel ?? '?'}`);
-                    ctx.log(`Attack: Level ${atk?.baseLevel} (${atk?.experience} XP)`);
-                    ctx.log(`Strength: Level ${str?.baseLevel} (${str?.experience} XP)`);
-                    ctx.log(`Defence: Level ${def?.baseLevel} (${def?.experience} XP)`);
-                    ctx.log(`Hitpoints: Level ${hp?.baseLevel} (${hp?.experience} XP)`);
-                    ctx.log(`Iron Scimitar: ${scimitar ? 'YES!' : 'No'}`);
-                    ctx.log(`Position: (${state.player?.worldX}, ${state.player?.worldZ})`);
+                    console.log('=== Final Results ===');
+                    console.log(`Combat Level: ${state.player?.combatLevel ?? '?'}`);
+                    console.log(`Attack: Level ${atk?.baseLevel} (${atk?.experience} XP)`);
+                    console.log(`Strength: Level ${str?.baseLevel} (${str?.experience} XP)`);
+                    console.log(`Defence: Level ${def?.baseLevel} (${def?.experience} XP)`);
+                    console.log(`Hitpoints: Level ${hp?.baseLevel} (${hp?.experience} XP)`);
+                    console.log(`Iron Scimitar: ${scimitar ? 'YES!' : 'No'}`);
+                    console.log(`Position: (${state.player?.worldX}, ${state.player?.worldZ})`);
                 }
             }
         }, {

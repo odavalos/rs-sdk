@@ -139,27 +139,27 @@ async function magicTrainingLoop(ctx: ScriptContext): Promise<void> {
         startTime: Date.now(),
     };
 
-    ctx.log('=== Magic Trainer ===');
-    ctx.log(`Goal: Train Magic from level ${stats.startLevel} (need 1,154 XP for level 10)`);
+    console.log('=== Magic Trainer ===');
+    console.log(`Goal: Train Magic from level ${stats.startLevel} (need 1,154 XP for level 10)`);
 
     // Log rune inventory
     const runes = getRuneCounts(ctx);
-    ctx.log(`Runes: Air=${runes.air}, Mind=${runes.mind}, Water=${runes.water}, Earth=${runes.earth}`);
-    ctx.log(`Potential casts: ~${Math.min(runes.air, runes.mind)} Wind Strikes (~${Math.min(runes.air, runes.mind) * 5.5} XP)`);
+    console.log(`Runes: Air=${runes.air}, Mind=${runes.mind}, Water=${runes.water}, Earth=${runes.earth}`);
+    console.log(`Potential casts: ~${Math.min(runes.air, runes.mind)} Wind Strikes (~${Math.min(runes.air, runes.mind) * 5.5} XP)`);
 
     // Walk to chicken coop
-    ctx.log('Walking to chicken coop...');
+    console.log('Walking to chicken coop...');
     await ctx.bot.walkTo(CHICKEN_COOP.x, CHICKEN_COOP.z);
 
     // Open the gate to get inside the coop
-    ctx.log('Opening gate...');
+    console.log('Opening gate...');
     const gateResult = await ctx.bot.openDoor(/gate/i);
     if (gateResult.success) {
-        ctx.log(`Gate opened: ${gateResult.message}`);
+        console.log(`Gate opened: ${gateResult.message}`);
         // Walk inside the coop
         await ctx.bot.walkTo(CHICKEN_COOP.x - 3, CHICKEN_COOP.z);
         } else {
-        ctx.log(`Gate: ${gateResult.message}`);
+        console.log(`Gate: ${gateResult.message}`);
     }
 
     let noTargetCount = 0;
@@ -171,13 +171,13 @@ async function magicTrainingLoop(ctx: ScriptContext): Promise<void> {
     while (true) {
         const currentState = ctx.sdk.getState();
         if (!currentState) {
-            ctx.warn('Lost game state');
+            console.warn('Lost game state');
             break;
         }
 
         // Dismiss any blocking dialogs (level-up, etc.)
         if (currentState.dialog.isOpen) {
-            ctx.log('Dismissing dialog...');
+            console.log('Dismissing dialog...');
             await ctx.sdk.sendClickDialog(0);
                     continue;
         }
@@ -186,14 +186,14 @@ async function magicTrainingLoop(ctx: ScriptContext): Promise<void> {
         const currentMagic = ctx.sdk.getSkill('Magic');
         const currentLevel = currentMagic?.baseLevel ?? 1;
         if (currentLevel >= 10) {
-            ctx.log('*** GOAL REACHED: Magic level 10! ***');
+            console.log('*** GOAL REACHED: Magic level 10! ***');
             break;
         }
 
         // Check if we have runes
         const spell = getBestSpell(ctx);
         if (!spell) {
-            ctx.log('Out of runes! Cannot cast any more spells.');
+            console.log('Out of runes! Cannot cast any more spells.');
             break;
         }
 
@@ -202,11 +202,11 @@ async function magicTrainingLoop(ctx: ScriptContext): Promise<void> {
         if (!target) {
             noTargetCount++;
             if (noTargetCount >= MAX_NO_TARGET_ATTEMPTS) {
-                ctx.log(`No targets found after ${noTargetCount} attempts, exiting.`);
+                console.log(`No targets found after ${noTargetCount} attempts, exiting.`);
                 break;
             }
             if (noTargetCount % 5 === 0) {
-                ctx.log(`No targets nearby (attempt ${noTargetCount}/${MAX_NO_TARGET_ATTEMPTS}), walking around...`);
+                console.log(`No targets nearby (attempt ${noTargetCount}/${MAX_NO_TARGET_ATTEMPTS}), walking around...`);
                 // Walk to chicken coop center
                 await ctx.bot.walkTo(
                     CHICKEN_COOP.x + Math.floor(Math.random() * 6) - 3,
@@ -227,7 +227,7 @@ async function magicTrainingLoop(ctx: ScriptContext): Promise<void> {
 
         // Walk closer if target is far (magic range is ~10 but need clear LOS)
         if (target.distance > 5) {
-            ctx.log(`Walking toward ${target.name} at (${target.x}, ${target.z}), dist: ${target.distance}`);
+            console.log(`Walking toward ${target.name} at (${target.x}, ${target.z}), dist: ${target.distance}`);
             // Walk to within ~3 tiles of the target
             await ctx.bot.walkTo(target.x, target.z);
                     await new Promise(r => setTimeout(r, 500));
@@ -237,7 +237,7 @@ async function magicTrainingLoop(ctx: ScriptContext): Promise<void> {
         // Cast spell on target using high-level API
         if (stats.casts % 5 === 0 || stats.casts === 0) {
             const currentRunes = getRuneCounts(ctx);
-            ctx.log(`Casting ${spell.name} on ${target.name} (cast #${stats.casts + 1}, dist=${target.distance}, runes: air=${currentRunes.air}, mind=${currentRunes.mind})`);
+            console.log(`Casting ${spell.name} on ${target.name} (cast #${stats.casts + 1}, dist=${target.distance}, runes: air=${currentRunes.air}, mind=${currentRunes.mind})`);
         }
 
         const castResult = await ctx.bot.castSpellOnNpc(target, spell.spell);
@@ -248,30 +248,30 @@ async function magicTrainingLoop(ctx: ScriptContext): Promise<void> {
             failedCastCount = 0;  // Reset on success
             if (castResult.hit) {
                 stats.hits++;
-                ctx.log(`HIT! ${castResult.message}`);
+                console.log(`HIT! ${castResult.message}`);
             }
             // Splash is still success, just no XP
         } else if (castResult.reason === 'out_of_reach') {
             // Gate likely closed - try to open it
-            ctx.log(`Can't reach target - trying to open gate`);
+            console.log(`Can't reach target - trying to open gate`);
             const gateResult = await ctx.bot.openDoor(/gate/i);
-            ctx.log(`Gate: ${gateResult.message}`);
+            console.log(`Gate: ${gateResult.message}`);
             if (gateResult.success) {
                 await ctx.bot.walkTo(CHICKEN_COOP.x - 3, CHICKEN_COOP.z);
             }
             failedCastCount++;
         } else if (castResult.reason === 'no_runes') {
-            ctx.log('Out of runes!');
+            console.log('Out of runes!');
             break;
         } else {
             // Unknown failure reason
             failedCastCount++;
-            ctx.log(`Cast failed: ${castResult.message} (reason: ${castResult.reason})`);
+            console.log(`Cast failed: ${castResult.message} (reason: ${castResult.reason})`);
         }
 
         // Exit if too many consecutive failures
         if (failedCastCount >= MAX_FAILED_CASTS) {
-            ctx.log(`Too many failed casts (${failedCastCount}), exiting.`);
+            console.log(`Too many failed casts (${failedCastCount}), exiting.`);
             break;
         }
 
@@ -293,16 +293,16 @@ function logFinalStats(ctx: ScriptContext, stats: MagicStats): void {
     const elapsed = (Date.now() - stats.startTime) / 1000;
     const xpPerHour = elapsed > 0 ? Math.round((xpGained / elapsed) * 3600) : 0;
 
-    ctx.log('=== Final Results ===');
-    ctx.log(`Magic: Level ${stats.startLevel} -> ${finalLevel}`);
-    ctx.log(`XP: ${stats.startXp} -> ${finalXp} (+${xpGained})`);
-    ctx.log(`Casts: ${stats.casts} (Hits: ${stats.hits}, Splashes: ${stats.casts - stats.hits})`);
-    ctx.log(`Duration: ${elapsed.toFixed(1)}s`);
-    ctx.log(`XP/hour: ~${xpPerHour.toLocaleString()}`);
+    console.log('=== Final Results ===');
+    console.log(`Magic: Level ${stats.startLevel} -> ${finalLevel}`);
+    console.log(`XP: ${stats.startXp} -> ${finalXp} (+${xpGained})`);
+    console.log(`Casts: ${stats.casts} (Hits: ${stats.hits}, Splashes: ${stats.casts - stats.hits})`);
+    console.log(`Duration: ${elapsed.toFixed(1)}s`);
+    console.log(`XP/hour: ~${xpPerHour.toLocaleString()}`);
 
     // Log remaining runes
     const runes = getRuneCounts(ctx);
-    ctx.log(`Remaining runes: Air=${runes.air}, Mind=${runes.mind}, Water=${runes.water}, Earth=${runes.earth}`);
+    console.log(`Remaining runes: Air=${runes.air}, Mind=${runes.mind}, Water=${runes.water}, Earth=${runes.earth}`);
 }
 
 // Main script
@@ -323,7 +323,7 @@ async function main() {
                 const state = ctx.sdk.getState();
                 if (state) {
                     const magic = state.skills.find(s => s.name === 'Magic');
-                    ctx.log(`Final Magic: Level ${magic?.baseLevel ?? '?'}, XP ${magic?.experience ?? '?'}`);
+                    console.log(`Final Magic: Level ${magic?.baseLevel ?? '?'}, XP ${magic?.experience ?? '?'}`);
                 }
             }
         }, {

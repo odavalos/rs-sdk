@@ -18,7 +18,7 @@ async function rawWalkTo(ctx: ScriptContext, targetX: number, targetZ: number, t
 
         const dist = Math.sqrt(Math.pow(targetX - pos.worldX, 2) + Math.pow(targetZ - pos.worldZ, 2));
         if (dist <= 3) {
-            ctx.log(`Arrived at (${pos.worldX}, ${pos.worldZ})`);
+            console.log(`Arrived at (${pos.worldX}, ${pos.worldZ})`);
             return true;
         }
 
@@ -27,7 +27,7 @@ async function rawWalkTo(ctx: ScriptContext, targetX: number, targetZ: number, t
     }
 
     const finalPos = ctx.sdk.getState()?.player;
-    ctx.log(`Walk ended at (${finalPos?.worldX}, ${finalPos?.worldZ})`);
+    console.log(`Walk ended at (${finalPos?.worldX}, ${finalPos?.worldZ})`);
     return false;
 }
 
@@ -39,20 +39,20 @@ async function main() {
     try {
         await runScript(async (ctx) => {
             const pos = ctx.sdk.getState()?.player;
-            ctx.log(`Starting at (${pos?.worldX}, ${pos?.worldZ})`);
+            console.log(`Starting at (${pos?.worldX}, ${pos?.worldZ})`);
 
             if (pos && pos.worldX >= 3270) {
-                ctx.log('Already in Al Kharid!');
+                console.log('Already in Al Kharid!');
                 return;
             }
 
             // 1. Walk to general store
-            ctx.log('Walking to general store...');
+            console.log('Walking to general store...');
             await rawWalkTo(ctx, 3212, 3246);
 
             // Find and open shop
             const npcs = ctx.sdk.getState()?.nearbyNpcs;
-            ctx.log(`Nearby: ${npcs?.slice(0, 5).map((n: any) => n.name).join(', ')}`);
+            console.log(`Nearby: ${npcs?.slice(0, 5).map((n: any) => n.name).join(', ')}`);
 
             const openResult = await ctx.bot.openShop(/shop.*keeper/i);
             if (!openResult.success) {
@@ -61,18 +61,18 @@ async function main() {
 
             // Sell bow
             const sellResult = await ctx.bot.sellToShop(/shortbow/i, 'all');
-            ctx.log(sellResult.message);
+            console.log(sellResult.message);
             await ctx.bot.closeShop();
 
             const coins = ctx.sdk.findInventoryItem(/^coins$/i);
-            ctx.log(`Have ${coins?.count ?? 0}gp`);
+            console.log(`Have ${coins?.count ?? 0}gp`);
 
             // 2. Walk to gate
-            ctx.log('Walking to gate...');
+            console.log('Walking to gate...');
             await rawWalkTo(ctx, 3267, 3228);
 
             // 3. Talk to border guard
-            ctx.log('Talking to guard...');
+            console.log('Talking to guard...');
             const talkResult = await ctx.bot.talkTo(/border guard/i);
             if (!talkResult.success) {
                 // Try generic guard
@@ -93,11 +93,11 @@ async function main() {
                 }
 
                 const opts = state.dialog.options;
-                ctx.log(`Dialog: ${opts.map((o: any) => o.text).join(' | ') || '(continue)'}`);
+                console.log(`Dialog: ${opts.map((o: any) => o.text).join(' | ') || '(continue)'}`);
 
                 const yesOpt = opts.find((o: any) => /yes/i.test(o.text));
                 if (yesOpt) {
-                    ctx.log('Paying toll...');
+                    console.log('Paying toll...');
                     await ctx.sdk.sendClickDialog(yesOpt.index);
                     paid = true;
                     await new Promise(r => setTimeout(r, 500));
@@ -115,12 +115,12 @@ async function main() {
             }
 
             // 5. Walk through gate into Al Kharid
-            ctx.log('Walking through gate...');
+            console.log('Walking through gate...');
             await rawWalkTo(ctx, 3275, 3227);
 
             const finalPos = ctx.sdk.getState()?.player;
             if (finalPos && finalPos.worldX >= 3270) {
-                ctx.log(`Success! At (${finalPos.worldX}, ${finalPos.worldZ})`);
+                console.log(`Success! At (${finalPos.worldX}, ${finalPos.worldZ})`);
             } else {
                 throw new Error(`Failed at (${finalPos?.worldX}, ${finalPos?.worldZ})`);
             }

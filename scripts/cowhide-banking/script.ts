@@ -96,7 +96,7 @@ async function waitForCombatEnd(
         // CRITICAL: Dismiss any dialogs during combat (level-up messages)
         // Without this, dialogs block game responses and cause server timeouts
         if (state.dialog.isOpen) {
-            ctx.log('Dismissing dialog during combat...');
+            console.log('Dismissing dialog during combat...');
             await ctx.sdk.sendClickDialog(0);
             continue;
         }
@@ -164,7 +164,7 @@ async function pickupHides(ctx: ScriptContext, stats: HideStats): Promise<number
     for (const item of groundItems.slice(0, 3)) {
         if (ctx.sdk.getState()!.inventory.length >= 28) break;
 
-        ctx.log(`Picking up ${item.name}...`);
+        console.log(`Picking up ${item.name}...`);
         const result = await ctx.bot.pickupItem(item);
         if (result.success) {
             pickedUp++;
@@ -180,53 +180,53 @@ async function pickupHides(ctx: ScriptContext, stats: HideStats): Promise<number
  * Bank the collected hides at Lumbridge Castle bank
  */
 async function bankHides(ctx: ScriptContext, stats: HideStats): Promise<boolean> {
-    ctx.log('=== Banking Trip ===');
+    console.log('=== Banking Trip ===');
     stats.bankTrips++;
 
     const currentState = ctx.sdk.getState();
     const currentLevel = currentState?.player?.level ?? 0;
     const hidesBeforeBank = currentState?.inventory.filter(i => /cow\s*hide/i.test(i.name)).length ?? 0;
 
-    ctx.log(`Current floor level: ${currentLevel}, hides in inventory: ${hidesBeforeBank}`);
+    console.log(`Current floor level: ${currentLevel}, hides in inventory: ${hidesBeforeBank}`);
 
     // If we're at ground level (0), we need to go up stairs
     if (currentLevel === 0) {
-        ctx.log('Walking to castle entrance...');
+        console.log('Walking to castle entrance...');
         await ctx.bot.walkTo(LOCATIONS.LUMBRIDGE_CASTLE_ENTRANCE.x, LOCATIONS.LUMBRIDGE_CASTLE_ENTRANCE.z);
 
-        ctx.log('Walking to castle stairs...');
+        console.log('Walking to castle stairs...');
         await ctx.bot.walkTo(LOCATIONS.LUMBRIDGE_STAIRS_GROUND.x, LOCATIONS.LUMBRIDGE_STAIRS_GROUND.z);
 
         // Climb up stairs to level 1
-        ctx.log('Climbing to first floor...');
+        console.log('Climbing to first floor...');
         const nearbyLocs = ctx.sdk.getState()?.nearbyLocs ?? [];
-        ctx.log(`Nearby locs: ${nearbyLocs.slice(0, 5).map(l => l.name).join(', ')}`);
+        console.log(`Nearby locs: ${nearbyLocs.slice(0, 5).map(l => l.name).join(', ')}`);
 
         const stairs1 = nearbyLocs.find(l => /staircase/i.test(l.name));
         if (stairs1) {
-            ctx.log(`Found stairs: ${stairs1.name} at (${stairs1.x}, ${stairs1.z})`);
-            ctx.log(`Options: ${stairs1.optionsWithIndex.map(o => o.text).join(', ')}`);
+            console.log(`Found stairs: ${stairs1.name} at (${stairs1.x}, ${stairs1.z})`);
+            console.log(`Options: ${stairs1.optionsWithIndex.map(o => o.text).join(', ')}`);
             const climbOpt = stairs1.optionsWithIndex.find(o => /climb.?up/i.test(o.text));
             if (climbOpt) {
-                ctx.log(`Using climb option: ${climbOpt.text}`);
+                console.log(`Using climb option: ${climbOpt.text}`);
                 await ctx.sdk.sendInteractLoc(stairs1.x, stairs1.z, stairs1.id, climbOpt.opIndex);
                 await new Promise(r => setTimeout(r, 2000));
                 } else {
-                ctx.warn('No climb-up option found on stairs');
+                console.warn('No climb-up option found on stairs');
             }
         } else {
-            ctx.warn('No staircase found nearby!');
+            console.warn('No staircase found nearby!');
         }
     }
 
     // Check if we're on first floor (level 1), need to go to level 2
     const midState = ctx.sdk.getState();
     const midLevel = midState?.player?.level ?? 0;
-    ctx.log(`After first climb, floor level: ${midLevel}`);
+    console.log(`After first climb, floor level: ${midLevel}`);
 
     if (midLevel === 1) {
         // Find stairs to climb to level 2
-        ctx.log('Climbing to second floor (bank floor)...');
+        console.log('Climbing to second floor (bank floor)...');
         const stairs2 = ctx.sdk.getState()?.nearbyLocs.find(l => /staircase/i.test(l.name));
         if (stairs2) {
             const climbOpt = stairs2.optionsWithIndex.find(o => /climb.?up/i.test(o.text));
@@ -238,11 +238,11 @@ async function bankHides(ctx: ScriptContext, stats: HideStats): Promise<boolean>
     }
 
     // Now we should be at level 2, walk to bank area
-    ctx.log('Walking to bank...');
+    console.log('Walking to bank...');
     await ctx.bot.walkTo(LOCATIONS.LUMBRIDGE_BANK.x, LOCATIONS.LUMBRIDGE_BANK.z);
 
     // Open bank - find bank booth or banker
-    ctx.log('Opening bank...');
+    console.log('Opening bank...');
     let bankOpened = false;
 
     // Try bank booth first
@@ -252,7 +252,7 @@ async function bankHides(ctx: ScriptContext, stats: HideStats): Promise<boolean>
                        bankBooth.optionsWithIndex.find(o => /use/i.test(o.text)) ||
                        bankBooth.optionsWithIndex[0];
         if (bankOpt) {
-            ctx.log(`Using bank booth option: ${bankOpt.text}`);
+            console.log(`Using bank booth option: ${bankOpt.text}`);
             await ctx.sdk.sendInteractLoc(bankBooth.x, bankBooth.z, bankBooth.id, bankOpt.opIndex);
             await new Promise(r => setTimeout(r, 1000));
 
@@ -261,7 +261,7 @@ async function bankHides(ctx: ScriptContext, stats: HideStats): Promise<boolean>
                 const state = ctx.sdk.getState();
                 if (state?.interface?.isOpen) {
                     bankOpened = true;
-                    ctx.log('Bank interface opened!');
+                    console.log('Bank interface opened!');
                     break;
                 }
                 if (state?.dialog?.isOpen) {
@@ -280,7 +280,7 @@ async function bankHides(ctx: ScriptContext, stats: HideStats): Promise<boolean>
         if (banker) {
             const bankOpt = banker.optionsWithIndex.find(o => /bank/i.test(o.text));
             if (bankOpt) {
-                ctx.log(`Using banker: ${banker.name}`);
+                console.log(`Using banker: ${banker.name}`);
                 await ctx.sdk.sendInteractNpc(banker.index, bankOpt.opIndex);
                 await new Promise(r => setTimeout(r, 1000));
 
@@ -289,7 +289,7 @@ async function bankHides(ctx: ScriptContext, stats: HideStats): Promise<boolean>
                     const state = ctx.sdk.getState();
                     if (state?.interface?.isOpen) {
                         bankOpened = true;
-                        ctx.log('Bank interface opened!');
+                        console.log('Bank interface opened!');
                         break;
                     }
                     await new Promise(r => setTimeout(r, 300));
@@ -299,10 +299,10 @@ async function bankHides(ctx: ScriptContext, stats: HideStats): Promise<boolean>
     }
 
     if (!bankOpened) {
-        ctx.warn('Failed to open bank interface - aborting banking trip');
+        console.warn('Failed to open bank interface - aborting banking trip');
         // Return to cow field without depositing
         await ctx.bot.walkTo(LOCATIONS.COW_FIELD.x, LOCATIONS.COW_FIELD.z);
-        ctx.log('=== Banking failed, back at cow field ===');
+        console.log('=== Banking failed, back at cow field ===');
         return false;
     }
 
@@ -314,7 +314,7 @@ async function bankHides(ctx: ScriptContext, stats: HideStats): Promise<boolean>
     const hides = ctx.sdk.getState()?.inventory.filter(i => /cow\s*hide/i.test(i.name)) ?? [];
 
     for (const hide of hides) {
-        ctx.log(`Depositing ${hide.name} from slot ${hide.slot}...`);
+        console.log(`Depositing ${hide.name} from slot ${hide.slot}...`);
         await ctx.sdk.sendBankDeposit(hide.slot, hide.count);
         await new Promise(r => setTimeout(r, 200));
     }
@@ -328,14 +328,14 @@ async function bankHides(ctx: ScriptContext, stats: HideStats): Promise<boolean>
 
     if (actualDeposited > 0) {
         stats.hidesBanked += actualDeposited;
-        ctx.log(`Deposited ${actualDeposited} hides. Total banked: ${stats.hidesBanked}`);
+        console.log(`Deposited ${actualDeposited} hides. Total banked: ${stats.hidesBanked}`);
     } else {
-        ctx.warn(`Deposit failed - hides still in inventory (${hidesAfter})`);
+        console.warn(`Deposit failed - hides still in inventory (${hidesAfter})`);
     }
 
     // Close bank interface by pressing escape or clicking close
     // The interface will close when we walk away anyway
-    ctx.log('Returning to cow field...');
+    console.log('Returning to cow field...');
 
     // Climb down to level 1
     const stairs = ctx.sdk.getState()?.nearbyLocs.find(l => /staircase/i.test(l.name));
@@ -360,7 +360,7 @@ async function bankHides(ctx: ScriptContext, stats: HideStats): Promise<boolean>
     // Walk back to cow field
     await ctx.bot.walkTo(LOCATIONS.COW_FIELD.x, LOCATIONS.COW_FIELD.z);
 
-    ctx.log('=== Back at cow field ===');
+    console.log('=== Back at cow field ===');
     return true;
 }
 
@@ -374,10 +374,10 @@ function logStats(ctx: ScriptContext, stats: HideStats): void {
 
     const hidesPerMinute = elapsed > 0 ? (stats.hidesBanked / (elapsed / 60)).toFixed(1) : '0';
 
-    ctx.log(`--- Stats (${minutes}m ${seconds}s) ---`);
-    ctx.log(`Kills: ${stats.kills}, Hides collected: ${stats.hidesCollected}`);
-    ctx.log(`Hides banked: ${stats.hidesBanked}, Bank trips: ${stats.bankTrips}`);
-    ctx.log(`Rate: ${hidesPerMinute} hides/min`);
+    console.log(`--- Stats (${minutes}m ${seconds}s) ---`);
+    console.log(`Kills: ${stats.kills}, Hides collected: ${stats.hidesCollected}`);
+    console.log(`Hides banked: ${stats.hidesBanked}, Bank trips: ${stats.bankTrips}`);
+    console.log(`Rate: ${hidesPerMinute} hides/min`);
 }
 
 /**
@@ -395,18 +395,18 @@ function shouldDropHides(ctx: ScriptContext): boolean {
  * Drop cow hides to make inventory space
  */
 async function dropHides(ctx: ScriptContext, stats: HideStats): Promise<void> {
-    ctx.log('=== Dropping hides to make space ===');
+    console.log('=== Dropping hides to make space ===');
 
     const hides = ctx.sdk.getState()?.inventory.filter(i => /cow\s*hide/i.test(i.name)) ?? [];
 
     for (const hide of hides) {
-        ctx.log(`Dropping ${hide.name}...`);
+        console.log(`Dropping ${hide.name}...`);
         await ctx.sdk.sendDropItem(hide.slot);
         stats.hidesCollected++;  // Count as collected even though dropped
         await new Promise(r => setTimeout(r, 150));
     }
 
-    ctx.log(`Dropped ${hides.length} hides. Continuing training...`);
+    console.log(`Dropped ${hides.length} hides. Continuing training...`);
 }
 
 /**
@@ -425,28 +425,28 @@ async function cowhideLoop(ctx: ScriptContext): Promise<void> {
         lastProgressTime: Date.now(),
     };
 
-    ctx.log('=== Cow Hide Banking Script Started ===');
-    ctx.log(`Position: (${state.player?.worldX}, ${state.player?.worldZ})`);
+    console.log('=== Cow Hide Banking Script Started ===');
+    console.log(`Position: (${state.player?.worldX}, ${state.player?.worldZ})`);
 
     // Equip combat gear
     const sword = ctx.sdk.findInventoryItem(/bronze sword/i);
     if (sword) {
-        ctx.log('Equipping bronze sword...');
+        console.log('Equipping bronze sword...');
         await ctx.bot.equipItem(sword);
     }
 
     const shield = ctx.sdk.findInventoryItem(/wooden shield/i);
     if (shield) {
-        ctx.log('Equipping wooden shield...');
+        console.log('Equipping wooden shield...');
         await ctx.bot.equipItem(shield);
     }
 
     // Set combat style to Aggressive for Strength XP
-    ctx.log('Setting combat style to Aggressive (Strength training)...');
+    console.log('Setting combat style to Aggressive (Strength training)...');
     await ctx.sdk.sendSetCombatStyle(1);  // 0=accurate, 1=aggressive, 2=defensive, 3=controlled
 
     // Walk to cow field
-    ctx.log('Walking to cow field...');
+    console.log('Walking to cow field...');
     await ctx.bot.walkTo(LOCATIONS.COW_FIELD.x, LOCATIONS.COW_FIELD.z);
 
     let lastStatsLog = 0;
@@ -455,13 +455,13 @@ async function cowhideLoop(ctx: ScriptContext): Promise<void> {
     while (true) {
         const currentState = ctx.sdk.getState();
         if (!currentState) {
-            ctx.warn('Lost game state');
+            console.warn('Lost game state');
             break;
         }
 
         // Dismiss any blocking dialogs (level-up messages)
         if (currentState.dialog.isOpen) {
-            ctx.log('Dismissing dialog...');
+            console.log('Dismissing dialog...');
             await ctx.sdk.sendClickDialog(0);
             continue;
         }
@@ -472,11 +472,11 @@ async function cowhideLoop(ctx: ScriptContext): Promise<void> {
             // Try to eat available food
             const food = ctx.sdk.findInventoryItem(/^(bread|shrimps?|cooked meat|anchovies|trout|salmon|lobster|swordfish|kebab)$/i);
             if (food) {
-                ctx.log(`HP low (${hp.level}/${hp.baseLevel}) - eating ${food.name}`);
+                console.log(`HP low (${hp.level}/${hp.baseLevel}) - eating ${food.name}`);
                 await ctx.bot.eatFood(food);
                     continue;
             } else {
-                ctx.warn(`HP low (${hp.level}/${hp.baseLevel}) but no food!`);
+                console.warn(`HP low (${hp.level}/${hp.baseLevel}) but no food!`);
             }
         }
 
@@ -499,7 +499,7 @@ async function cowhideLoop(ctx: ScriptContext): Promise<void> {
         const cow = findBestCow(ctx);
         if (!cow) {
             // No cows nearby, walk to cow field center
-            ctx.log('No cows nearby, walking to cow field...');
+            console.log('No cows nearby, walking to cow field...');
             await ctx.bot.walkTo(LOCATIONS.COW_FIELD.x, LOCATIONS.COW_FIELD.z);
             continue;
         }
@@ -508,23 +508,23 @@ async function cowhideLoop(ctx: ScriptContext): Promise<void> {
         const playerCombat = currentState.player?.combat;
         if (playerCombat?.inCombat && playerCombat.targetIndex === cow.index) {
             const result = await waitForCombatEnd(ctx, cow, stats);
-            ctx.log(`Combat ended: ${result}`);
+            console.log(`Combat ended: ${result}`);
             continue;
         }
 
         // Attack the cow
-        ctx.log(`Attacking ${cow.name} (dist: ${cow.distance})`);
+        console.log(`Attacking ${cow.name} (dist: ${cow.distance})`);
         const attackResult = await ctx.bot.attackNpc(cow);
 
         if (!attackResult.success) {
-            ctx.warn(`Attack failed: ${attackResult.message}`);
+            console.warn(`Attack failed: ${attackResult.message}`);
 
             // Try to open gate if blocked
             if (attackResult.reason === 'out_of_reach') {
-                ctx.log('Trying to open gate...');
+                console.log('Trying to open gate...');
                 const gateResult = await ctx.bot.openDoor(/gate/i);
                 if (gateResult.success) {
-                    ctx.log('Gate opened!');
+                    console.log('Gate opened!');
                 }
             }
             continue;
@@ -534,7 +534,7 @@ async function cowhideLoop(ctx: ScriptContext): Promise<void> {
         const combatResult = await waitForCombatEnd(ctx, cow, stats);
 
         if (combatResult === 'kill') {
-            ctx.log(`Kill #${stats.kills}!`);
+            console.log(`Kill #${stats.kills}!`);
             // Immediately try to pick up the hide
             await new Promise(r => setTimeout(r, 600));
             await pickupHides(ctx, stats);
@@ -560,10 +560,10 @@ async function main() {
                 // Log final stats
                 const state = ctx.sdk.getState();
                 if (state) {
-                    ctx.log('=== Final Results ===');
+                    console.log('=== Final Results ===');
                     const hides = state.inventory.filter(i => /cow\s*hide/i.test(i.name));
-                    ctx.log(`Hides in inventory: ${hides.length}`);
-                    ctx.log(`Position: (${state.player?.worldX}, ${state.player?.worldZ})`);
+                    console.log(`Hides in inventory: ${hides.length}`);
+                    console.log(`Position: (${state.player?.worldX}, ${state.player?.worldZ})`);
                 }
             }
         }, {

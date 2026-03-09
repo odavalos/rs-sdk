@@ -45,7 +45,7 @@ function findTarget(ctx: ScriptContext): { npc: { index: number; name: string; o
 async function pickpocket(ctx: ScriptContext): Promise<boolean> {
     const target = findTarget(ctx);
     if (!target) {
-        ctx.log('No pickpocket target found');
+        console.log('No pickpocket target found');
         return false;
     }
 
@@ -53,7 +53,7 @@ async function pickpocket(ctx: ScriptContext): Promise<boolean> {
     const xpBefore = getThievingStats(ctx).xp;
     const startTick = ctx.sdk.getState()?.tick ?? 0;
 
-    ctx.log(`Pickpocketing ${npc.name}...`);
+    console.log(`Pickpocketing ${npc.name}...`);
     await ctx.sdk.sendInteractNpc(npc.index, pickpocketOpt.opIndex);
 
     // Wait for XP gain (success) or stun message (failure)
@@ -88,17 +88,17 @@ async function pickpocket(ctx: ScriptContext): Promise<boolean> {
         // Check what happened
         const thievingXpAfter = finalState.skills.find(s => s.name === 'Thieving')?.experience ?? 0;
         if (thievingXpAfter > xpBefore) {
-            ctx.log('Pickpocket success!');
+            console.log('Pickpocket success!');
             return true;
         }
 
         // We got stunned - wait for stun to wear off
-        ctx.log('Stunned! Waiting...');
+        console.log('Stunned! Waiting...');
         await new Promise(r => setTimeout(r, 5000)); // Stun lasts ~5 seconds
         return true; // Still count as progress since we attempted
 
     } catch {
-        ctx.log('Pickpocket timeout');
+        console.log('Pickpocket timeout');
         return false;
     }
 }
@@ -114,12 +114,11 @@ async function main() {
 
     try {
         await runScript(async (ctx) => {
-            const { log } = ctx;
 
-            log('=== Thieving Training Script v1 ===');
+            console.log('=== Thieving Training Script v1 ===');
 
             const startStats = getThievingStats(ctx);
-            log(`Starting Thieving: Level ${startStats.level} (${startStats.xp} XP)`);
+            console.log(`Starting Thieving: Level ${startStats.level} (${startStats.xp} XP)`);
 
             let consecutiveFails = 0;
 
@@ -127,7 +126,7 @@ async function main() {
                 const stats = getThievingStats(ctx);
 
                 if (stats.level >= 10) {
-                    log(`Goal achieved! Thieving level ${stats.level}`);
+                    console.log(`Goal achieved! Thieving level ${stats.level}`);
                     break;
                 }
 
@@ -142,13 +141,13 @@ async function main() {
                 // Check if we have a target nearby
                 const target = findTarget(ctx);
                 if (!target) {
-                    log('No targets nearby, walking to Lumbridge center...');
+                    console.log('No targets nearby, walking to Lumbridge center...');
                     // Walk to Lumbridge center where Men/Women spawn
                     await ctx.bot.walkTo(3222, 3218);
                     consecutiveFails++;
 
                     if (consecutiveFails >= 5) {
-                        log('Too many consecutive fails, aborting');
+                        console.log('Too many consecutive fails, aborting');
                         break;
                     }
                     continue;
@@ -167,7 +166,7 @@ async function main() {
             }
 
             const endStats = getThievingStats(ctx);
-            log(`\n=== Complete: Level ${endStats.level} (${endStats.xp} XP) ===`);
+            console.log(`\n=== Complete: Level ${endStats.level} (${endStats.xp} XP) ===`);
         }, {
             connection: { bot: session.bot, sdk: session.sdk },
             timeout: 15 * 60 * 1000,  // 15 minutes

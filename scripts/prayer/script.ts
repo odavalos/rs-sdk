@@ -161,7 +161,7 @@ async function buryAllBones(ctx: ScriptContext, stats: PrayerStats): Promise<voi
             // Log progress periodically
             if (stats.bonesBuried % 10 === 0) {
                 const prayerSkill = ctx.sdk.getState()?.skills.find(s => s.name === 'Prayer');
-                ctx.log(`Buried ${stats.bonesBuried} bones - Prayer: Level ${prayerSkill?.baseLevel} (${prayerSkill?.experience} XP)`);
+                console.log(`Buried ${stats.bonesBuried} bones - Prayer: Level ${prayerSkill?.baseLevel} (${prayerSkill?.experience} XP)`);
             }
         }
     }
@@ -183,10 +183,10 @@ async function prayerTrainingLoop(ctx: ScriptContext): Promise<void> {
         startTime: Date.now(),
     };
 
-    ctx.log('=== Prayer Trainer ===');
-    ctx.log(`Goal: Train Prayer to level ${TARGET_PRAYER_LEVEL}`);
-    ctx.log(`Starting Prayer: Level ${prayerSkill?.baseLevel ?? 1} (${prayerSkill?.experience ?? 0} XP)`);
-    ctx.log(`Position: (${state.player?.worldX}, ${state.player?.worldZ})`);
+    console.log('=== Prayer Trainer ===');
+    console.log(`Goal: Train Prayer to level ${TARGET_PRAYER_LEVEL}`);
+    console.log(`Starting Prayer: Level ${prayerSkill?.baseLevel ?? 1} (${prayerSkill?.experience ?? 0} XP)`);
+    console.log(`Position: (${state.player?.worldX}, ${state.player?.worldZ})`);
 
     // Dismiss any initial dialogs
     await ctx.bot.dismissBlockingUI();
@@ -194,45 +194,45 @@ async function prayerTrainingLoop(ctx: ScriptContext): Promise<void> {
     // Equip starting gear for faster kills
     const sword = ctx.sdk.findInventoryItem(/bronze sword/i);
     if (sword) {
-        ctx.log('Equipping bronze sword...');
+        console.log('Equipping bronze sword...');
         await ctx.bot.equipItem(sword);
     }
 
     const shield = ctx.sdk.findInventoryItem(/wooden shield/i);
     if (shield) {
-        ctx.log('Equipping wooden shield...');
+        console.log('Equipping wooden shield...');
         await ctx.bot.equipItem(shield);
     }
 
     // Walk to chicken coop entrance and enter through gate
-    ctx.log(`Walking to chicken coop entrance at (${CHICKEN_COOP_ENTRANCE.x}, ${CHICKEN_COOP_ENTRANCE.z})...`);
+    console.log(`Walking to chicken coop entrance at (${CHICKEN_COOP_ENTRANCE.x}, ${CHICKEN_COOP_ENTRANCE.z})...`);
     await ctx.bot.walkTo(CHICKEN_COOP_ENTRANCE.x, CHICKEN_COOP_ENTRANCE.z);
     await ctx.bot.walkTo(CHICKEN_COOP_ENTRANCE.x, CHICKEN_COOP_ENTRANCE.z);
     await ctx.bot.walkTo(CHICKEN_COOP_ENTRANCE.x, CHICKEN_COOP_ENTRANCE.z);
 
     // Open the gate to enter the chicken coop
-    ctx.log('Opening chicken coop gate...');
+    console.log('Opening chicken coop gate...');
     const gateResult = await ctx.bot.openDoor(/gate/i);
     if (!gateResult.success && gateResult.reason !== 'already_open') {
-        ctx.warn(`Gate issue: ${gateResult.message}`);
+        console.warn(`Gate issue: ${gateResult.message}`);
     }
 
     // Walk inside the coop
-    ctx.log(`Walking inside coop to (${CHICKEN_COOP_INSIDE.x}, ${CHICKEN_COOP_INSIDE.z})...`);
+    console.log(`Walking inside coop to (${CHICKEN_COOP_INSIDE.x}, ${CHICKEN_COOP_INSIDE.z})...`);
     await ctx.bot.walkTo(CHICKEN_COOP_INSIDE.x, CHICKEN_COOP_INSIDE.z);
 
     // Main loop
     while (true) {
         const currentState = ctx.sdk.getState();
         if (!currentState) {
-            ctx.warn('Lost game state');
+            console.warn('Lost game state');
             break;
         }
 
         // Check if we've reached target level
         const prayer = currentState.skills.find(s => s.name === 'Prayer');
         if (prayer && prayer.baseLevel >= TARGET_PRAYER_LEVEL) {
-            ctx.log(`*** Goal achieved! Prayer level ${prayer.baseLevel} ***`);
+            console.log(`*** Goal achieved! Prayer level ${prayer.baseLevel} ***`);
             break;
         }
 
@@ -255,7 +255,7 @@ async function prayerTrainingLoop(ctx: ScriptContext): Promise<void> {
         // This is faster than waiting and prevents inventory from filling
         if (bonesInInv.length >= 1) {
             if (bonesInInv.length > 1) {
-                ctx.log(`Burying ${bonesInInv.length} bones...`);
+                console.log(`Burying ${bonesInInv.length} bones...`);
             }
             await buryAllBones(ctx, stats);
             continue;
@@ -279,7 +279,7 @@ async function prayerTrainingLoop(ctx: ScriptContext): Promise<void> {
         // Find a chicken to attack
         const chicken = findBestChicken(ctx);
         if (!chicken) {
-            ctx.log('No chickens nearby - walking back inside coop...');
+            console.log('No chickens nearby - walking back inside coop...');
             await ctx.bot.walkTo(CHICKEN_COOP_INSIDE.x, CHICKEN_COOP_INSIDE.z);
             continue;
         }
@@ -287,7 +287,7 @@ async function prayerTrainingLoop(ctx: ScriptContext): Promise<void> {
         // Attack the chicken
         const attackResult = await ctx.bot.attackNpc(chicken);
         if (!attackResult.success) {
-            ctx.warn(`Attack failed: ${attackResult.message}`);
+            console.warn(`Attack failed: ${attackResult.message}`);
             // Try opening gate if blocked
             if (attackResult.reason === 'out_of_reach') {
                 await ctx.bot.openDoor(/gate/i);
@@ -314,9 +314,9 @@ async function main() {
                 const state = ctx.sdk.getState();
                 if (state) {
                     const prayer = state.skills.find(s => s.name === 'Prayer');
-                    ctx.log('=== Final Results ===');
-                    ctx.log(`Prayer: Level ${prayer?.baseLevel ?? '?'} (${prayer?.experience ?? '?'} XP)`);
-                    ctx.log(`Position: (${state.player?.worldX}, ${state.player?.worldZ})`);
+                    console.log('=== Final Results ===');
+                    console.log(`Prayer: Level ${prayer?.baseLevel ?? '?'} (${prayer?.experience ?? '?'} XP)`);
+                    console.log(`Position: (${state.player?.worldX}, ${state.player?.worldZ})`);
                 }
             }
         }, {

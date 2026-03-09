@@ -96,11 +96,11 @@ async function dismissDialogs(ctx: ScriptContext, stats: CraftingStats): Promise
 
 async function getInitialCoins(ctx: ScriptContext, stats: CraftingStats): Promise<void> {
     if (getCoins(ctx) >= 30) {
-        ctx.log(`Already have ${getCoins(ctx)}gp`);
+        console.log(`Already have ${getCoins(ctx)}gp`);
         return;
     }
 
-    ctx.log('Phase 1: Getting coins from general store...');
+    console.log('Phase 1: Getting coins from general store...');
 
     // Walk to general store
     await ctx.bot.walkTo(LOCATIONS.LUMBRIDGE_GENERAL_STORE.x, LOCATIONS.LUMBRIDGE_GENERAL_STORE.z);
@@ -108,21 +108,21 @@ async function getInitialCoins(ctx: ScriptContext, stats: CraftingStats): Promis
     // Open shop
     const openResult = await ctx.bot.openShop(/shop keeper/i);
     if (!openResult.success) {
-        ctx.warn(`Failed to open shop: ${openResult.message}`);
+        console.warn(`Failed to open shop: ${openResult.message}`);
         return;
     }
-    ctx.log('Shop opened');
+    console.log('Shop opened');
 
     // Sell shortbow (worth ~20gp)
     const sellResult = await ctx.bot.sellToShop(/shortbow/i, 'all');
     if (sellResult.success) {
-        ctx.log(sellResult.message);
+        console.log(sellResult.message);
     }
 
     // Close shop
     await ctx.bot.closeShop();
 
-    ctx.log(`Have ${getCoins(ctx)}gp after selling`);
+    console.log(`Have ${getCoins(ctx)}gp after selling`);
 }
 
 // ============ Phase 2: Collect Cowhides ============
@@ -162,7 +162,7 @@ async function waitForCombatEnd(
 
         // Dismiss level-up dialogs
         if (state.dialog.isOpen) {
-            ctx.log('Dismissing dialog during combat...');
+            console.log('Dismissing dialog during combat...');
             await ctx.sdk.sendClickDialog(0);
             continue;
         }
@@ -202,7 +202,7 @@ async function waitForCombatEnd(
 }
 
 async function collectCowhides(ctx: ScriptContext, stats: CraftingStats, targetHides: number): Promise<void> {
-    ctx.log(`Phase 2: Collecting ${targetHides} cowhides...`);
+    console.log(`Phase 2: Collecting ${targetHides} cowhides...`);
 
     // Equip combat gear
     const sword = ctx.sdk.findInventoryItem(/bronze sword/i);
@@ -224,7 +224,7 @@ async function collectCowhides(ctx: ScriptContext, stats: CraftingStats, targetH
 
         // Check inventory space
         if (state.inventory.length >= 28) {
-            ctx.log('Inventory full, stopping collection');
+            console.log('Inventory full, stopping collection');
             break;
         }
 
@@ -242,14 +242,14 @@ async function collectCowhides(ctx: ScriptContext, stats: CraftingStats, targetH
             const result = await ctx.bot.pickupItem(hide);
             if (result.success) {
                 stats.hidesCollected++;
-                ctx.log(`Picked up hide (total: ${getHideCount(ctx)})`);
+                console.log(`Picked up hide (total: ${getHideCount(ctx)})`);
             }
         }
 
         // Find cow to kill
         const cow = findBestCow(ctx);
         if (!cow) {
-            ctx.log('No cows nearby, walking around...');
+            console.log('No cows nearby, walking around...');
             await ctx.bot.walkTo(
                 LOCATIONS.COW_FIELD.x + (Math.random() - 0.5) * 20,
                 LOCATIONS.COW_FIELD.z + (Math.random() - 0.5) * 20
@@ -270,7 +270,7 @@ async function collectCowhides(ctx: ScriptContext, stats: CraftingStats, targetH
             if (attackResult.reason === 'out_of_reach') {
                 const gateResult = await ctx.bot.openDoor(/gate/i);
                 if (gateResult.success) {
-                    ctx.log('Opened gate');
+                    console.log('Opened gate');
                 }
             }
             continue;
@@ -279,12 +279,12 @@ async function collectCowhides(ctx: ScriptContext, stats: CraftingStats, targetH
         // Wait for kill
         const combatResult = await waitForCombatEnd(ctx, cow, stats);
         if (combatResult === 'kill') {
-            ctx.log(`Kill! Hides: ${getHideCount(ctx)}`);
+            console.log(`Kill! Hides: ${getHideCount(ctx)}`);
             await new Promise(r => setTimeout(r, 600));
         }
     }
 
-    ctx.log(`Collected ${getHideCount(ctx)} hides`);
+    console.log(`Collected ${getHideCount(ctx)} hides`);
 }
 
 // ============ Phase 3: Travel to Al Kharid ============
@@ -300,7 +300,7 @@ function isInCowField(ctx: ScriptContext): boolean {
 }
 
 async function exitCowField(ctx: ScriptContext, stats: CraftingStats): Promise<boolean> {
-    ctx.log('Exiting cow field...');
+    console.log('Exiting cow field...');
 
     // The cow field gate is on the south side around (3253, 3255)
     // Try to find and open any nearby gate
@@ -311,7 +311,7 @@ async function exitCowField(ctx: ScriptContext, stats: CraftingStats): Promise<b
         if (gate) {
             const openOpt = gate.optionsWithIndex.find(o => /open/i.test(o.text));
             if (openOpt) {
-                ctx.log(`Opening cow field gate at (${gate.x}, ${gate.z})`);
+                console.log(`Opening cow field gate at (${gate.x}, ${gate.z})`);
                 await ctx.sdk.sendInteractLoc(gate.x, gate.z, gate.id, openOpt.opIndex);
                 await new Promise(r => setTimeout(r, 800));
             }
@@ -320,7 +320,7 @@ async function exitCowField(ctx: ScriptContext, stats: CraftingStats): Promise<b
         // Walk towards the exit point just south of the cow field
         const result = await ctx.bot.walkTo(3253, 3250);
         if (result.success && !isInCowField(ctx)) {
-            ctx.log('Exited cow field');
+            console.log('Exited cow field');
             return true;
         }
 
@@ -328,7 +328,7 @@ async function exitCowField(ctx: ScriptContext, stats: CraftingStats): Promise<b
         if (!result.success) {
             const doorResult = await ctx.bot.openDoor(/gate/i);
             if (doorResult.success) {
-                ctx.log('Opened gate via openDoor');
+                console.log('Opened gate via openDoor');
             }
         }
     }
@@ -338,14 +338,14 @@ async function exitCowField(ctx: ScriptContext, stats: CraftingStats): Promise<b
 
 async function travelToAlKharid(ctx: ScriptContext, stats: CraftingStats): Promise<boolean> {
     if (isInsideAlKharid(ctx)) {
-        ctx.log('Already in Al Kharid');
+        console.log('Already in Al Kharid');
         return true;
     }
 
-    ctx.log('Phase 3: Traveling to Al Kharid...');
+    console.log('Phase 3: Traveling to Al Kharid...');
 
     if (getCoins(ctx) < 10) {
-        ctx.warn(`Not enough coins for toll (have ${getCoins(ctx)})`);
+        console.warn(`Not enough coins for toll (have ${getCoins(ctx)})`);
         return false;
     }
 
@@ -353,13 +353,13 @@ async function travelToAlKharid(ctx: ScriptContext, stats: CraftingStats): Promi
     if (isInCowField(ctx)) {
         const exited = await exitCowField(ctx, stats);
         if (!exited) {
-            ctx.warn('Could not exit cow field');
+            console.warn('Could not exit cow field');
             return false;
         }
     }
 
     // Walk to gate - make sure we're at the correct position
-    ctx.log(`Walking to toll gate from (${ctx.sdk.getState()?.player?.worldX}, ${ctx.sdk.getState()?.player?.worldZ})`);
+    console.log(`Walking to toll gate from (${ctx.sdk.getState()?.player?.worldX}, ${ctx.sdk.getState()?.player?.worldZ})`);
     await ctx.bot.walkTo(LOCATIONS.TOLL_GATE.x, LOCATIONS.TOLL_GATE.z);
     await new Promise(r => setTimeout(r, 1000));  // Wait for pathfinding
 
@@ -368,19 +368,19 @@ async function travelToAlKharid(ctx: ScriptContext, stats: CraftingStats): Promi
 
     // If gate not found, try walking closer to known toll gate position
     if (!gate) {
-        ctx.log('Gate not found, walking to exact toll gate position...');
+        console.log('Gate not found, walking to exact toll gate position...');
         await ctx.bot.walkTo(3267, 3228);  // Exact toll gate position
         await new Promise(r => setTimeout(r, 1000));
         gate = ctx.sdk.getState()?.nearbyLocs.find(l => /gate/i.test(l.name) && l.distance < 15);
     }
     if (!gate) {
-        ctx.warn('No gate found');
+        console.warn('No gate found');
         return false;
     }
 
     const openOpt = gate.optionsWithIndex.find(o => /pay|open/i.test(o.text));
     if (!openOpt) {
-        ctx.warn('No open/pay option on gate');
+        console.warn('No open/pay option on gate');
         return false;
     }
 
@@ -399,7 +399,7 @@ async function travelToAlKharid(ctx: ScriptContext, stats: CraftingStats): Promi
 
         const yesOpt = s.dialog.options.find(o => /yes/i.test(o.text));
         if (yesOpt) {
-            ctx.log('Paying toll...');
+            console.log('Paying toll...');
             await ctx.sdk.sendClickDialog(yesOpt.index);
             paidToll = true;
         } else {
@@ -420,7 +420,7 @@ async function travelToAlKharid(ctx: ScriptContext, stats: CraftingStats): Promi
     }
 
     const success = isInsideAlKharid(ctx);
-    ctx.log(success ? 'Arrived in Al Kharid!' : 'Failed to enter Al Kharid');
+    console.log(success ? 'Arrived in Al Kharid!' : 'Failed to enter Al Kharid');
     return success;
 }
 
@@ -428,22 +428,22 @@ async function travelToAlKharid(ctx: ScriptContext, stats: CraftingStats): Promi
 
 async function buyCraftingSupplies(ctx: ScriptContext, stats: CraftingStats): Promise<boolean> {
     if (hasNeedle(ctx) && hasThread(ctx)) {
-        ctx.log('Already have needle and thread');
+        console.log('Already have needle and thread');
         return true;
     }
 
-    ctx.log('Phase 4: Buying crafting supplies...');
+    console.log('Phase 4: Buying crafting supplies...');
 
     // Walk to craft shop
     await ctx.bot.walkTo(LOCATIONS.AL_KHARID_CRAFT_SHOP.x, LOCATIONS.AL_KHARID_CRAFT_SHOP.z);
 
     // Log player position for debugging
     const pos = ctx.sdk.getState()?.player;
-    ctx.log(`Player at: (${pos?.worldX}, ${pos?.worldZ})`);
+    console.log(`Player at: (${pos?.worldX}, ${pos?.worldZ})`);
 
     // Log all nearby NPCs to find Dommik
     const allNpcs = ctx.sdk.getState()?.nearbyNpcs || [];
-    ctx.log(`All NPCs nearby (${allNpcs.length}): ${allNpcs.slice(0, 15).map(n => `${n.name}(${n.distance})`).join(', ')}`);
+    console.log(`All NPCs nearby (${allNpcs.length}): ${allNpcs.slice(0, 15).map(n => `${n.name}(${n.distance})`).join(', ')}`);
 
     // Find Dommik the crafting shop owner
     let shopkeeper = ctx.sdk.findNearbyNpc(/^dommik$/i);
@@ -453,7 +453,7 @@ async function buyCraftingSupplies(ctx: ScriptContext, stats: CraftingStats): Pr
     }
     if (!shopkeeper) {
         // Dommik might not be loaded yet - try walking around to find more NPCs
-        ctx.log('Dommik not found, searching nearby...');
+        console.log('Dommik not found, searching nearby...');
 
         // Try walking to different spots in the area
         const searchSpots = [
@@ -469,30 +469,30 @@ async function buyCraftingSupplies(ctx: ScriptContext, stats: CraftingStats): Pr
 
             shopkeeper = ctx.sdk.findNearbyNpc(/^dommik$/i);
             if (shopkeeper) {
-                ctx.log(`Found Dommik at spot (${spot.x}, ${spot.z})`);
+                console.log(`Found Dommik at spot (${spot.x}, ${spot.z})`);
                 break;
             }
 
             const npcs = ctx.sdk.getState()?.nearbyNpcs.slice(0, 10).map(n => `${n.name}(${n.distance})`).join(', ') ?? 'none';
-            ctx.log(`At (${spot.x}, ${spot.z}): NPCs = ${npcs}`);
+            console.log(`At (${spot.x}, ${spot.z}): NPCs = ${npcs}`);
         }
     }
 
     if (!shopkeeper) {
-        ctx.warn(`Could not find Dommik after searching`);
+        console.warn(`Could not find Dommik after searching`);
         return false;
     }
 
-    ctx.log(`Found shopkeeper: ${shopkeeper.name} at distance ${shopkeeper.distance}`);
+    console.log(`Found shopkeeper: ${shopkeeper.name} at distance ${shopkeeper.distance}`);
 
     // Open shop using Trade option
     const tradeOpt = shopkeeper.optionsWithIndex.find(o => /trade/i.test(o.text));
     if (!tradeOpt) {
-        ctx.warn(`No trade option on Dommik. Options: ${shopkeeper.options.join(', ')}`);
+        console.warn(`No trade option on Dommik. Options: ${shopkeeper.options.join(', ')}`);
         return false;
     }
 
-    ctx.log(`Trading with Dommik (distance: ${shopkeeper.distance})...`);
+    console.log(`Trading with Dommik (distance: ${shopkeeper.distance})...`);
     await ctx.sdk.sendInteractNpc(shopkeeper.index, tradeOpt.opIndex);
 
     // Wait for shop to open (longer wait - interaction will walk us closer)
@@ -504,7 +504,7 @@ async function buyCraftingSupplies(ctx: ScriptContext, stats: CraftingStats): Pr
 
         // If dialog opened instead (Talk-to triggered), dismiss it
         if (ctx.sdk.getState()?.dialog.isOpen) {
-            ctx.log('Dialog opened, clicking through...');
+            console.log('Dialog opened, clicking through...');
             await ctx.sdk.sendClickDialog(0);
             await new Promise(r => setTimeout(r, 200));
         }
@@ -514,7 +514,7 @@ async function buyCraftingSupplies(ctx: ScriptContext, stats: CraftingStats): Pr
         // Maybe we need to open a door first?
         const door = ctx.sdk.getState()?.nearbyLocs.find(l => /door/i.test(l.name) && l.distance < 5);
         if (door) {
-            ctx.log('Trying to open door...');
+            console.log('Trying to open door...');
             const openOpt = door.optionsWithIndex.find(o => /open/i.test(o.text));
             if (openOpt) {
                 await ctx.sdk.sendInteractLoc(door.x, door.z, door.id, openOpt.opIndex);
@@ -537,22 +537,22 @@ async function buyCraftingSupplies(ctx: ScriptContext, stats: CraftingStats): Pr
     }
 
     if (!ctx.sdk.getState()?.shop.isOpen) {
-        ctx.warn('Shop still did not open');
+        console.warn('Shop still did not open');
         return false;
     }
 
-    ctx.log(`Shop opened: ${ctx.sdk.getState()?.shop.title}`);
+    console.log(`Shop opened: ${ctx.sdk.getState()?.shop.title}`);
 
     // Buy needle if needed
     if (!hasNeedle(ctx)) {
         const buyResult = await ctx.bot.buyFromShop(/needle/i, 1);
-        ctx.log(buyResult.success ? 'Bought needle' : `Failed to buy needle: ${buyResult.message}`);
+        console.log(buyResult.success ? 'Bought needle' : `Failed to buy needle: ${buyResult.message}`);
     }
 
     // Buy thread if needed
     if (!hasThread(ctx)) {
         const buyResult = await ctx.bot.buyFromShop(/thread/i, 5);
-        ctx.log(buyResult.success ? 'Bought thread' : `Failed to buy thread: ${buyResult.message}`);
+        console.log(buyResult.success ? 'Bought thread' : `Failed to buy thread: ${buyResult.message}`);
     }
 
     await ctx.bot.closeShop();
@@ -565,11 +565,11 @@ async function buyCraftingSupplies(ctx: ScriptContext, stats: CraftingStats): Pr
 async function tanHides(ctx: ScriptContext, stats: CraftingStats): Promise<void> {
     const hideCount = getHideCount(ctx);
     if (hideCount === 0) {
-        ctx.log('No hides to tan');
+        console.log('No hides to tan');
         return;
     }
 
-    ctx.log(`Phase 5: Tanning ${hideCount} hides...`);
+    console.log(`Phase 5: Tanning ${hideCount} hides...`);
 
     // Walk to tanner
     await ctx.bot.walkTo(LOCATIONS.AL_KHARID_TANNER.x, LOCATIONS.AL_KHARID_TANNER.z);
@@ -578,20 +578,20 @@ async function tanHides(ctx: ScriptContext, stats: CraftingStats): Promise<void>
     const tanner = ctx.sdk.findNearbyNpc(/^tanner$/i);
     if (!tanner) {
         const npcs = ctx.sdk.getState()?.nearbyNpcs.slice(0, 5).map(n => `${n.name}(${n.options.join('/')})`).join(', ') ?? 'none';
-        ctx.warn(`No tanner found. Nearby NPCs: ${npcs}`);
+        console.warn(`No tanner found. Nearby NPCs: ${npcs}`);
         return;
     }
 
-    ctx.log(`Found tanner: ${tanner.name} at distance ${tanner.distance}, options: ${tanner.options.join(', ')}`);
+    console.log(`Found tanner: ${tanner.name} at distance ${tanner.distance}, options: ${tanner.options.join(', ')}`);
 
     // Talk to the tanner (uses Talk-to, not Trade)
     const talkOpt = tanner.optionsWithIndex.find(o => /talk/i.test(o.text));
     if (!talkOpt) {
-        ctx.warn('No talk option on tanner');
+        console.warn('No talk option on tanner');
         return;
     }
 
-    ctx.log('Talking to tanner...');
+    console.log('Talking to tanner...');
     await ctx.sdk.sendInteractNpc(tanner.index, talkOpt.opIndex);
 
     // Wait for dialog - game will auto-walk if needed
@@ -601,14 +601,14 @@ async function tanHides(ctx: ScriptContext, stats: CraftingStats): Promise<void>
     }
 
     if (!ctx.sdk.getState()?.dialog?.isOpen) {
-        ctx.warn('Dialog did not open with tanner');
+        console.warn('Dialog did not open with tanner');
         // Log current state
         const player = ctx.sdk.getState()?.player;
-        ctx.log(`Player at (${player?.worldX}, ${player?.worldZ})`);
+        console.log(`Player at (${player?.worldX}, ${player?.worldZ})`);
         return;
     }
 
-    ctx.log('Tanner dialog opened!');
+    console.log('Tanner dialog opened!');
 
     // Handle dialog - need to:
     // 1. Click through initial greeting
@@ -620,18 +620,18 @@ async function tanHides(ctx: ScriptContext, stats: CraftingStats): Promise<void>
         const s = ctx.sdk.getState();
         if (!s?.dialog?.isOpen) {
             // Dialog closed - tanning should be complete
-            ctx.log('Dialog closed');
+            console.log('Dialog closed');
             break;
         }
 
         const options = s.dialog.options;
         const optText = options.map(o => o.text).join(' | ');
-        ctx.log(`Dialog options: ${optText}`);
+        console.log(`Dialog options: ${optText}`);
 
         // Look for "Soft leather" option first (this is what we want)
         const softLeatherOpt = options.find(o => /soft leather/i.test(o.text));
         if (softLeatherOpt) {
-            ctx.log('Selecting "Soft leather"');
+            console.log('Selecting "Soft leather"');
             await ctx.sdk.sendClickDialog(softLeatherOpt.index);
             await new Promise(r => setTimeout(r, 500));
             continue;
@@ -640,7 +640,7 @@ async function tanHides(ctx: ScriptContext, stats: CraftingStats): Promise<void>
         // Look for "Yes please" to confirm tanning
         const yesOpt = options.find(o => /yes.*please/i.test(o.text));
         if (yesOpt) {
-            ctx.log('Clicking "Yes please"');
+            console.log('Clicking "Yes please"');
             await ctx.sdk.sendClickDialog(yesOpt.index);
             await new Promise(r => setTimeout(r, 500));
             continue;
@@ -663,7 +663,7 @@ async function tanHides(ctx: ScriptContext, stats: CraftingStats): Promise<void>
     const leather = getLeatherCount(ctx);
     const hidesLeft = getHideCount(ctx);
     stats.hidesTanned += leather;
-    ctx.log(`Tanning complete. Leather: ${leather}, Hides remaining: ${hidesLeft}`);
+    console.log(`Tanning complete. Leather: ${leather}, Hides remaining: ${hidesLeft}`);
 }
 
 // ============ Phase 6: Craft Leather Items ============
@@ -671,11 +671,11 @@ async function tanHides(ctx: ScriptContext, stats: CraftingStats): Promise<void>
 async function craftLeatherItems(ctx: ScriptContext, stats: CraftingStats): Promise<void> {
     const leatherCount = getLeatherCount(ctx);
     if (leatherCount === 0) {
-        ctx.log('No leather to craft');
+        console.log('No leather to craft');
         return;
     }
 
-    ctx.log(`Phase 6: Crafting with ${leatherCount} leather...`);
+    console.log(`Phase 6: Crafting with ${leatherCount} leather...`);
 
     const xpBefore = getCraftingXp(ctx);
 
@@ -684,11 +684,11 @@ async function craftLeatherItems(ctx: ScriptContext, stats: CraftingStats): Prom
         const result = await ctx.bot.craftLeather('gloves');
 
         if (result.success) {
-            ctx.log(`${result.message}`);
+            console.log(`${result.message}`);
             stats.itemsCrafted += result.itemsCrafted ?? 1;
             stats.xpGained += result.xpGained ?? 0;
         } else {
-            ctx.warn(`Craft failed: ${result.message} (reason: ${result.reason})`);
+            console.warn(`Craft failed: ${result.message} (reason: ${result.reason})`);
 
             // If level too low, we can't craft anything
             if (result.reason === 'level_too_low') {
@@ -712,10 +712,10 @@ async function craftLeatherItems(ctx: ScriptContext, stats: CraftingStats): Prom
                 // Try one more time then give up
                 const retry = await ctx.bot.craftLeather('gloves');
                 if (!retry.success) {
-                    ctx.warn(`Retry also failed: ${retry.message}`);
+                    console.warn(`Retry also failed: ${retry.message}`);
                     break;
                 }
-                ctx.log(`Retry succeeded: ${retry.message}`);
+                console.log(`Retry succeeded: ${retry.message}`);
                 stats.itemsCrafted += retry.itemsCrafted ?? 1;
                 stats.xpGained += retry.xpGained ?? 0;
             }
@@ -726,19 +726,19 @@ async function craftLeatherItems(ctx: ScriptContext, stats: CraftingStats): Prom
     }
 
     const totalXpGained = getCraftingXp(ctx) - xpBefore;
-    ctx.log(`Crafting complete. Total: +${totalXpGained} XP. Level: ${getCraftingLevel(ctx)}`);
+    console.log(`Crafting complete. Total: +${totalXpGained} XP. Level: ${getCraftingLevel(ctx)}`);
 }
 
 // ============ Phase 7: Bank and Repeat ============
 
 async function bankItems(ctx: ScriptContext, stats: CraftingStats): Promise<void> {
-    ctx.log('Banking items...');
+    console.log('Banking items...');
 
     await ctx.bot.walkTo(LOCATIONS.AL_KHARID_BANK.x, LOCATIONS.AL_KHARID_BANK.z);
 
     const openResult = await ctx.bot.openBank();
     if (!openResult.success) {
-        ctx.warn(`Failed to open bank: ${openResult.message}`);
+        console.warn(`Failed to open bank: ${openResult.message}`);
         return;
     }
 
@@ -769,10 +769,10 @@ async function craftingLoop(ctx: ScriptContext): Promise<void> {
         startTime: Date.now(),
     };
 
-    ctx.log('=== Crafting Training Script ===');
-    ctx.log(`Starting level: ${getCraftingLevel(ctx)}`);
-    ctx.log(`Target level: ${TARGET_LEVEL}`);
-    ctx.log(`Position: (${state.player?.worldX}, ${state.player?.worldZ})`);
+    console.log('=== Crafting Training Script ===');
+    console.log(`Starting level: ${getCraftingLevel(ctx)}`);
+    console.log(`Target level: ${TARGET_LEVEL}`);
+    console.log(`Position: (${state.player?.worldX}, ${state.player?.worldZ})`);
 
     // Get initial coins
     await getInitialCoins(ctx, stats);
@@ -780,8 +780,8 @@ async function craftingLoop(ctx: ScriptContext): Promise<void> {
     let cycle = 0;
     while (getCraftingLevel(ctx) < TARGET_LEVEL) {
         cycle++;
-        ctx.log(`\n=== Cycle ${cycle} ===`);
-        ctx.log(`Level: ${getCraftingLevel(ctx)}, XP: ${getCraftingXp(ctx)}`);
+        console.log(`\n=== Cycle ${cycle} ===`);
+        console.log(`Level: ${getCraftingLevel(ctx)}, XP: ${getCraftingXp(ctx)}`);
 
         // Collect hides if we don't have enough
         if (getHideCount(ctx) < HIDES_PER_TRIP && !isInsideAlKharid(ctx)) {
@@ -821,7 +821,7 @@ async function craftingLoop(ctx: ScriptContext): Promise<void> {
 
         // If we've used all materials and still need more levels, go get more hides
         if (getHideCount(ctx) === 0 && getLeatherCount(ctx) === 0 && getCraftingLevel(ctx) < TARGET_LEVEL) {
-            ctx.log('Need more hides, returning to Lumbridge...');
+            console.log('Need more hides, returning to Lumbridge...');
             // Walk back towards Lumbridge (toll gate is free to exit)
             await ctx.bot.walkTo(LOCATIONS.TOLL_GATE.x, LOCATIONS.TOLL_GATE.z);
             // Walk to Lumbridge side
@@ -831,13 +831,13 @@ async function craftingLoop(ctx: ScriptContext): Promise<void> {
 
     // Final stats
     const duration = (Date.now() - stats.startTime) / 1000;
-    ctx.log('\n=== Final Results ===');
-    ctx.log(`Duration: ${Math.round(duration)}s`);
-    ctx.log(`Hides collected: ${stats.hidesCollected}`);
-    ctx.log(`Hides tanned: ${stats.hidesTanned}`);
-    ctx.log(`Items crafted: ${stats.itemsCrafted}`);
-    ctx.log(`XP gained: ${stats.xpGained}`);
-    ctx.log(`Final level: ${getCraftingLevel(ctx)}`);
+    console.log('\n=== Final Results ===');
+    console.log(`Duration: ${Math.round(duration)}s`);
+    console.log(`Hides collected: ${stats.hidesCollected}`);
+    console.log(`Hides tanned: ${stats.hidesTanned}`);
+    console.log(`Items crafted: ${stats.itemsCrafted}`);
+    console.log(`XP gained: ${stats.xpGained}`);
+    console.log(`Final level: ${getCraftingLevel(ctx)}`);
 }
 
 // Main script
@@ -854,7 +854,7 @@ async function main() {
             try {
                 await craftingLoop(ctx);
             } catch (e) {
-                ctx.error(`Script aborted: ${e instanceof Error ? e.message : String(e)}`);
+                console.error(`Script aborted: ${e instanceof Error ? e.message : String(e)}`);
                 throw e;
             }
         }, {

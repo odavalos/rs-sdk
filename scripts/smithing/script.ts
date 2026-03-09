@@ -75,45 +75,45 @@ function countOre(ctx: ScriptContext): { copper: number; tin: number; bronzeBars
 
 // Get coins by selling items at Lumbridge shop
 async function getCoinsFromShop(ctx: ScriptContext): Promise<boolean> {
-    ctx.log('Selling items for toll money...');
+    console.log('Selling items for toll money...');
 
     await ctx.bot.walkTo(LUMBRIDGE_SHOP.x, LUMBRIDGE_SHOP.z);
 
     const openResult = await ctx.bot.openShop(/shop keeper/i);
     if (!openResult.success) {
-        ctx.log(`Failed to open shop: ${openResult.message}`);
+        console.log(`Failed to open shop: ${openResult.message}`);
         return false;
     }
 
     // Sell shortbow (worth ~20gp)
     const sellResult = await ctx.bot.sellToShop(/shortbow/i, 1);
     if (sellResult.success) {
-        ctx.log(sellResult.message);
+        console.log(sellResult.message);
     }
 
     await ctx.bot.closeShop();
 
     const coins = getCoins(ctx);
-    ctx.log(`Have ${coins}gp after selling`);
+    console.log(`Have ${coins}gp after selling`);
     return coins >= 10;
 }
 
 // Walk to SE Varrock mine
 // The pathfinder should handle routing automatically
 async function walkToMine(ctx: ScriptContext): Promise<void> {
-    ctx.log('Walking to SE Varrock mine...');
+    console.log('Walking to SE Varrock mine...');
 
     const currentPos = ctx.sdk.getState()?.player;
-    ctx.log(`From (${currentPos?.worldX}, ${currentPos?.worldZ}) to (${SE_VARROCK_MINE_COPPERTIN.x}, ${SE_VARROCK_MINE_COPPERTIN.z})`);
+    console.log(`From (${currentPos?.worldX}, ${currentPos?.worldZ}) to (${SE_VARROCK_MINE_COPPERTIN.x}, ${SE_VARROCK_MINE_COPPERTIN.z})`);
 
     // Try direct walk to mine
     let result = await ctx.bot.walkTo(SE_VARROCK_MINE_COPPERTIN.x, SE_VARROCK_MINE_COPPERTIN.z);
 
     if (!result.success) {
-        ctx.log(`Direct walk failed: ${result.message}`);
+        console.log(`Direct walk failed: ${result.message}`);
 
         // Try via an intermediate point (around Varrock east)
-        ctx.log('Trying via Varrock east gate area...');
+        console.log('Trying via Varrock east gate area...');
         const intermediate = { x: 3275, z: 3340 };
         result = await ctx.bot.walkTo(intermediate.x, intermediate.z);
         if (result.success) {
@@ -130,7 +130,7 @@ async function walkToMine(ctx: ScriptContext): Promise<void> {
     }
 
     const pos = ctx.sdk.getState()?.player;
-    ctx.log(`At mine: (${pos?.worldX}, ${pos?.worldZ})`);
+    console.log(`At mine: (${pos?.worldX}, ${pos?.worldZ})`);
 }
 
 // Prospect a rock to find what ore it contains
@@ -193,7 +193,7 @@ async function mineRock(ctx: ScriptContext): Promise<boolean> {
     ).sort((a, b) => a.distance - b.distance);
 
     if (rocks.length === 0) {
-        ctx.log('No rocks nearby');
+        console.log('No rocks nearby');
         return false;
     }
 
@@ -205,7 +205,7 @@ async function mineRock(ctx: ScriptContext): Promise<boolean> {
         // Skip non-copper/tin or empty rocks
         if (!oreType || oreType === 'empty') continue;
         if (oreType !== 'copper' && oreType !== 'tin') {
-            ctx.log(`Skip ${oreType} rock`);
+            console.log(`Skip ${oreType} rock`);
             continue;
         }
 
@@ -216,7 +216,7 @@ async function mineRock(ctx: ScriptContext): Promise<boolean> {
         const xpBefore = ctx.sdk.getState()?.skills.find(s => s.name === 'Mining')?.experience ?? 0;
         const invCountBefore = ctx.sdk.getState()?.inventory.length ?? 0;
 
-        ctx.log(`Mining ${oreType} at (${rock.x}, ${rock.z})...`);
+        console.log(`Mining ${oreType} at (${rock.x}, ${rock.z})...`);
         await ctx.sdk.sendInteractLoc(rock.x, rock.z, rock.id, mineOpt.opIndex);
 
         // Wait for mining to complete
@@ -233,10 +233,10 @@ async function mineRock(ctx: ScriptContext): Promise<boolean> {
             }, 8000);
 
             const currentOre = countOre(ctx);
-            ctx.log(`Mined! (${currentOre.copper} copper, ${currentOre.tin} tin)`);
+            console.log(`Mined! (${currentOre.copper} copper, ${currentOre.tin} tin)`);
                     return true;
         } catch {
-            ctx.log('Mining timeout');
+            console.log('Mining timeout');
         }
     }
 
@@ -245,7 +245,7 @@ async function mineRock(ctx: ScriptContext): Promise<boolean> {
 
 // Mine ore until we have enough copper and tin
 async function mineOre(ctx: ScriptContext, targetPairs: number): Promise<void> {
-    ctx.log(`Mining ${targetPairs} pairs of ore...`);
+    console.log(`Mining ${targetPairs} pairs of ore...`);
 
     let consecutiveFails = 0;
 
@@ -254,19 +254,19 @@ async function mineOre(ctx: ScriptContext, targetPairs: number): Promise<void> {
         const pairs = Math.min(ore.copper, ore.tin);
 
         if (pairs >= targetPairs) {
-            ctx.log(`Have ${pairs} ore pairs, done mining`);
+            console.log(`Have ${pairs} ore pairs, done mining`);
             break;
         }
 
         // Check inventory space
         const invCount = ctx.sdk.getState()?.inventory.length ?? 0;
         if (invCount >= 26) {  // Leave some space
-            ctx.log('Inventory nearly full');
+            console.log('Inventory nearly full');
             break;
         }
 
         // Log current ore counts
-        ctx.log(`Mining... (copper: ${ore.copper}, tin: ${ore.tin})`);
+        console.log(`Mining... (copper: ${ore.copper}, tin: ${ore.tin})`);
 
         // Just mine any copper or tin we find - don't try to balance
         // The preference logic was causing issues where rocks respawn as different ore
@@ -274,7 +274,7 @@ async function mineOre(ctx: ScriptContext, targetPairs: number): Promise<void> {
 
         if (!result) {
             consecutiveFails++;
-            ctx.log(`Mining failed (${consecutiveFails}/5)`);
+            console.log(`Mining failed (${consecutiveFails}/5)`);
 
             // Walk around to find rocks
             const currentPos = ctx.sdk.getState()?.player;
@@ -297,11 +297,11 @@ async function mineOre(ctx: ScriptContext, targetPairs: number): Promise<void> {
 // Pay toll and enter Al Kharid
 async function enterAlKharid(ctx: ScriptContext): Promise<boolean> {
     if (isInsideAlKharid(ctx)) {
-        ctx.log('Already in Al Kharid');
+        console.log('Already in Al Kharid');
         return true;
     }
 
-    ctx.log('Walking to toll gate...');
+    console.log('Walking to toll gate...');
     await ctx.bot.walkTo(AL_KHARID_GATE.x, AL_KHARID_GATE.z);
 
     // Find and interact with gate
@@ -309,17 +309,17 @@ async function enterAlKharid(ctx: ScriptContext): Promise<boolean> {
     const gate = state?.nearbyLocs.find(l => /gate/i.test(l.name) && l.distance < 10);
 
     if (!gate) {
-        ctx.log('Gate not found!');
+        console.log('Gate not found!');
         return false;
     }
 
     const openOpt = gate.optionsWithIndex.find(o => /pay|open/i.test(o.text));
     if (!openOpt) {
-        ctx.log('No open option on gate');
+        console.log('No open option on gate');
         return false;
     }
 
-    ctx.log('Interacting with gate...');
+    console.log('Interacting with gate...');
     await ctx.sdk.sendInteractLoc(gate.x, gate.z, gate.id, openOpt.opIndex);
     await new Promise(r => setTimeout(r, 800));
 
@@ -333,7 +333,7 @@ async function enterAlKharid(ctx: ScriptContext): Promise<boolean> {
 
         const yesOpt = s.dialog.options.find(o => /yes/i.test(o.text));
         if (yesOpt) {
-            ctx.log('Paying toll...');
+            console.log('Paying toll...');
             await ctx.sdk.sendClickDialog(yesOpt.index);
             break;
         }
@@ -360,7 +360,7 @@ async function enterAlKharid(ctx: ScriptContext): Promise<boolean> {
         await new Promise(r => setTimeout(r, 500));
 
         if (isInsideAlKharid(ctx)) {
-            ctx.log('Entered Al Kharid!');
+            console.log('Entered Al Kharid!');
             return true;
         }
     }
@@ -370,7 +370,7 @@ async function enterAlKharid(ctx: ScriptContext): Promise<boolean> {
 
 // Smelt bronze bars at furnace
 async function smeltBars(ctx: ScriptContext): Promise<number> {
-    ctx.log('Walking to furnace...');
+    console.log('Walking to furnace...');
     await ctx.bot.walkTo(AL_KHARID_FURNACE.x, AL_KHARID_FURNACE.z);
 
     let barsSmelted = 0;
@@ -380,7 +380,7 @@ async function smeltBars(ctx: ScriptContext): Promise<number> {
         const pairs = Math.min(ore.copper, ore.tin);
 
         if (pairs === 0) {
-            ctx.log('No more ore pairs');
+            console.log('No more ore pairs');
             break;
         }
 
@@ -395,21 +395,21 @@ async function smeltBars(ctx: ScriptContext): Promise<number> {
         // Find furnace
         const furnace = state?.nearbyLocs.find(l => /furnace/i.test(l.name));
         if (!furnace) {
-            ctx.log('Furnace not found');
+            console.log('Furnace not found');
             break;
         }
 
         // Find copper ore in inventory
         const copper = ctx.sdk.findInventoryItem(/copper ore/i);
         if (!copper) {
-            ctx.log('No copper ore');
+            console.log('No copper ore');
             break;
         }
 
         const smithingXpBefore = getSmithingStats(ctx).xp;
 
         // Use copper ore on furnace
-        ctx.log('Using ore on furnace...');
+        console.log('Using ore on furnace...');
         await ctx.sdk.sendUseItemOnLoc(copper.slot, furnace.x, furnace.z, furnace.id);
         await new Promise(r => setTimeout(r, 1000));
 
@@ -423,7 +423,7 @@ async function smeltBars(ctx: ScriptContext): Promise<number> {
                 // Look for bronze bar option
                 const bronzeOpt = s.dialog.options.find(o => /bronze/i.test(o.text));
                 if (bronzeOpt) {
-                    ctx.log('Selecting bronze bar...');
+                    console.log('Selecting bronze bar...');
                     await ctx.sdk.sendClickDialog(bronzeOpt.index);
                     break;
                 }
@@ -452,9 +452,9 @@ async function smeltBars(ctx: ScriptContext): Promise<number> {
             }, 10000);
 
             barsSmelted++;
-            ctx.log(`Smelted bar #${barsSmelted}`);
+            console.log(`Smelted bar #${barsSmelted}`);
                 } catch {
-            ctx.log('Smelting timeout');
+            console.log('Smelting timeout');
             await new Promise(r => setTimeout(r, 500));
         }
     }
@@ -469,7 +469,7 @@ async function smithItems(ctx: ScriptContext): Promise<number> {
 
     if (!anvil) {
         // Try walking around Al Kharid to find anvil
-        ctx.log('Looking for anvil in Al Kharid...');
+        console.log('Looking for anvil in Al Kharid...');
 
         // Known Al Kharid anvil location (near general store)
         const alKharidAnvil = { x: 3290, z: 3179 };
@@ -479,7 +479,7 @@ async function smithItems(ctx: ScriptContext): Promise<number> {
     }
 
     if (!anvil) {
-        ctx.log('No anvil found, trying Varrock...');
+        console.log('No anvil found, trying Varrock...');
         // Walk to Varrock west anvil
         await ctx.bot.walkTo(3188, 3427);
 
@@ -487,16 +487,16 @@ async function smithItems(ctx: ScriptContext): Promise<number> {
     }
 
     if (!anvil) {
-        ctx.log('Cannot find anvil!');
+        console.log('Cannot find anvil!');
         return 0;
     }
 
-    ctx.log(`Found anvil at (${anvil.x}, ${anvil.z})`);
+    console.log(`Found anvil at (${anvil.x}, ${anvil.z})`);
 
     // Check for hammer
     const hammer = ctx.sdk.findInventoryItem(/hammer/i);
     if (!hammer) {
-        ctx.log('No hammer in inventory!');
+        console.log('No hammer in inventory!');
         return 0;
     }
 
@@ -505,7 +505,7 @@ async function smithItems(ctx: ScriptContext): Promise<number> {
     while (true) {
         const ore = countOre(ctx);
         if (ore.bronzeBars === 0) {
-            ctx.log('No bronze bars left');
+            console.log('No bronze bars left');
             break;
         }
 
@@ -520,14 +520,14 @@ async function smithItems(ctx: ScriptContext): Promise<number> {
         // Find bronze bar
         const bar = ctx.sdk.findInventoryItem(/bronze bar/i);
         if (!bar) {
-            ctx.log('No bronze bar');
+            console.log('No bronze bar');
             break;
         }
 
         const smithingXpBefore = getSmithingStats(ctx).xp;
 
         // Use bar on anvil
-        ctx.log('Using bar on anvil...');
+        console.log('Using bar on anvil...');
         await ctx.sdk.sendUseItemOnLoc(bar.slot, anvil.x, anvil.z, anvil.id);
         await new Promise(r => setTimeout(r, 1000));
 
@@ -542,7 +542,7 @@ async function smithItems(ctx: ScriptContext): Promise<number> {
                 // Look for bronze dagger (1 bar, level 1)
                 const daggerOpt = s.dialog.options.find(o => /dagger/i.test(o.text));
                 if (daggerOpt) {
-                    ctx.log('Selecting dagger...');
+                    console.log('Selecting dagger...');
                     await ctx.sdk.sendClickDialog(daggerOpt.index);
                     break;
                 }
@@ -562,7 +562,7 @@ async function smithItems(ctx: ScriptContext): Promise<number> {
 
             // Check interface state
             if (s?.interface?.isOpen) {
-                ctx.log(`Interface open: ${s.interface.interfaceId}, options: ${s.interface.options.map(o => o.text).join(', ')}`);
+                console.log(`Interface open: ${s.interface.interfaceId}, options: ${s.interface.options.map(o => o.text).join(', ')}`);
 
                 // Try clicking first option
                 if (s.interface.options.length > 0) {
@@ -585,9 +585,9 @@ async function smithItems(ctx: ScriptContext): Promise<number> {
             }, 10000);
 
             itemsSmithed++;
-            ctx.log(`Smithed item #${itemsSmithed}`);
+            console.log(`Smithed item #${itemsSmithed}`);
                 } catch {
-            ctx.log('Smithing timeout');
+            console.log('Smithing timeout');
             await new Promise(r => setTimeout(r, 500));
         }
     }
@@ -608,17 +608,17 @@ async function dropItems(ctx: ScriptContext, pattern: RegExp): Promise<void> {
 async function equipPickaxe(ctx: ScriptContext): Promise<boolean> {
     const equipped = ctx.sdk.findEquipmentItem(/pickaxe/i);
     if (equipped) {
-        ctx.log('Pickaxe already equipped');
+        console.log('Pickaxe already equipped');
         return true;
     }
 
     const pickaxe = ctx.sdk.findInventoryItem(/pickaxe/i);
     if (!pickaxe) {
-        ctx.log('No pickaxe in inventory!');
+        console.log('No pickaxe in inventory!');
         return false;
     }
 
-    ctx.log(`Equipping ${pickaxe.name}...`);
+    console.log(`Equipping ${pickaxe.name}...`);
     const result = await ctx.bot.equipItem(pickaxe);
     return result.success;
 }
@@ -631,12 +631,11 @@ async function main() {
 
     try {
         await runScript(async (ctx) => {
-            const { log } = ctx;
 
-            log('=== Smithing Training Script v2 ===');
+            console.log('=== Smithing Training Script v2 ===');
 
             const startStats = getSmithingStats(ctx);
-            log(`Starting Smithing: Level ${startStats.level} (${startStats.xp} XP)`);
+            console.log(`Starting Smithing: Level ${startStats.level} (${startStats.xp} XP)`);
 
             // Equip pickaxe first
             await equipPickaxe(ctx);
@@ -644,7 +643,7 @@ async function main() {
             // Check for hammer (needed for smithing at anvil)
             let hammer = ctx.sdk.findInventoryItem(/hammer/i);
             if (!hammer) {
-                log('No hammer - will only be able to smelt bars');
+                console.log('No hammer - will only be able to smelt bars');
                 // Smelting still gives XP, so we can train without a hammer
             }
 
@@ -655,11 +654,11 @@ async function main() {
                 const stats = getSmithingStats(ctx);
 
                 if (stats.level >= 10) {
-                    log(`Goal achieved! Smithing level ${stats.level}`);
+                    console.log(`Goal achieved! Smithing level ${stats.level}`);
                     break;
                 }
 
-                log(`\n=== Iteration ${iterations}: Smithing Level ${stats.level} (${stats.xp} XP) ===`);
+                console.log(`\n=== Iteration ${iterations}: Smithing Level ${stats.level} (${stats.xp} XP) ===`);
 
                 // Step 1: Get coins if we don't have enough (for toll)
                 if (getCoins(ctx) < 10 && !isInsideAlKharid(ctx)) {
@@ -668,7 +667,7 @@ async function main() {
 
                 // Step 2: Mine ore if we don't have enough
                 const ore = countOre(ctx);
-                log(`Inventory: ${ore.copper} copper, ${ore.tin} tin, ${ore.bronzeBars} bars`);
+                console.log(`Inventory: ${ore.copper} copper, ${ore.tin} tin, ${ore.bronzeBars} bars`);
 
                 const pairs = Math.min(ore.copper, ore.tin);
                 if (pairs < 5) {
@@ -680,7 +679,7 @@ async function main() {
                 if (!isInsideAlKharid(ctx)) {
                     const entered = await enterAlKharid(ctx);
                     if (!entered) {
-                        log('Failed to enter Al Kharid, retrying...');
+                        console.log('Failed to enter Al Kharid, retrying...');
                         continue;
                     }
                 }
@@ -689,18 +688,18 @@ async function main() {
                 const oreAfterMining = countOre(ctx);
                 const pairsToSmelt = Math.min(oreAfterMining.copper, oreAfterMining.tin);
                 if (pairsToSmelt > 0) {
-                    log(`Smelting ${pairsToSmelt} bronze bars...`);
+                    console.log(`Smelting ${pairsToSmelt} bronze bars...`);
                     const smelted = await smeltBars(ctx);
-                    log(`Smelted ${smelted} bars`);
+                    console.log(`Smelted ${smelted} bars`);
                 }
 
                 // Step 5: Smith items (if we have a hammer)
                 hammer = ctx.sdk.findInventoryItem(/hammer/i);
                 const barsCount = countOre(ctx);
                 if (hammer && barsCount.bronzeBars > 0) {
-                    log(`Smithing with ${barsCount.bronzeBars} bars...`);
+                    console.log(`Smithing with ${barsCount.bronzeBars} bars...`);
                     const smithed = await smithItems(ctx);
-                    log(`Smithed ${smithed} items`);
+                    console.log(`Smithed ${smithed} items`);
                 }
 
                 // Drop smithed items to make inventory space
@@ -708,7 +707,7 @@ async function main() {
             }
 
             const endStats = getSmithingStats(ctx);
-            log(`\n=== Complete: Level ${endStats.level} (${endStats.xp} XP) ===`);
+            console.log(`\n=== Complete: Level ${endStats.level} (${endStats.xp} XP) ===`);
         }, {
             connection: { bot: session.bot, sdk: session.sdk },
             timeout: 15 * 60 * 1000,  // 15 minutes

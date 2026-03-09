@@ -21,9 +21,6 @@ export class BotDisconnectedError extends Error {
 export interface ScriptContext {
     bot: BotActions;
     sdk: BotSDK;
-    log: typeof console.log;
-    warn: typeof console.warn;
-    error: typeof console.error;
 }
 
 export type ScriptFunction = (ctx: ScriptContext) => Promise<any>;
@@ -50,18 +47,11 @@ export interface RunOptions {
     reconnectTimeout?: number;
 }
 
-export interface LogEntry {
-    timestamp: Date;
-    level: 'log' | 'warn' | 'error';
-    message: string;
-}
-
 export interface RunResult {
     success: boolean;
     result?: any;
     error?: Error;
     duration: number;
-    logs: LogEntry[];
     finalState: BotWorldState | null;
 }
 
@@ -222,7 +212,6 @@ export async function runScript(
     const disconnectAfter = options.disconnectAfter ?? !connection;
 
     const startTime = Date.now();
-    const logs: LogEntry[] = [];
 
     // Get bot/sdk either from connection or by connecting
     let bot: BotActions;
@@ -260,60 +249,15 @@ export async function runScript(
                 success: false,
                 error,
                 duration: Date.now() - startTime,
-                logs,
                 finalState: null
             };
         }
     }
 
-    // Live logging with deduplication
-    let pendingLog: { level: 'log' | 'warn' | 'error'; message: string; count: number } | null = null;
-    let flushTimer: ReturnType<typeof setTimeout> | null = null;
-    const FLUSH_DELAY = 2000;
-
-    const flushPendingLog = () => {
-        if (flushTimer) {
-            clearTimeout(flushTimer);
-            flushTimer = null;
-        }
-        if (pendingLog) {
-            const { level, message, count } = pendingLog;
-            const prefix = level === 'warn' ? '[warn] ' : level === 'error' ? '[error] ' : '';
-            const suffix = count > 1 ? ` (x${count})` : '';
-            console.log(prefix + message + suffix);
-            logs.push({ timestamp: new Date(), level, message: message + suffix });
-            pendingLog = null;
-        }
-    };
-
-    const emitLog = (level: 'log' | 'warn' | 'error', args: any[]) => {
-        const message = args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' ');
-
-        // If same message, increment count and reset timer
-        if (pendingLog && pendingLog.level === level && pendingLog.message === message) {
-            pendingLog.count++;
-            if (flushTimer) clearTimeout(flushTimer);
-            flushTimer = setTimeout(flushPendingLog, FLUSH_DELAY);
-            return;
-        }
-
-        // Different message - flush previous and start new
-        flushPendingLog();
-        pendingLog = { level, message, count: 1 };
-        flushTimer = setTimeout(flushPendingLog, FLUSH_DELAY);
-    };
-
-    const capturedLog = (...args: any[]) => emitLog('log', args);
-    const capturedWarn = (...args: any[]) => emitLog('warn', args);
-    const capturedError = (...args: any[]) => emitLog('error', args);
-
     // Create script context
     const ctx: ScriptContext = {
         bot,
         sdk,
-        log: capturedLog,
-        warn: capturedWarn,
-        error: capturedError
     };
 
     // Clean exit on signals - prevents orphaned processes when parent shell is killed
@@ -405,9 +349,6 @@ export async function runScript(
         process.off('SIGHUP', onSighup);
     }
 
-    // Flush any remaining pending log
-    flushPendingLog();
-
     // Get final state
     const finalState = sdk.getState();
     const duration = Date.now() - startTime;
@@ -451,7 +392,6 @@ export async function runScript(
         result: error ? undefined : result,
         error,
         duration,
-        logs,
         finalState
     };
 }

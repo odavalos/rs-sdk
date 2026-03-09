@@ -52,7 +52,7 @@ async function dropAllLogs(ctx: ScriptContext): Promise<void> {
     if (!state) return;
 
     const logsItems = state.inventory.filter(item => /logs/i.test(item.name));
-    ctx.log(`Dropping ${logsItems.length} logs...`);
+    console.log(`Dropping ${logsItems.length} logs...`);
 
     for (const item of logsItems) {
         await ctx.sdk.sendDropItem(item.slot);
@@ -61,19 +61,19 @@ async function dropAllLogs(ctx: ScriptContext): Promise<void> {
 }
 
 async function buyAxeFromBob(ctx: ScriptContext): Promise<boolean> {
-    const { bot, sdk, log } = ctx;
+    const { bot, sdk } = ctx;
 
     // Check if we have enough coins
     const gp = getCoins(ctx);
-    log(`Current GP: ${gp}`);
+    console.log(`Current GP: ${gp}`);
 
     if (gp < BRONZE_AXE_COST) {
-        ctx.error(`Not enough GP for bronze axe (need ${BRONZE_AXE_COST}, have ${gp})`);
+        console.error(`Not enough GP for bronze axe (need ${BRONZE_AXE_COST}, have ${gp})`);
         return false;
     }
 
     // Walk to Bob's Axes
-    log(`Walking to Bob's Axes at (${BOBS_AXES.x}, ${BOBS_AXES.z})...`);
+    console.log(`Walking to Bob's Axes at (${BOBS_AXES.x}, ${BOBS_AXES.z})...`);
     await bot.walkTo(BOBS_AXES.x, BOBS_AXES.z);
 
     // Dismiss any dialogs
@@ -81,23 +81,23 @@ async function buyAxeFromBob(ctx: ScriptContext): Promise<boolean> {
 
     // Log nearby NPCs for debugging
     const state = ctx.sdk.getState();
-    log(`Position: (${state?.player?.worldX}, ${state?.player?.worldZ})`);
+    console.log(`Position: (${state?.player?.worldX}, ${state?.player?.worldZ})`);
     const nearbyNpcs = state?.nearbyNpcs?.slice(0, 5) ?? [];
-    log(`Nearby NPCs: ${nearbyNpcs.map(n => n.name).join(', ')}`);
+    console.log(`Nearby NPCs: ${nearbyNpcs.map(n => n.name).join(', ')}`);
 
     // Open Bob's shop
-    log('Opening shop...');
+    console.log('Opening shop...');
     let shopResult = await bot.openShop(/bob/i);
 
     if (!shopResult.success) {
         // Try finding any NPC with trade option
-        log('Bob not found by name, looking for trade option...');
+        console.log('Bob not found by name, looking for trade option...');
         const npcWithTrade = state?.nearbyNpcs.find(n =>
             n.optionsWithIndex.some(o => /trade/i.test(o.text))
         );
 
         if (npcWithTrade) {
-            log(`Found tradeable NPC: ${npcWithTrade.name}`);
+            console.log(`Found tradeable NPC: ${npcWithTrade.name}`);
             const tradeOpt = npcWithTrade.optionsWithIndex.find(o => /trade/i.test(o.text));
             if (tradeOpt) {
                 await sdk.sendInteractNpc(npcWithTrade.index, tradeOpt.opIndex);
@@ -111,21 +111,21 @@ async function buyAxeFromBob(ctx: ScriptContext): Promise<boolean> {
     const shopState = ctx.sdk.getState()?.shop;
 
     if (!shopState?.isOpen) {
-        ctx.error('Failed to open shop');
+        console.error('Failed to open shop');
         return false;
     }
 
     // Log shop inventory
-    log(`Shop open with ${shopState.shopItems.length} items`);
+    console.log(`Shop open with ${shopState.shopItems.length} items`);
     const axes = shopState.shopItems.filter(i => /axe/i.test(i.name));
     for (const axe of axes) {
-        log(`  ${axe.name} - ${axe.buyPrice}gp (stock: ${axe.count})`);
+        console.log(`  ${axe.name} - ${axe.buyPrice}gp (stock: ${axe.count})`);
     }
 
     // Buy bronze axe
-    log('Buying bronze axe...');
+    console.log('Buying bronze axe...');
     const buyResult = await bot.buyFromShop(/bronze axe/i, 1);
-    log(`Buy result: ${buyResult.message}`);
+    console.log(`Buy result: ${buyResult.message}`);
 
     // Close shop by walking away
     await sdk.sendWalk(3225, 3210, true);
@@ -134,18 +134,18 @@ async function buyAxeFromBob(ctx: ScriptContext): Promise<boolean> {
     // Verify we got the axe
     const gotAxe = hasAxe(ctx);
     if (gotAxe) {
-        log('SUCCESS: Got bronze axe!');
+        console.log('SUCCESS: Got bronze axe!');
     } else {
-        ctx.error('Failed to buy bronze axe');
+        console.error('Failed to buy bronze axe');
     }
 
     return gotAxe;
 }
 
 async function chopTrees(ctx: ScriptContext): Promise<void> {
-    const { bot, sdk, log } = ctx;
+    const { bot, sdk } = ctx;
 
-    log(`Walking to trees at (${LUMBRIDGE_TREES.x}, ${LUMBRIDGE_TREES.z})...`);
+    console.log(`Walking to trees at (${LUMBRIDGE_TREES.x}, ${LUMBRIDGE_TREES.z})...`);
     await bot.walkTo(LUMBRIDGE_TREES.x, LUMBRIDGE_TREES.z);
 
     let lastXp = getWoodcuttingXp(ctx);
@@ -162,7 +162,7 @@ async function chopTrees(ctx: ScriptContext): Promise<void> {
 
         // Dismiss any level-up dialogs
         if (state.dialog.isOpen) {
-            log('Dismissing dialog...');
+            console.log('Dismissing dialog...');
             await sdk.sendClickDialog(0);
             await new Promise(r => setTimeout(r, 300));
             continue;
@@ -178,7 +178,7 @@ async function chopTrees(ctx: ScriptContext): Promise<void> {
         const tree = sdk.findNearbyLoc(/^tree$/i);
 
         if (!tree) {
-            log('No tree nearby, walking to tree area...');
+            console.log('No tree nearby, walking to tree area...');
             await bot.walkTo(LUMBRIDGE_TREES.x, LUMBRIDGE_TREES.z);
             stuckCount++;
 
@@ -195,10 +195,10 @@ async function chopTrees(ctx: ScriptContext): Promise<void> {
         if (currentXp > lastXp) {
             logsChopped++;
             stuckCount = 0; // Reset stuck counter on success
-            log(`[Lvl ${getWoodcuttingLevel(ctx)}] Chopped tree! Logs: ${countLogs(ctx)}, Total: ${logsChopped}, XP: ${currentXp}`);
+            console.log(`[Lvl ${getWoodcuttingLevel(ctx)}] Chopped tree! Logs: ${countLogs(ctx)}, Total: ${logsChopped}, XP: ${currentXp}`);
             lastXp = currentXp;
         } else if (!result.success) {
-            log(`Chop failed: ${result.message}`);
+            console.log(`Chop failed: ${result.message}`);
             stuckCount++;
 
             if (stuckCount > MAX_STUCK) {
@@ -210,7 +210,7 @@ async function chopTrees(ctx: ScriptContext): Promise<void> {
         await new Promise(r => setTimeout(r, 200));
     }
 
-    log(`=== GOAL ACHIEVED: Woodcutting level ${getWoodcuttingLevel(ctx)}! ===`);
+    console.log(`=== GOAL ACHIEVED: Woodcutting level ${getWoodcuttingLevel(ctx)}! ===`);
 }
 
 // Main script
@@ -224,43 +224,42 @@ async function main() {
 
     try {
         await runScript(async (ctx) => {
-            const { log } = ctx;
 
-            log('=== Woodcutting Trainer ===');
-            log(`Goal: Level ${TARGET_LEVEL}`);
+            console.log('=== Woodcutting Trainer ===');
+            console.log(`Goal: Level ${TARGET_LEVEL}`);
 
             // Wait for state to initialize
             await new Promise(r => setTimeout(r, 2000));
 
             const state = ctx.sdk.getState();
             if (!state?.player) {
-                ctx.error('No player state');
+                console.error('No player state');
                 return;
             }
 
-            log(`Starting at (${state.player.worldX}, ${state.player.worldZ})`);
-            log(`Current Woodcutting level: ${getWoodcuttingLevel(ctx)}`);
+            console.log(`Starting at (${state.player.worldX}, ${state.player.worldZ})`);
+            console.log(`Current Woodcutting level: ${getWoodcuttingLevel(ctx)}`);
 
             // Dismiss any startup dialogs
             await ctx.bot.dismissBlockingUI();
 
             // Step 1: Get an axe if we don't have one
             if (!hasAxe(ctx)) {
-                log('No axe found, buying from Bob...');
+                console.log('No axe found, buying from Bob...');
                 const gotAxe = await buyAxeFromBob(ctx);
                 if (!gotAxe) {
-                    ctx.error('Failed to acquire axe, cannot continue');
+                    console.error('Failed to acquire axe, cannot continue');
                     return;
                 }
             } else {
-                log('Already have an axe!');
+                console.log('Already have an axe!');
             }
 
             // Step 2: Chop trees until target level
-            log('Starting woodcutting training...');
+            console.log('Starting woodcutting training...');
             await chopTrees(ctx);
 
-            log('=== Script Complete ===');
+            console.log('=== Script Complete ===');
         }, {
             connection: { bot: session.bot, sdk: session.sdk },
             timeout: 10 * 60 * 1000,  // 10 minutes

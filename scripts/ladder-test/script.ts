@@ -13,10 +13,10 @@ async function main() {
 
     try {
         await runScript(async (ctx: ScriptContext) => {
-            ctx.log('=== Ladder/Stair Functionality Test ===');
+            console.log('=== Ladder/Stair Functionality Test ===');
 
             const startPos = ctx.sdk.getState()?.player;
-            ctx.log(`Starting at: (${startPos?.worldX}, ${startPos?.worldZ}), floor: ${startPos?.level}`);
+            console.log(`Starting at: (${startPos?.worldX}, ${startPos?.worldZ}), floor: ${startPos?.level}`);
 
             // Walk toward Wizard's Tower (south of Draynor Village)
             // It's a long walk, so let's use waypoints
@@ -31,34 +31,34 @@ async function main() {
             ];
 
             for (const [x, z] of waypoints) {
-                ctx.log(`Walking to (${x}, ${z})...`);
+                console.log(`Walking to (${x}, ${z})...`);
                 try {
                     await ctx.bot.walkTo(x!, z!);
                     await new Promise(r => setTimeout(r, 500));
 
                     const pos = ctx.sdk.getState()?.player;
-                    ctx.log(`  -> Now at (${pos?.worldX}, ${pos?.worldZ})`);
+                    console.log(`  -> Now at (${pos?.worldX}, ${pos?.worldZ})`);
                 } catch (e) {
-                    ctx.warn(`Walk failed: ${e}`);
+                    console.warn(`Walk failed: ${e}`);
                 }
             }
 
             // Check if we're near Wizard's Tower
             const pos = ctx.sdk.getState()?.player;
-            ctx.log(`\nFinal position: (${pos?.worldX}, ${pos?.worldZ})`);
+            console.log(`\nFinal position: (${pos?.worldX}, ${pos?.worldZ})`);
 
             // Look for ladder
             const ladders = ctx.sdk.getState()?.nearbyLocs.filter(l => /ladder/i.test(l.name)) ?? [];
-            ctx.log(`Ladders found: ${ladders.map(l => `${l.name}@(${l.x},${l.z}) dist=${l.distance} opts:[${l.optionsWithIndex.map(o => o.text).join(',')}]`).join('; ')}`);
+            console.log(`Ladders found: ${ladders.map(l => `${l.name}@(${l.x},${l.z}) dist=${l.distance} opts:[${l.optionsWithIndex.map(o => o.text).join(',')}]`).join('; ')}`);
 
             // Look for any climbable object
             const climbables = ctx.sdk.getState()?.nearbyLocs.filter(l =>
                 l.optionsWithIndex.some(o => /climb/i.test(o.text))
             ) ?? [];
-            ctx.log(`Climbable objects: ${climbables.map(l => `${l.name}@(${l.x},${l.z})`).join(', ')}`);
+            console.log(`Climbable objects: ${climbables.map(l => `${l.name}@(${l.x},${l.z})`).join(', ')}`);
 
             // Try to enter the tower
-            ctx.log('\nTrying to enter Wizard Tower...');
+            console.log('\nTrying to enter Wizard Tower...');
             await ctx.bot.walkTo(3109, 3168);
             await new Promise(r => setTimeout(r, 500));
 
@@ -68,7 +68,7 @@ async function main() {
                 l.optionsWithIndex.some(o => /open/i.test(o.text))
             );
             if (door) {
-                ctx.log(`Opening door at (${door.x}, ${door.z})...`);
+                console.log(`Opening door at (${door.x}, ${door.z})...`);
                 const opt = door.optionsWithIndex.find(o => /open/i.test(o.text));
                 if (opt) {
                     await ctx.sdk.sendInteractLoc(door.x, door.z, door.id, opt.opIndex);
@@ -87,39 +87,39 @@ async function main() {
             );
 
             if (!ladder) {
-                ctx.warn('No ladder found inside Wizard Tower');
+                console.warn('No ladder found inside Wizard Tower');
 
                 // Log what IS nearby
                 const nearby = ctx.sdk.getState()?.nearbyLocs.slice(0, 10) ?? [];
-                ctx.log(`Nearby objects: ${nearby.map(l => `${l.name}@(${l.x},${l.z})`).join(', ')}`);
+                console.log(`Nearby objects: ${nearby.map(l => `${l.name}@(${l.x},${l.z})`).join(', ')}`);
                 return;
             }
 
-            ctx.log(`\nFound ladder at (${ladder.x}, ${ladder.z}), distance=${ladder.distance}`);
-            ctx.log(`Options: ${ladder.optionsWithIndex.map(o => `${o.opIndex}:${o.text}`).join(', ')}`);
+            console.log(`\nFound ladder at (${ladder.x}, ${ladder.z}), distance=${ladder.distance}`);
+            console.log(`Options: ${ladder.optionsWithIndex.map(o => `${o.opIndex}:${o.text}`).join(', ')}`);
 
             // Try climbing down
             const priorLevel = ctx.sdk.getState()?.player?.level ?? 0;
-            ctx.log(`\nAttempting to climb down (current floor: ${priorLevel})...`);
+            console.log(`\nAttempting to climb down (current floor: ${priorLevel})...`);
 
             const climbOpt = ladder.optionsWithIndex.find(o => /climb.*down/i.test(o.text));
             if (climbOpt) {
                 const result = await ctx.sdk.sendInteractLoc(ladder.x, ladder.z, ladder.id, climbOpt.opIndex);
-                ctx.log(`Interaction result: ${JSON.stringify(result)}`);
+                console.log(`Interaction result: ${JSON.stringify(result)}`);
 
                 // Wait for floor change
                 for (let i = 0; i < 5; i++) {
                     await new Promise(r => setTimeout(r, 1000));
                     const currLevel = ctx.sdk.getState()?.player?.level ?? 0;
                     const currPos = ctx.sdk.getState()?.player;
-                    ctx.log(`  Check ${i+1}: floor=${currLevel}, pos=(${currPos?.worldX}, ${currPos?.worldZ})`);
+                    console.log(`  Check ${i+1}: floor=${currLevel}, pos=(${currPos?.worldX}, ${currPos?.worldZ})`);
 
                     if (currLevel !== priorLevel) {
-                        ctx.log('\n*** LADDER WORKS! Floor changed! ***');
+                        console.log('\n*** LADDER WORKS! Floor changed! ***');
 
                         // Look for Sedridor in basement
                         const npcs = ctx.sdk.getState()?.nearbyNpcs.slice(0, 5) ?? [];
-                        ctx.log(`NPCs in basement: ${npcs.map(n => n.name).join(', ')}`);
+                        console.log(`NPCs in basement: ${npcs.map(n => n.name).join(', ')}`);
 
                         return;
                     }
@@ -127,10 +127,10 @@ async function main() {
 
                 // Check game messages
                 const msgs = ctx.sdk.getState()?.gameMessages ?? [];
-                ctx.log(`\nGame messages: ${msgs.slice(-5).map(m => m.text).join(' | ')}`);
+                console.log(`\nGame messages: ${msgs.slice(-5).map(m => m.text).join(' | ')}`);
 
                 if (msgs.some(m => /can't reach/i.test(m.text))) {
-                    ctx.warn('LADDER ALSO FAILS with "can\'t reach" - this is a widespread bug');
+                    console.warn('LADDER ALSO FAILS with "can\'t reach" - this is a widespread bug');
                 }
             }
         }, {

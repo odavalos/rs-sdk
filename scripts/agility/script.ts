@@ -74,7 +74,7 @@ function findNextObstacle(ctx: ScriptContext, courseIndex: number) {
             )
         );
         if (agilityLocs.length > 0) {
-            ctx.log(`Nearby agility objects: ${agilityLocs.map(l => `${l.name}@(${l.x},${l.z})`).join(', ')}`);
+            console.log(`Nearby agility objects: ${agilityLocs.map(l => `${l.name}@(${l.x},${l.z})`).join(', ')}`);
         }
     }
 
@@ -91,17 +91,17 @@ async function completeObstacle(ctx: ScriptContext, courseIndex: number): Promis
 
     const obstacle = findNextObstacle(ctx, courseIndex);
     if (!obstacle) {
-        ctx.warn(`Could not find obstacle: ${target?.description}`);
+        console.warn(`Could not find obstacle: ${target?.description}`);
         return false;
     }
 
     const opt = obstacle.optionsWithIndex.find(o => target!.option.test(o.text));
     if (!opt) {
-        ctx.warn(`No matching option on ${obstacle.name}`);
+        console.warn(`No matching option on ${obstacle.name}`);
         return false;
     }
 
-    ctx.log(`Attempting: ${obstacle.name} (${opt.text})`);
+    console.log(`Attempting: ${obstacle.name} (${opt.text})`);
 
     // Walk closer if needed
     if (obstacle.distance > 3) {
@@ -144,7 +144,7 @@ async function completeObstacle(ctx: ScriptContext, courseIndex: number): Promis
 
         const xpAfter = ctx.sdk.getSkill('Agility')?.experience ?? 0;
         if (xpAfter > xpBefore) {
-            ctx.log(`  XP gained: +${xpAfter - xpBefore}`);
+            console.log(`  XP gained: +${xpAfter - xpBefore}`);
             return true;
         }
 
@@ -152,15 +152,15 @@ async function completeObstacle(ctx: ScriptContext, courseIndex: number): Promis
         const endX = ctx.sdk.getState()?.player?.worldX ?? 0;
         const endZ = ctx.sdk.getState()?.player?.worldZ ?? 0;
         if (Math.abs(endX - startX) > 4 || Math.abs(endZ - startZ) > 4) {
-            ctx.log(`  Position changed - obstacle may be complete`);
+            console.log(`  Position changed - obstacle may be complete`);
             return true;
         }
 
-        ctx.warn(`  Obstacle did not complete`);
+        console.warn(`  Obstacle did not complete`);
         return false;
 
     } catch {
-        ctx.warn(`  Timeout waiting for obstacle completion`);
+        console.warn(`  Timeout waiting for obstacle completion`);
         return false;
     }
 }
@@ -169,7 +169,7 @@ async function completeObstacle(ctx: ScriptContext, courseIndex: number): Promis
  * Complete one full lap of the course
  */
 async function completeLap(ctx: ScriptContext): Promise<boolean> {
-    ctx.log('Starting new lap...');
+    console.log('Starting new lap...');
 
     for (let i = 0; i < COURSE_OBSTACLES.length; i++) {
         const success = await completeObstacle(ctx, i);
@@ -183,7 +183,7 @@ async function completeLap(ctx: ScriptContext): Promise<boolean> {
             );
 
             if (anyObstacle) {
-                ctx.log(`Found alternate obstacle: ${anyObstacle.name}`);
+                console.log(`Found alternate obstacle: ${anyObstacle.name}`);
                 const opt = anyObstacle.optionsWithIndex.find(o =>
                     /walk|climb|squeeze|balance/i.test(o.text)
                 );
@@ -210,11 +210,11 @@ async function trainAgility(ctx: ScriptContext): Promise<void> {
     const startXp = ctx.sdk.getSkill('Agility')?.experience ?? 0;
     const startLevel = ctx.sdk.getSkill('Agility')?.baseLevel ?? 1;
 
-    ctx.log(`=== Agility Training ===`);
-    ctx.log(`Starting Level: ${startLevel}`);
-    ctx.log(`Starting XP: ${startXp}`);
-    ctx.log(`Target: Level ${TARGET_LEVEL} (${XP_FOR_LEVEL_10} XP)`);
-    ctx.log(`Position: (${state.player.worldX}, ${state.player.worldZ})`);
+    console.log(`=== Agility Training ===`);
+    console.log(`Starting Level: ${startLevel}`);
+    console.log(`Starting XP: ${startXp}`);
+    console.log(`Target: Level ${TARGET_LEVEL} (${XP_FOR_LEVEL_10} XP)`);
+    console.log(`Position: (${state.player.worldX}, ${state.player.worldZ})`);
 
     // Train at the agility course
     let lapsCompleted = 0;
@@ -226,25 +226,25 @@ async function trainAgility(ctx: ScriptContext): Promise<void> {
 
         // Check if we've reached our goal
         if (currentLevel >= TARGET_LEVEL) {
-            ctx.log(`\nGoal reached! Level ${currentLevel}`);
+            console.log(`\nGoal reached! Level ${currentLevel}`);
             break;
         }
 
-        ctx.log(`\n--- Lap ${lapsCompleted + 1} ---`);
-        ctx.log(`Level: ${currentLevel}, XP: ${currentXp}/${XP_FOR_LEVEL_10}`);
+        console.log(`\n--- Lap ${lapsCompleted + 1} ---`);
+        console.log(`Level: ${currentLevel}, XP: ${currentXp}/${XP_FOR_LEVEL_10}`);
 
         // Walk to the course START (Log balance location) before each lap
         const LOG_BALANCE_LOCATION = { x: 2474, z: 3438 };
         let distToStart = distanceTo(ctx, LOG_BALANCE_LOCATION.x, LOG_BALANCE_LOCATION.z);
 
         if (distToStart > 10) {
-            ctx.log(`Walking to course start (Log balance)...`);
+            console.log(`Walking to course start (Log balance)...`);
             await ctx.bot.walkTo(LOG_BALANCE_LOCATION.x, LOG_BALANCE_LOCATION.z, 5);
             distToStart = distanceTo(ctx, LOG_BALANCE_LOCATION.x, LOG_BALANCE_LOCATION.z);
 
             // If still far, use raw walk
             if (distToStart > 10) {
-                ctx.log(`  Using raw walk to course start...`);
+                console.log(`  Using raw walk to course start...`);
                 await ctx.sdk.sendWalk(LOG_BALANCE_LOCATION.x, LOG_BALANCE_LOCATION.z, true);
                 await new Promise(r => setTimeout(r, 3000));
             }
@@ -261,13 +261,13 @@ async function trainAgility(ctx: ScriptContext): Promise<void> {
     const finalXp = ctx.sdk.getSkill('Agility')?.experience ?? 0;
     const finalLevel = ctx.sdk.getSkill('Agility')?.baseLevel ?? 1;
 
-    ctx.log('\n=== Training Complete ===');
-    ctx.log(`Level: ${startLevel} -> ${finalLevel}`);
-    ctx.log(`XP: ${startXp} -> ${finalXp} (+${finalXp - startXp})`);
-    ctx.log(`Laps completed: ${lapsCompleted}`);
+    console.log('\n=== Training Complete ===');
+    console.log(`Level: ${startLevel} -> ${finalLevel}`);
+    console.log(`XP: ${startXp} -> ${finalXp} (+${finalXp - startXp})`);
+    console.log(`Laps completed: ${lapsCompleted}`);
 
     if (finalLevel < TARGET_LEVEL) {
-        ctx.warn(`Did not reach target level ${TARGET_LEVEL}`);
+        console.warn(`Did not reach target level ${TARGET_LEVEL}`);
     }
 }
 

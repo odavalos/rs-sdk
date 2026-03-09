@@ -131,7 +131,7 @@ async function waitForCombatEnd(
 
         // Check for dialog (level up, etc)
         if (state.dialog.isOpen) {
-            ctx.log('Dismissing dialog during combat...');
+            console.log('Dismissing dialog during combat...');
             await ctx.sdk.sendClickDialog(0);
             continue;
         }
@@ -201,10 +201,10 @@ function logStats(ctx: ScriptContext, stats: RangedStats): void {
     const elapsedMinutes = Math.round(elapsedMs / 60_000);
     const xpPerHour = elapsedMs > 60_000 ? Math.round(xpGained / (elapsedMs / 3_600_000)) : 0;
 
-    ctx.log(`--- Stats after ${elapsedMinutes}m / ${stats.kills} kills ---`);
-    ctx.log(`Ranged: Level ${ranged?.baseLevel} (${currentXp} XP, +${xpGained})`);
-    ctx.log(`Arrows: ${arrows} remaining`);
-    ctx.log(`XP/hour: ~${xpPerHour.toLocaleString()}`);
+    console.log(`--- Stats after ${elapsedMinutes}m / ${stats.kills} kills ---`);
+    console.log(`Ranged: Level ${ranged?.baseLevel} (${currentXp} XP, +${xpGained})`);
+    console.log(`Arrows: ${arrows} remaining`);
+    console.log(`XP/hour: ~${xpPerHour.toLocaleString()}`);
 }
 
 /**
@@ -224,28 +224,28 @@ async function rangedTrainingLoop(ctx: ScriptContext): Promise<void> {
         lastProgressTime: now,
     };
 
-    ctx.log('=== Ranged Trainer - Chicken Coop Strategy ===');
-    ctx.log(`Goal: Reach Ranged level 10`);
-    ctx.log(`Starting Ranged Level: ${getRangedLevel(ctx)}`);
-    ctx.log(`Starting XP: ${stats.startXp}`);
-    ctx.log(`Starting Arrows: ${countArrows(ctx)}`);
+    console.log('=== Ranged Trainer - Chicken Coop Strategy ===');
+    console.log(`Goal: Reach Ranged level 10`);
+    console.log(`Starting Ranged Level: ${getRangedLevel(ctx)}`);
+    console.log(`Starting XP: ${stats.startXp}`);
+    console.log(`Starting Arrows: ${countArrows(ctx)}`);
 
     // Equip shortbow if not already equipped
     const shortbow = ctx.sdk.findInventoryItem(/shortbow/i);
     if (shortbow) {
-        ctx.log('Equipping shortbow...');
+        console.log('Equipping shortbow...');
         await ctx.bot.equipItem(shortbow);
     }
 
     // Equip bronze arrows if not already equipped
     const arrows = ctx.sdk.findInventoryItem(/bronze arrow/i);
     if (arrows) {
-        ctx.log('Equipping bronze arrows...');
+        console.log('Equipping bronze arrows...');
         await ctx.bot.equipItem(arrows);
     }
 
     // Set ranged attack style
-    ctx.log('Setting ranged attack style...');
+    console.log('Setting ranged attack style...');
     await ctx.sdk.sendSetCombatStyle(RANGED_STYLE);
 
     // Dismiss any blocking UI
@@ -258,22 +258,22 @@ async function rangedTrainingLoop(ctx: ScriptContext): Promise<void> {
     // for (let attempt = 0; attempt < 3; attempt++) {
     //     const gateResult = await ctx.bot.openDoor(/gate/i);
     //     if (gateResult.success) {
-    //         ctx.log('Opened gate to chicken coop');
+    //         console.log('Opened gate to chicken coop');
     //         await new Promise(r => setTimeout(r, 600)); // Wait for gate to open
     //         break;
     //     }
-    //     ctx.log(`Gate open attempt ${attempt + 1} failed, retrying...`);
+    //     console.log(`Gate open attempt ${attempt + 1} failed, retrying...`);
     //     await new Promise(r => setTimeout(r, 300));
     // }
 
     // // Walk inside the coop
-    // ctx.log('Walking inside coop...');
+    // console.log('Walking inside coop...');
     // await ctx.bot.walkTo(CHICKEN_COOP.x, CHICKEN_COOP.z);
 
     // Verify we're inside - if not, try again
     // const pos = ctx.sdk.getState();
     // if (pos && (pos.player?.worldX !== CHICKEN_COOP.x || pos.player?.worldZ !== CHICKEN_COOP.z)) {
-    //     ctx.log(`Not at target (${pos.player?.worldX}, ${pos.player?.worldZ}), retrying entry...`);
+    //     console.log(`Not at target (${pos.player?.worldX}, ${pos.player?.worldZ}), retrying entry...`);
     //     await ctx.bot.openDoor(/gate/i);
     //     await new Promise(r => setTimeout(r, 600));
     //     await ctx.bot.walkTo(CHICKEN_COOP.x, CHICKEN_COOP.z);
@@ -285,14 +285,14 @@ async function rangedTrainingLoop(ctx: ScriptContext): Promise<void> {
     while (true) {
         const currentState = ctx.sdk.getState();
         if (!currentState) {
-            ctx.warn('Lost game state');
+            console.warn('Lost game state');
             break;
         }
 
         // Check if we've reached level 10
         const rangedLevel = getRangedLevel(ctx);
         if (rangedLevel >= 10) {
-            ctx.log(`*** GOAL REACHED: Ranged Level ${rangedLevel}! ***`);
+            console.log(`*** GOAL REACHED: Ranged Level ${rangedLevel}! ***`);
             break;
         }
 
@@ -304,7 +304,7 @@ async function rangedTrainingLoop(ctx: ScriptContext): Promise<void> {
 
         // Dismiss any blocking dialogs (level-up, etc) - critical to check frequently!
         if (currentState.dialog.isOpen) {
-            ctx.log('Dismissing dialog...');
+            console.log('Dismissing dialog...');
             await ctx.sdk.sendClickDialog(0);
             await new Promise(r => setTimeout(r, 300));
             continue;
@@ -335,7 +335,7 @@ async function rangedTrainingLoop(ctx: ScriptContext): Promise<void> {
         if (groundArrows.length > 0) {
             const arrowPile = groundArrows[0]!;
             const key = `${arrowPile.x},${arrowPile.z}`;
-            ctx.log(`Picking up ${arrowPile.count ?? 1} bronze arrows at (${arrowPile.x}, ${arrowPile.z})...`);
+            console.log(`Picking up ${arrowPile.count ?? 1} bronze arrows at (${arrowPile.x}, ${arrowPile.z})...`);
             const result = await ctx.bot.pickupItem(arrowPile);
             if (result.success) {
                 stats.arrowsRecovered += arrowPile.count ?? 1;
@@ -350,7 +350,7 @@ async function rangedTrainingLoop(ctx: ScriptContext): Promise<void> {
                 // Increment retry count for this position
                 const retries = failedPickups.get(key) ?? 0;
                 failedPickups.set(key, retries + 1);
-                ctx.log(`Arrow pickup failed (retry ${retries + 1}/${MAX_PICKUP_RETRIES}): ${result.reason}`);
+                console.log(`Arrow pickup failed (retry ${retries + 1}/${MAX_PICKUP_RETRIES}): ${result.reason}`);
             }
             continue;
         }
@@ -358,7 +358,7 @@ async function rangedTrainingLoop(ctx: ScriptContext): Promise<void> {
         // Find a chicken to attack
         const target = findBestTarget(ctx);
         if (!target) {
-            ctx.log('No chickens nearby - walking to chicken coop...');
+            console.log('No chickens nearby - walking to chicken coop...');
             // Try to open gate and enter
             await ctx.bot.openDoor(/gate/i);
             await new Promise(r => setTimeout(r, 400));
@@ -369,7 +369,7 @@ async function rangedTrainingLoop(ctx: ScriptContext): Promise<void> {
         // For ranged, we can attack from further away
         // Walk closer if target is too far (ranged has ~7 tile range)
         if (target.distance > 7) {
-            ctx.log(`Chicken too far (${target.distance} tiles), walking to coop...`);
+            console.log(`Chicken too far (${target.distance} tiles), walking to coop...`);
             // Try to open gate first if needed
             await ctx.bot.openDoor(/gate/i);
             await new Promise(r => setTimeout(r, 400));
@@ -392,19 +392,19 @@ async function rangedTrainingLoop(ctx: ScriptContext): Promise<void> {
         const arrowsBefore = countArrows(ctx);
         const attackResult = await ctx.bot.attackNpc(target);
         if (!attackResult.success) {
-            ctx.warn(`Attack failed: ${attackResult.message}`);
+            console.warn(`Attack failed: ${attackResult.message}`);
             // If timeout, check for dialog that may have appeared during attack attempt
             if (attackResult.reason === 'timeout') {
                 const s = ctx.sdk.getState();
                 if (s?.dialog.isOpen) {
-                    ctx.log('Dismissing dialog that appeared during attack...');
+                    console.log('Dismissing dialog that appeared during attack...');
                     await ctx.sdk.sendClickDialog(0);
                     await new Promise(r => setTimeout(r, 300));
                 }
             }
             // Try opening gate and re-entering if blocked
             // if (attackResult.reason === 'out_of_reach' || attackResult.reason === 'timeout') {
-            //     ctx.log('Cannot reach target - trying to enter coop...');
+            //     console.log('Cannot reach target - trying to enter coop...');
             //     await ctx.bot.openDoor(/gate/i);
             //     await new Promise(r => setTimeout(r, 400));
             //     await ctx.bot.walkTo(CHICKEN_COOP.x, CHICKEN_COOP.z);
@@ -422,7 +422,7 @@ async function rangedTrainingLoop(ctx: ScriptContext): Promise<void> {
         }
 
         if (combatResult === 'kill') {
-            ctx.log(`Kill #${stats.kills}! (Ranged: Lv${getRangedLevel(ctx)}, Arrows: ${arrowsAfter})`);
+            console.log(`Kill #${stats.kills}! (Ranged: Lv${getRangedLevel(ctx)}, Arrows: ${arrowsAfter})`);
         }
     }
 }
@@ -441,10 +441,10 @@ async function main() {
                 const state = ctx.sdk.getState();
                 if (state) {
                     const ranged = state.skills.find(s => s.name === 'Ranged');
-                    ctx.log('=== Final Results ===');
-                    ctx.log(`Ranged: Level ${ranged?.baseLevel} (${ranged?.experience} XP)`);
-                    ctx.log(`Arrows remaining: ${countArrows(ctx)}`);
-                    ctx.log(`Position: (${state.player?.worldX}, ${state.player?.worldZ})`);
+                    console.log('=== Final Results ===');
+                    console.log(`Ranged: Level ${ranged?.baseLevel} (${ranged?.experience} XP)`);
+                    console.log(`Arrows remaining: ${countArrows(ctx)}`);
+                    console.log(`Position: (${state.player?.worldX}, ${state.player?.worldZ})`);
                 }
             }
         }, {
