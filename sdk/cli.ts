@@ -6,6 +6,7 @@
 //   bun sdk/cli.ts <botname> state                   # Same as above
 //   bun sdk/cli.ts <botname> state --json            # Raw JSON state
 //   bun sdk/cli.ts <botname> exec "<code>"           # Execute code via daemon
+//   bun sdk/cli.ts <botname> exec script.ts          # Execute code from file
 //   bun sdk/cli.ts <botname> exec                    # Read code from stdin
 //   bun sdk/cli.ts <botname> stop                    # Stop the daemon
 //
@@ -32,6 +33,7 @@ Usage:
   bun sdk/cli.ts <botname> state              # Same as above
   bun sdk/cli.ts <botname> state --json       # Raw JSON state
   bun sdk/cli.ts <botname> exec "<code>"      # Execute code via daemon
+  bun sdk/cli.ts <botname> exec script.ts     # Execute code from .ts/.js file
   bun sdk/cli.ts <botname> exec               # Read code from stdin (heredoc friendly)
   bun sdk/cli.ts <botname> stop               # Stop the daemon
 
@@ -214,11 +216,17 @@ async function readStdin(): Promise<string> {
 async function handleExec(botName: string, codeArg: string | undefined, flags: { timeout: number; json: boolean }) {
     let code = codeArg;
 
+    // If the argument looks like a file path, read its contents
+    if (code && /\.(ts|js)$/.test(code) && existsSync(code)) {
+        code = readFileSync(code, 'utf-8');
+    }
+
     // If no code argument, read from stdin
     if (!code) {
         if (process.stdin.isTTY) {
-            console.error('Error: No code provided. Pass code as argument or pipe via stdin.');
+            console.error('Error: No code provided. Pass code as argument, file path, or pipe via stdin.');
             console.error('  bun sdk/cli.ts mybot exec "return 1+1"');
+            console.error('  bun sdk/cli.ts mybot exec script.ts');
             console.error('  echo "return 1+1" | bun sdk/cli.ts mybot exec');
             process.exit(1);
         }
