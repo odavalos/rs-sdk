@@ -8,7 +8,7 @@ Rocks are **locations** (not NPCs). Filter for rocks with a "Mine" option:
 
 ```typescript
 const rock = state.nearbyLocs
-    .filter(loc => /rocks?$/i.test(loc.name))
+    .filter(loc => /rocks?/i.test(loc.name))
     .filter(loc => loc.optionsWithIndex.some(o => /^mine$/i.test(o.text)))
     .sort((a, b) => a.distance - b.distance)[0];
 ```
