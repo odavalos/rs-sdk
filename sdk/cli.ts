@@ -99,10 +99,19 @@ function isDaemonRunning(botName: string): boolean {
 /**
  * Send a JSON message to the daemon and return the parsed response.
  */
-function sendToDaemon(botName: string, msg: any): Promise<any> {
+function sendToDaemon(botName: string, msg: any, timeoutMs = 30_000): Promise<any> {
     return new Promise((resolve, reject) => {
         const sock = connect(socketPath(botName));
         let buf = '';
+        let settled = false;
+
+        const timer = setTimeout(() => {
+            if (!settled) {
+                settled = true;
+                sock.destroy();
+                reject(new Error(`Daemon did not respond within ${timeoutMs / 1000}s`));
+            }
+        }, timeoutMs);
 
         sock.on('connect', () => {
             sock.write(JSON.stringify(msg) + '\n');
@@ -111,7 +120,9 @@ function sendToDaemon(botName: string, msg: any): Promise<any> {
         sock.on('data', (data) => {
             buf += data.toString();
             const nlIndex = buf.indexOf('\n');
-            if (nlIndex !== -1) {
+            if (nlIndex !== -1 && !settled) {
+                settled = true;
+                clearTimeout(timer);
                 const line = buf.slice(0, nlIndex);
                 try {
                     resolve(JSON.parse(line));
@@ -123,15 +134,23 @@ function sendToDaemon(botName: string, msg: any): Promise<any> {
         });
 
         sock.on('error', (err: any) => {
-            reject(new Error(`Cannot connect to daemon: ${err.message}`));
+            if (!settled) {
+                settled = true;
+                clearTimeout(timer);
+                reject(new Error(`Cannot connect to daemon: ${err.message}`));
+            }
         });
 
         sock.on('end', () => {
-            if (buf.trim()) {
-                try {
-                    resolve(JSON.parse(buf.trim()));
-                } catch {
-                    reject(new Error('Incomplete response from daemon'));
+            if (!settled) {
+                settled = true;
+                clearTimeout(timer);
+                if (buf.trim()) {
+                    try {
+                        resolve(JSON.parse(buf.trim()));
+                    } catch {
+                        reject(new Error('Incomplete response from daemon'));
+                    }
                 }
             }
         });
@@ -146,7 +165,7 @@ async function ensureDaemon(botName: string): Promise<void> {
     if (isDaemonRunning(botName)) {
         // Verify it's alive with a ping
         try {
-            const resp = await sendToDaemon(botName, { type: 'ping' });
+            const resp = await sendToDaemon(botName, { type: 'ping' }, 5_000);
             if (resp.ok) return;
         } catch {
             // Socket exists but daemon is dead, clean up
@@ -237,13 +256,15 @@ async function handleExec(botName: string, codeArg: string | undefined, flags: {
         }
     }
 
+    console.error(`Connecting to ${botName}...`);
     await ensureDaemon(botName);
 
+    console.error(`Executing on ${botName}...`);
     try {
         const resp = await sendToDaemon(botName, {
             type: 'exec',
             code,
-        });
+        }, 120_000);
 
         if (resp.output) {
             console.log(resp.output);
@@ -260,7 +281,8 @@ async function handleState(botName: string, flags: { server: string; timeout: nu
     // If daemon is running, use it for faster response
     if (isDaemonRunning(botName)) {
         try {
-            const resp = await sendToDaemon(botName, { type: 'state', json: flags.json });
+            console.error(`Fetching state from daemon...`);
+            const resp = await sendToDaemon(botName, { type: 'state', json: flags.json }, 10_000);
             if (resp.ok) {
                 if (flags.json) {
                     console.log(JSON.stringify(resp.state, null, 2));
@@ -270,7 +292,8 @@ async function handleState(botName: string, flags: { server: string; timeout: nu
                 process.exit(0);
             }
         } catch {
-            // Daemon dead, fall through to one-shot
+            console.error(`Daemon unresponsive, falling back to direct connection...`);
+            // Daemon dead/stuck, fall through to one-shot
         }
     }
 
