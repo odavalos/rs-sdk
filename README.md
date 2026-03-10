@@ -104,7 +104,7 @@ SERVER=
 SHOW_CHAT=false
 ```
 
-When `SERVER` is empty, all connection paths (scripts, CLI, daemon) default to `ws://localhost:7780`.
+When `SERVER` is empty, all connection paths (scripts, CLI) default to `ws://localhost:7780`.
 
 When `SERVER` is set to a hostname (e.g. `rs-sdk-demo.fly.dev`), they connect to `wss://{SERVER}/gateway` instead.
 

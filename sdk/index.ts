@@ -1237,6 +1237,12 @@ export class BotSDK {
         }
 
         if (message.type === 'sdk_error') {
+            // Handle controller pre-emption: another controller connected, so we were kicked
+            if (message.error?.includes('another controller connected')) {
+                console.warn(`[BotSDK] Pre-empted by another controller - disabling auto-reconnect`);
+                this.intentionalDisconnect = true;
+            }
+
             if (message.actionId) {
                 const pending = this.pendingActions.get(message.actionId);
                 if (pending) {

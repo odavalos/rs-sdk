@@ -1,14 +1,10 @@
 #!/usr/bin/env bun
-// SDK CLI - Bot state inspection and code execution
+// SDK CLI - Bot state inspection
 //
 // Usage:
 //   bun sdk/cli.ts <botname>                         # One-shot state dump
 //   bun sdk/cli.ts <botname> state                   # Same as above
 //   bun sdk/cli.ts <botname> state --json            # Raw JSON state
-//   bun sdk/cli.ts <botname> exec "<code>"           # Execute code via daemon
-//   bun sdk/cli.ts <botname> exec script.ts          # Execute code from file
-//   bun sdk/cli.ts <botname> exec                    # Read code from stdin
-//   bun sdk/cli.ts <botname> stop                    # Stop the daemon
 //
 // Legacy:
 //   bun sdk/cli.ts <username> <password>             # Direct credentials
@@ -16,26 +12,17 @@
 
 import { BotSDK, deriveGatewayUrl } from './index';
 import { formatWorldState } from './formatter';
-import { existsSync, readFileSync, unlinkSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
-import { spawn } from 'child_process';
-import { connect } from 'net';
-
-const SUBCOMMANDS = ['exec', 'state', 'stop'] as const;
-type Subcommand = typeof SUBCOMMANDS[number];
 
 function printUsage() {
     console.log(`
-SDK CLI - Bot state inspection and code execution
+SDK CLI - Bot state inspection
 
 Usage:
   bun sdk/cli.ts <botname>                    # One-shot state dump
   bun sdk/cli.ts <botname> state              # Same as above
   bun sdk/cli.ts <botname> state --json       # Raw JSON state
-  bun sdk/cli.ts <botname> exec "<code>"      # Execute code via daemon
-  bun sdk/cli.ts <botname> exec script.ts     # Execute code from .ts/.js file
-  bun sdk/cli.ts <botname> exec               # Read code from stdin (heredoc friendly)
-  bun sdk/cli.ts <botname> stop               # Stop the daemon
 
 Options:
   --server <host>   Server hostname (default: from bot.env or rs-sdk-demo.fly.dev)
@@ -45,11 +32,9 @@ Options:
 
 Examples:
   bun sdk/cli.ts mybot
-  bun sdk/cli.ts mybot exec "return sdk.getState()?.player"
-  bun sdk/cli.ts mybot exec <<'EOF'
-  await bot.chopTree()
-  return sdk.getInventory()
-  EOF
+  bun sdk/cli.ts mybot state --json
+
+To execute code on a bot, use the MCP execute_code tool instead.
 `.trim());
 }
 
@@ -81,262 +66,9 @@ function tryLoadBotEnv(botName: string): { username: string; password: string; s
     };
 }
 
-// --- Daemon communication ---
+// --- State dump ---
 
-function socketPath(botName: string) {
-    return `/tmp/rs-sdk-${botName}.sock`;
-}
-
-function pidPath(botName: string) {
-    return `/tmp/rs-sdk-${botName}.pid`;
-}
-
-function isDaemonRunning(botName: string): boolean {
-    const sock = socketPath(botName);
-    return existsSync(sock);
-}
-
-/**
- * Send a JSON message to the daemon and return the parsed response.
- */
-function sendToDaemon(botName: string, msg: any, timeoutMs = 30_000): Promise<any> {
-    return new Promise((resolve, reject) => {
-        const sock = connect(socketPath(botName));
-        let buf = '';
-        let settled = false;
-
-        const timer = setTimeout(() => {
-            if (!settled) {
-                settled = true;
-                sock.destroy();
-                reject(new Error(`Daemon did not respond within ${timeoutMs / 1000}s`));
-            }
-        }, timeoutMs);
-
-        sock.on('connect', () => {
-            sock.write(JSON.stringify(msg) + '\n');
-        });
-
-        sock.on('data', (data) => {
-            buf += data.toString();
-            const nlIndex = buf.indexOf('\n');
-            if (nlIndex !== -1 && !settled) {
-                settled = true;
-                clearTimeout(timer);
-                const line = buf.slice(0, nlIndex);
-                try {
-                    resolve(JSON.parse(line));
-                } catch {
-                    resolve({ error: 'Invalid response from daemon' });
-                }
-                sock.end();
-            }
-        });
-
-        sock.on('error', (err: any) => {
-            if (!settled) {
-                settled = true;
-                clearTimeout(timer);
-                reject(new Error(`Cannot connect to daemon: ${err.message}`));
-            }
-        });
-
-        sock.on('end', () => {
-            if (!settled) {
-                settled = true;
-                clearTimeout(timer);
-                if (buf.trim()) {
-                    try {
-                        resolve(JSON.parse(buf.trim()));
-                    } catch {
-                        reject(new Error('Incomplete response from daemon'));
-                    }
-                }
-            }
-        });
-    });
-}
-
-/**
- * Start the daemon as a detached background process.
- * Waits for the socket to appear (up to 30s).
- */
-async function ensureDaemon(botName: string): Promise<void> {
-    if (isDaemonRunning(botName)) {
-        // Verify it's alive with a ping
-        try {
-            const resp = await sendToDaemon(botName, { type: 'ping' }, 5_000);
-            if (resp.ok) return;
-        } catch {
-            // Socket exists but daemon is dead, clean up
-            try { unlinkSync(socketPath(botName)); } catch {}
-            try { unlinkSync(pidPath(botName)); } catch {}
-        }
-    }
-
-    console.error(`Starting daemon for "${botName}"...`);
-
-    const daemonPath = join(__dirname, 'daemon.ts');
-    const child = spawn('bun', [daemonPath, botName], {
-        detached: true,
-        stdio: ['ignore', 'ignore', 'inherit'], // stderr goes to parent for visibility
-        cwd: process.cwd(),
-    });
-
-    // Track if the child exits early (e.g. bad credentials, missing bot)
-    let childExited = false;
-    let childExitCode: number | null = null;
-    child.on('exit', (code) => {
-        childExited = true;
-        childExitCode = code;
-    });
-    child.unref();
-
-    // Wait for socket to appear
-    const deadline = Date.now() + 30_000;
-    while (Date.now() < deadline) {
-        await new Promise(r => setTimeout(r, 300));
-
-        if (childExited) {
-            throw new Error(`Daemon exited immediately (code ${childExitCode})`);
-        }
-
-        if (existsSync(socketPath(botName))) {
-            // Give it a moment to be ready, then ping
-            await new Promise(r => setTimeout(r, 200));
-            try {
-                const resp = await sendToDaemon(botName, { type: 'ping' });
-                if (resp.ok) {
-                    console.error(`Daemon ready (PID: ${child.pid})`);
-                    return;
-                }
-            } catch {
-                // Not ready yet, keep waiting
-            }
-        }
-    }
-
-    throw new Error('Daemon failed to start within 30s');
-}
-
-/**
- * Read code from stdin (for heredoc/pipe usage).
- */
-async function readStdin(): Promise<string> {
-    const chunks: Buffer[] = [];
-    for await (const chunk of process.stdin) {
-        chunks.push(chunk);
-    }
-    return Buffer.concat(chunks).toString('utf-8').trim();
-}
-
-// --- Subcommand handlers ---
-
-async function handleExec(botName: string, codeArg: string | undefined, flags: { timeout: number; json: boolean }) {
-    let code = codeArg;
-
-    // If the argument looks like a file path, read its contents
-    if (code && /\.(ts|js)$/.test(code) && existsSync(code)) {
-        code = readFileSync(code, 'utf-8');
-    }
-
-    // If no code argument, read from stdin
-    if (!code) {
-        if (process.stdin.isTTY) {
-            console.error('Error: No code provided. Pass code as argument, file path, or pipe via stdin.');
-            console.error('  bun sdk/cli.ts mybot exec "return 1+1"');
-            console.error('  bun sdk/cli.ts mybot exec script.ts');
-            console.error('  echo "return 1+1" | bun sdk/cli.ts mybot exec');
-            process.exit(1);
-        }
-        code = await readStdin();
-        if (!code) {
-            console.error('Error: Empty code from stdin');
-            process.exit(1);
-        }
-    }
-
-    console.error(`Connecting to ${botName}...`);
-    await ensureDaemon(botName);
-
-    console.error(`Executing on ${botName}...`);
-    try {
-        const resp = await sendToDaemon(botName, {
-            type: 'exec',
-            code,
-        }, 120_000);
-
-        if (resp.output) {
-            console.log(resp.output);
-        }
-
-        process.exit(resp.ok ? 0 : 1);
-    } catch (err: any) {
-        console.error(`Error: ${err.message}`);
-        process.exit(1);
-    }
-}
-
-async function handleState(botName: string, flags: { server: string; timeout: number; json: boolean }) {
-    // If daemon is running, use it for faster response
-    if (isDaemonRunning(botName)) {
-        try {
-            console.error(`Fetching state from daemon...`);
-            const resp = await sendToDaemon(botName, { type: 'state', json: flags.json }, 10_000);
-            if (resp.ok) {
-                if (flags.json) {
-                    console.log(JSON.stringify(resp.state, null, 2));
-                } else {
-                    console.log(resp.output);
-                }
-                process.exit(0);
-            }
-        } catch {
-            console.error(`Daemon unresponsive, falling back to direct connection...`);
-            // Daemon dead/stuck, fall through to one-shot
-        }
-    }
-
-    // Fall back to one-shot connection
-    await oneshotState(botName, flags);
-}
-
-async function handleStop(botName: string) {
-    if (isDaemonRunning(botName)) {
-        try {
-            const resp = await sendToDaemon(botName, { type: 'stop' });
-            if (resp.ok) {
-                console.log(`Daemon for "${botName}" stopped`);
-                process.exit(0);
-            }
-        } catch {
-            // Socket dead, try PID
-        }
-    }
-
-    // Try killing by PID
-    const pidFile = pidPath(botName);
-    if (existsSync(pidFile)) {
-        const pid = parseInt(readFileSync(pidFile, 'utf-8').trim(), 10);
-        try {
-            process.kill(pid, 'SIGTERM');
-            console.log(`Killed daemon PID ${pid}`);
-        } catch {
-            console.log(`Daemon PID ${pid} already dead`);
-        }
-        try { unlinkSync(pidFile); } catch {}
-        try { unlinkSync(socketPath(botName)); } catch {}
-        process.exit(0);
-    }
-
-    console.log(`No daemon running for "${botName}"`);
-    process.exit(0);
-}
-
-/**
- * Original one-shot state dump (no daemon needed).
- */
-async function oneshotState(botName: string, flags: { server: string; timeout: number; json: boolean }) {
+async function fetchState(botName: string, flags: { server: string; timeout: number; json: boolean }) {
     let username = process.env.BOT_USERNAME || process.env.USERNAME || '';
     let password = process.env.PASSWORD || '';
     let server = flags.server || process.env.SERVER || '';
@@ -466,31 +198,31 @@ async function main() {
         process.exit(1);
     }
 
-    // Second positional might be a subcommand or a password (legacy)
-    const second = positional[1];
-    const subcommand = (second && SUBCOMMANDS.includes(second as Subcommand)) ? second as Subcommand : null;
-
     const flags = { server, timeout, json: jsonFlag };
 
-    if (subcommand === 'exec') {
-        // Code is the third positional arg (if any)
-        const codeArg = positional[2];
-        await handleExec(botName, codeArg, flags);
-    } else if (subcommand === 'stop') {
-        await handleStop(botName);
-    } else if (subcommand === 'state') {
-        await handleState(botName, flags);
-    } else if (!second) {
-        // No subcommand, no password → default state dump
-        await handleState(botName, flags);
+    // Second positional might be 'state' or a password (legacy)
+    const second = positional[1];
+
+    if (second === 'exec') {
+        console.error('Error: The "exec" subcommand has been removed.');
+        console.error('Use the MCP execute_code tool instead.');
+        process.exit(1);
+    }
+
+    if (second === 'stop') {
+        console.error('Error: The "stop" subcommand has been removed (daemon no longer exists).');
+        process.exit(1);
+    }
+
+    if (!second || second === 'state') {
+        // State dump (default)
+        await fetchState(botName, flags);
     } else {
         // Legacy mode: second positional is a password
-        // Re-parse as original: <username> <password>
         const username = botName;
         const password = second;
 
         if (!server) server = 'rs-sdk-demo.fly.dev';
-        const isLocal = server === 'localhost' || server.startsWith('localhost:');
         const gatewayUrl = deriveGatewayUrl(server);
 
         const sdk = new BotSDK({
