@@ -31,7 +31,7 @@ class BotManager {
         return existing;
       }
       // Reconnect if disconnected
-      await this.connectWithTimeout(existing.sdk, 30000);
+      await this.connectWithRetry(existing.sdk);
       existing.connected = true;
       return existing;
     }
@@ -86,9 +86,9 @@ class BotManager {
 
     const bot = new BotActions(sdk);
 
-    // Connect with 30s timeout to avoid blocking forever
+    // Connect with retry to handle race conditions
     console.error(`[MCP] Starting connection...`);
-    await this.connectWithTimeout(sdk, 30000);
+    await this.connectWithRetry(sdk);
     console.error(`[MCP] Bot "${name}" connected!`);
 
     const connection: BotConnection = {
@@ -113,16 +113,26 @@ class BotManager {
     return connection;
   }
 
-  private async connectWithTimeout(sdk: BotSDK, timeoutMs: number): Promise<void> {
-    let timeoutId: ReturnType<typeof setTimeout>;
-    const timeoutPromise = new Promise<never>((_, reject) => {
-      timeoutId = setTimeout(() => reject(new Error(`Connection timed out after ${timeoutMs / 1000}s`)), timeoutMs);
-    });
+  private async connectWithRetry(sdk: BotSDK, maxAttempts = 3, timeoutMs = 30000): Promise<void> {
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        let timeoutId: ReturnType<typeof setTimeout>;
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          timeoutId = setTimeout(() => reject(new Error(`Connection timed out after ${timeoutMs / 1000}s`)), timeoutMs);
+        });
 
-    try {
-      await Promise.race([sdk.connect(), timeoutPromise]);
-    } finally {
-      clearTimeout(timeoutId!);
+        await Promise.race([sdk.connect(), timeoutPromise]).finally(() => clearTimeout(timeoutId!));
+        return; // success
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        if (attempt < maxAttempts) {
+          const delay = attempt * 2000; // 2s, 4s backoff
+          console.error(`[MCP] Connection attempt ${attempt}/${maxAttempts} failed: ${msg}. Retrying in ${delay / 1000}s...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else {
+          throw new Error(`Failed to connect after ${maxAttempts} attempts. Last error: ${msg}`);
+        }
+      }
     }
   }
 
