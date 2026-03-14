@@ -9,8 +9,8 @@ if (%priestperil >= ^priestperil_poured_blessed_water) {
 if(last_useitem = bucket_blessedwater) {
     if(%priestperil < ^priestperil_poured_blessed_water) %priestperil = ^priestperil_poured_blessed_water;
     mes("You pour the blessed water over the coffin...");
-    // map_anim	id=priestperil_coffin_spell (272), delay=4, coord=(3413, 3486, 2)
-    // map_anim	id=priestperil_coffin_spell (272), delay=4, coord=(3413, 3487, 2)
+    spotanim_map(priestperil_coffin_spell, 2_53_54_21_30, 0, 4);
+    spotanim_map(priestperil_coffin_spell, 2_53_54_21_31, 0, 4);
     anim(throw_bucketofwater, 0);
     inv_del(inv, bucket_blessedwater, 1);
     inv_add(inv, bucket_empty, 1);

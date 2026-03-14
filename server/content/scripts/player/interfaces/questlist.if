@@ -6,7 +6,7 @@ x=5
 y=20
 width=168
 height=229
-scroll=910
+scroll=945
 
 [com_24]
 layer=com_0
@@ -32,6 +32,8 @@ font=p12
 shadowed=yes
 text=Black Knight's Fortress
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Black Knight's Fortress
 
 [cook]
 layer=com_0
@@ -45,6 +47,8 @@ font=p12
 shadowed=yes
 text=Cook's Assistant
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Cook's Assistant
 
 [demon]
 layer=com_0
@@ -58,6 +62,8 @@ font=p12
 shadowed=yes
 text=Demon Slayer
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Demon Slayer
 
 [runemysteries]
 layer=com_0
@@ -71,6 +77,8 @@ font=p12
 shadowed=yes
 text=Rune Mysteries Quest
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Rune Mysteries Quest
 
 [doric]
 layer=com_0
@@ -84,6 +92,8 @@ font=p12
 shadowed=yes
 text=Doric's Quest
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Doric's Quest
 
 [priest]
 layer=com_0
@@ -97,6 +107,8 @@ font=p12
 shadowed=yes
 text=The Restless Ghost
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=The Restless Ghost
 
 [gobdip]
 layer=com_0
@@ -110,6 +122,8 @@ font=p12
 shadowed=yes
 text=Goblin Diplomacy
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Goblin Diplomacy
 
 [haunted]
 layer=com_0
@@ -123,6 +137,8 @@ font=p12
 shadowed=yes
 text=Ernest the Chicken
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Ernest the Chicken
 
 [imp]
 layer=com_0
@@ -136,6 +152,8 @@ font=p12
 shadowed=yes
 text=Imp Catcher
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Imp Catcher
 
 [hunt]
 layer=com_0
@@ -149,6 +167,8 @@ font=p12
 shadowed=yes
 text=Pirate's Treasure
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Pirate's Treasure
 
 [prince]
 layer=com_0
@@ -162,6 +182,8 @@ font=p12
 shadowed=yes
 text=Prince Ali Rescue
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Prince Ali Rescue
 
 [romeojuliet]
 layer=com_0
@@ -175,6 +197,8 @@ font=p12
 shadowed=yes
 text=Romeo & Juliet
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Romeo & Juliet
 
 [sheep]
 layer=com_0
@@ -188,6 +212,8 @@ font=p12
 shadowed=yes
 text=Sheep Shearer
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Sheep Shearer
 
 [blackarmgang]
 layer=com_0
@@ -201,6 +227,8 @@ font=p12
 shadowed=yes
 text=Shield of Arrav
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Shield of Arrav
 
 [squire]
 layer=com_0
@@ -214,6 +242,8 @@ font=p12
 shadowed=yes
 text=The Knight's Sword
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=The Knight's Sword
 
 [vampire]
 layer=com_0
@@ -227,6 +257,8 @@ font=p12
 shadowed=yes
 text=Vampire Slayer
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Vampire Slayer
 
 [hetty]
 layer=com_0
@@ -240,12 +272,14 @@ font=p12
 shadowed=yes
 text=Witch's Potion
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Witch's Potion
 
 [itwatchtower]
 layer=com_0
 type=text
 x=10
-y=857
+y=889
 buttontype=normal
 width=68
 height=14
@@ -253,6 +287,8 @@ font=p12
 shadowed=yes
 text=Watch Tower
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Watch Tower
 
 [com_43]
 layer=com_0
@@ -270,7 +306,7 @@ colour=0xF99B15
 layer=com_0
 type=text
 x=10
-y=872
+y=904
 buttontype=normal
 width=89
 height=14
@@ -278,19 +314,23 @@ font=p12
 shadowed=yes
 text=Waterfall Quest
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Waterfall Quest
 
 [ball]
 layer=com_0
 type=text
 x=10
-y=887
+y=919
 buttontype=normal
-width=82
+width=78
 height=14
 font=p12
 shadowed=yes
-text=Witches House
+text=Witch's House
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Witch's House
 
 [biohazard]
 layer=com_0
@@ -304,6 +344,8 @@ font=p12
 shadowed=yes
 text=Biohazard
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Biohazard
 
 [cog]
 layer=com_0
@@ -317,12 +359,14 @@ font=p12
 shadowed=yes
 text=Clock Tower
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Clock Tower
 
 [itexam]
 layer=com_0
 type=text
 x=10
-y=368
+y=386
 buttontype=normal
 width=76
 height=14
@@ -330,6 +374,8 @@ font=p12
 shadowed=yes
 text=Digsite Quest
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Digsite Quest
 
 [chompybird]
 layer=com_0
@@ -343,12 +389,14 @@ font=p12
 shadowed=yes
 text=Big Chompy Bird Hunting
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Big Chompy Bird Hunting
 
 [mcannon]
 layer=com_0
 type=text
 x=10
-y=398
+y=416
 buttontype=normal
 width=77
 height=14
@@ -356,12 +404,14 @@ font=p12
 shadowed=yes
 text=Dwarf Cannon
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Dwarf Cannon
 
 [crest]
 layer=com_0
 type=text
 x=10
-y=429
+y=447
 buttontype=normal
 width=69
 height=14
@@ -369,12 +419,14 @@ font=p12
 shadowed=yes
 text=Family Crest
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Family Crest
 
 [arena]
 layer=com_0
 type=text
 x=10
-y=445
+y=463
 buttontype=normal
 width=65
 height=14
@@ -382,12 +434,14 @@ font=p12
 shadowed=yes
 text=Fight Arena
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Fight Arena
 
 [fishingcompo]
 layer=com_0
 type=text
 x=10
-y=461
+y=479
 buttontype=normal
 width=88
 height=14
@@ -395,12 +449,14 @@ font=p12
 shadowed=yes
 text=Fishing Contest
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Fishing Contest
 
 [fluffs]
 layer=com_0
 type=text
 x=10
-y=478
+y=496
 buttontype=normal
 width=83
 height=14
@@ -408,12 +464,14 @@ font=p12
 shadowed=yes
 text=Gertrude's Cat
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Gertrude's Cat
 
 [grandtree]
 layer=com_0
 type=text
 x=10
-y=494
+y=512
 buttontype=normal
 width=83
 height=14
@@ -421,12 +479,14 @@ font=p12
 shadowed=yes
 text=The Grand Tree
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=The Grand Tree
 
 [hazeelcult]
 layer=com_0
 type=text
 x=10
-y=510
+y=528
 buttontype=normal
 width=63
 height=14
@@ -434,12 +494,14 @@ font=p12
 shadowed=yes
 text=Hazeel Cult
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Hazeel Cult
 
 [hero]
 layer=com_0
 type=text
 x=10
-y=526
+y=544
 buttontype=normal
 width=73
 height=14
@@ -447,12 +509,14 @@ font=p12
 shadowed=yes
 text=Hero's Quest
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Hero's Quest
 
 [grail]
 layer=com_0
 type=text
 x=10
-y=543
+y=561
 buttontype=normal
 width=53
 height=14
@@ -460,12 +524,14 @@ font=p12
 shadowed=yes
 text=Holy Grail
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Holy Grail
 
 [junglepotion]
 layer=com_0
 type=text
 x=10
-y=559
+y=577
 buttontype=normal
 width=77
 height=14
@@ -473,12 +539,14 @@ font=p12
 shadowed=yes
 text=Jungle Potion
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Jungle Potion
 
 [legends]
 layer=com_0
 type=text
 x=10
-y=575
+y=593
 buttontype=normal
 width=85
 height=14
@@ -486,12 +554,14 @@ font=p12
 shadowed=yes
 text=Legends Quest
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Legends Quest
 
 [zanaris]
 layer=com_0
 type=text
 x=10
-y=591
+y=609
 buttontype=normal
 width=50
 height=14
@@ -499,12 +569,14 @@ font=p12
 shadowed=yes
 text=Lost City
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Lost City
 
 [arthur]
 layer=com_0
 type=text
 x=10
-y=607
+y=625
 buttontype=normal
 width=88
 height=14
@@ -512,12 +584,14 @@ font=p12
 shadowed=yes
 text=Merlin's Crystal
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Merlin's Crystal
 
 [drunkmonk]
 layer=com_0
 type=text
 x=10
-y=623
+y=641
 buttontype=normal
 width=77
 height=14
@@ -525,12 +599,14 @@ font=p12
 shadowed=yes
 text=Monk's Friend
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Monk's Friend
 
 [murder]
 layer=com_0
 type=text
 x=10
-y=639
+y=657
 buttontype=normal
 width=90
 height=14
@@ -538,12 +614,14 @@ font=p12
 shadowed=yes
 text=Murder Mystery
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Murder Mystery
 
 [itgronigen]
 layer=com_0
 type=text
 x=10
-y=669
+y=687
 buttontype=normal
 width=109
 height=14
@@ -551,12 +629,14 @@ font=p12
 shadowed=yes
 text=Observatory Quest
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Observatory Quest
 
 [elena]
 layer=com_0
 type=text
 x=10
-y=684
+y=702
 buttontype=normal
 width=63
 height=14
@@ -564,12 +644,14 @@ font=p12
 shadowed=yes
 text=Plague City
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Plague City
 
 [scorpcatcher]
 layer=com_0
 type=text
 x=10
-y=713
+y=731
 buttontype=normal
 width=96
 height=14
@@ -577,12 +659,14 @@ font=p12
 shadowed=yes
 text=Scorpion Catcher
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Scorpion Catcher
 
 [seaslug]
 layer=com_0
 type=text
 x=10
-y=729
+y=747
 buttontype=normal
 width=85
 height=14
@@ -590,12 +674,14 @@ font=p12
 shadowed=yes
 text=Sea Slug Quest
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Sea Slug Quest
 
 [sheepherder]
 layer=com_0
 type=text
 x=10
-y=745
+y=763
 buttontype=normal
 width=76
 height=14
@@ -603,12 +689,14 @@ font=p12
 shadowed=yes
 text=Sheep Herder
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Sheep Herder
 
 [zombiequeen]
 layer=com_0
 type=text
 x=10
-y=761
+y=779
 buttontype=normal
 width=67
 height=14
@@ -616,12 +704,14 @@ font=p12
 shadowed=yes
 text=Shilo Village
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Shilo Village
 
 [ikov]
 layer=com_0
 type=text
 x=10
-y=777
+y=795
 buttontype=normal
 width=80
 height=14
@@ -629,12 +719,14 @@ font=p12
 shadowed=yes
 text=Temple of Ikov
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Temple of Ikov
 
 [desertrescue]
 layer=com_0
 type=text
 x=10
-y=794
+y=812
 buttontype=normal
 width=88
 height=14
@@ -642,12 +734,14 @@ font=p12
 shadowed=yes
 text=The Tourist Trap
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=The Tourist Trap
 
 [tree]
 layer=com_0
 type=text
 x=10
-y=810
+y=828
 buttontype=normal
 width=105
 height=14
@@ -655,12 +749,14 @@ font=p12
 shadowed=yes
 text=Tree Gnome Village
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Tree Gnome Village
 
 [totem]
 layer=com_0
 type=text
 x=10
-y=826
+y=844
 buttontype=normal
 width=66
 height=14
@@ -668,12 +764,14 @@ font=p12
 shadowed=yes
 text=Tribal Totem
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Tribal Totem
 
 [upass]
 layer=com_0
 type=text
 x=10
-y=842
+y=874
 buttontype=normal
 width=105
 height=14
@@ -681,6 +779,8 @@ font=p12
 shadowed=yes
 text=Underground Pass
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Underground Pass
 
 [dragon]
 layer=com_0
@@ -694,12 +794,14 @@ font=p12
 shadowed=yes
 text=Dragon Slayer
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Dragon Slayer
 
 [elemental_workshop]
 layer=com_0
 type=text
 x=10
-y=413
+y=431
 buttontype=normal
 width=112
 height=14
@@ -707,12 +809,14 @@ font=p12
 shadowed=yes
 text=Elemental Workshop
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Elemental Workshop
 
 [druid]
 layer=com_0
 type=text
 x=10
-y=383
+y=401
 buttontype=normal
 width=73
 height=14
@@ -720,12 +824,14 @@ font=p12
 shadowed=yes
 text=Druidic Ritual
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Druidic Ritual
 
 [priestperil]
 layer=com_0
 type=text
 x=10
-y=699
+y=717
 buttontype=normal
 width=75
 height=14
@@ -733,12 +839,14 @@ font=p12
 shadowed=yes
 text=Priest in Peril
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Priest in Peril
 
 [druidspirit]
 layer=com_0
 type=text
 x=10
-y=654
+y=672
 buttontype=normal
 width=72
 height=14
@@ -746,6 +854,38 @@ font=p12
 shadowed=yes
 text=Nature Spirit
 colour=0xFF0000
+overcolour=0xFFFFFF
+option=Nature Spirit
+
+[death]
+layer=com_0
+type=text
+x=10
+y=369
+buttontype=normal
+width=79
+height=14
+font=p12
+shadowed=yes
+text=Death Plateau
+colour=0xFF0000
+overcolour=0xFFFFFF
+option=Death Plateau
+
+[troll]
+layer=com_0
+type=text
+x=10
+y=859
+buttontype=normal
+width=88
+height=14
+font=p12
+shadowed=yes
+text=Troll Stronghold
+colour=0xFF0000
+overcolour=0xFFFFFF
+option=Troll Stronghold
 
 [com_1]
 type=text

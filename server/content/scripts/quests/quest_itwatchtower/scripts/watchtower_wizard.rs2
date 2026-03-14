@@ -302,6 +302,9 @@ if(last_useitem = ogrerelic) {
     @make_magic_ogre_potion;
 } else if(last_useitem = magic_ogre_potion) {
     ~chatnpc("<p,confused>Yes, that is the potion I enchanted for you.|Go and use it now...");
+} else if (last_useitem = vial_water) {
+    inv_setslot(inv, last_useslot, vial_empty, 1);
+    ~chatnpc("<p,happy>Oh lovely, fresh water... Thanks!");
 } else {
     ~displaymessage(^dm_default);
 }

@@ -160,7 +160,6 @@ name=Mouse
 desc=Deceptively mouse shaped.
 walkanim=rat_walk
 readyanim=rat_ready
-op1=Feed
 recol1s=15855
 recol1d=21172
 model1=model_2927_npc

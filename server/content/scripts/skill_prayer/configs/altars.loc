@@ -14,6 +14,7 @@ desc=Shrine to the glory of Saradomin.
 model=model_loc_409
 width=2
 op1=Pray-at
+blockrange=no
 category=prayer_altar
 
 [guthix_altar]
@@ -23,6 +24,7 @@ model=model_loc_410
 width=2
 length=2
 op1=Pray-at
+blockrange=no
 category=prayer_altar
 
 [chaosaltar]
@@ -31,4 +33,5 @@ desc=Shrine to the glory of Zamorak.
 model=model_loc_61
 width=2
 op1=Pray-at
+blockrange=no
 category=prayer_altar

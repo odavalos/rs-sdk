@@ -181,7 +181,7 @@ class CanvasMobileKeyboard implements Keyboard {
     /**
      * Returns a CSS style colour string for the given keyboard key index.
      */
-    private getBoxColorForIndex(index: number): string {
+    private getBoxColourForIndex(index: number): string {
         // If we are animating that key, mark it as a bit darker.
         if (this.animateBoxIndex > -1) {
             if (this.animateBoxIndex === index) {
@@ -202,13 +202,13 @@ class CanvasMobileKeyboard implements Keyboard {
      */
     private getBoxForIndex(index: number): KeyBox {
         const lineIndex = (index < CHAR_OFFSET_PER_ROW[1] ? 0 : (index < CHAR_OFFSET_PER_ROW[2] ? 1 : (index < CHAR_OFFSET_PER_ROW[3] ? 2 : 3)));
-        let offsetPos = index - CHAR_OFFSET_PER_ROW[lineIndex];
+        const offsetPos = index - CHAR_OFFSET_PER_ROW[lineIndex];
         const box = {
             startX: (offsetPos * WIDTH_PER_KEYBOX) + 5,
             startY: (lineIndex * HEIGHT_PER_KEYBOX + 5),
             width: WIDTH_PER_KEYBOX,
             height: HEIGHT_PER_KEYBOX,
-        }
+        };
         if (lineIndex === 1) {
             box.startX += (WIDTH_PER_KEYBOX / 2);
         }
@@ -244,7 +244,7 @@ class CanvasMobileKeyboard implements Keyboard {
     private drawKeyBoxes() {
         for (let i = 0; i < KEYMAP_REGULAR.length; i++) {
             const box = this.getBoxForIndex(i);
-            canvas2d.fillStyle = this.getBoxColorForIndex(i);
+            canvas2d.fillStyle = this.getBoxColourForIndex(i);
             canvas2d.beginPath();
             canvas2d.roundRect(this.startX + box.startX + 2, this.startY + box.startY + 2, box.width - 2, box.height - 2, 5);
             canvas2d.fill();
@@ -430,11 +430,11 @@ class CanvasMobileKeyboard implements Keyboard {
             const downEvent = new KeyboardEvent('keydown', {
                 key: char,
                 code: char,
-            })
+            });
             const upEvent = new KeyboardEvent('keyup', {
                 key: char,
                 code: char,
-            })
+            });
             canvas.dispatchEvent(downEvent);
             canvas.dispatchEvent(upEvent);
             if (!this.animateBoxTimeout) {

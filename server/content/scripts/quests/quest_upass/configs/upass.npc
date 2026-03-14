@@ -95,7 +95,7 @@ readyanim=giantspider_ready
 name=Blessed spider
 desc=It's one of Ibans' pets.
 op2=Attack
-vislevel=31
+vislevel=39
 model1=model_2884_npc
 wanderrange=10
 maxrange=12
@@ -336,8 +336,13 @@ wanderrange=1
 hitpoints=19
 attack=11
 strength=13
-defence=1
+defence=13
 param=damagetype,^stab_style
+param=attack_anim,unicorn_attack
+param=defend_anim,unicorn_block
+param=death_anim,unicorn_death
+param=attack_sound,cow_attack
+param=defend_sound,horse_hit
 // https://raw.githubusercontent.com/Joshua-F/osrs-dumps/refs/heads/master/config/dump.npc npc_9209
 
 [upass_paladin1]
@@ -347,7 +352,7 @@ walkanim=human_walk_f,human_walk_b,human_walk_l,human_walk_r
 readyanim=human_ready
 op1=Talk-to
 op2=Attack
-vislevel=53
+vislevel=62
 recol1s=7298
 recol1d=6342
 recol2s=6273
@@ -395,7 +400,7 @@ walkanim=human_walk_f,human_walk_b,human_walk_l,human_walk_r
 readyanim=human_ready
 op1=Talk-to
 op2=Attack
-vislevel=53
+vislevel=62
 recol1s=7298
 recol1d=6342
 recol2s=15375
@@ -441,7 +446,7 @@ walkanim=human_walk_f,human_walk_b,human_walk_l,human_walk_r
 readyanim=human_ready
 op1=Talk-to
 op2=Attack
-vislevel=53
+vislevel=62
 recol1s=7298
 recol1d=6342
 recol2s=15375
@@ -630,7 +635,7 @@ resizeh=352
 resizev=352
 size=3
 op2=Attack
-vislevel=78
+vislevel=89
 model1=model_2884_npc
 wanderrange=10
 maxrange=10
@@ -648,14 +653,13 @@ param=damagetype,^stab_style
 param=attack_anim,giantspider_attack
 param=defend_anim,giantspider_block
 param=death_anim,giantspider_death
-param=attack_sound,insect_attack
-param=defend_sound,insect_hit
-param=death_sound,insect_death
+param=attack_sound,kilrag_attack
+param=defend_sound,kilrag_hit
+param=death_sound,kilrag_death
 param=death_drop,null
 huntrange=5
 huntmode=cowardly
 // Stats match osrs version but our version Vislvl is different.
-// osrs sounds kilrag_attack, kilrag_hit, kilrag-death
 // https://raw.githubusercontent.com/Joshua-F/osrs-dumps/refs/heads/master/config/dump.npc npc_8993
 
 [othainian]
@@ -867,6 +871,7 @@ size=2
 walkanim=bat_walk
 readyanim=bat_ready
 vislevel=hide
+minimap=no
 model1=model_2941_npc
 wanderrange=8
 param=death_anim,bat_death

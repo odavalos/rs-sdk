@@ -34,7 +34,8 @@ if (~player_autocast_enabled = true) {
 def_int $combat_level_diff = abs(sub(~player_combat_level, ~.player_combat_level));
 def_int $wilderness_level = min(~wilderness_level(coord), ~wilderness_level(.coord));
 if ($wilderness_level < 1) {
-    mes("You can't attack players who aren't in the Wilderness.");
+    // http://i2.photobucket.com/albums/y18/Fallingdeath/anotherkill.png
+    mes("You can't attack players who aren't in the wilderness.");
     return(false);
 }
 if ($wilderness_level < $combat_level_diff) {

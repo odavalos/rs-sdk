@@ -101,8 +101,14 @@ if ($deposit > 0) {
 }
 
 [proc,bank_check_nobreak](obj $obj)(boolean)
-if (~bank_find_obj_unbankable($obj) = true) {
+if (oc_param($obj, unbankable) = ^true) {
     mes("A magical force prevents you from banking this item!"); // osrs
+    return(true);
+}
+
+// https://www.youtube.com/watch?v=W5iZgykts2A // No mes when creating boxes via actions
+if ($obj = macro_cube) {
+    ~try_add_macro_cube;
     return(true);
 }
 
@@ -117,14 +123,6 @@ if (playermember = ^false) {
     }
 }
 return(false);
-
-// returns if an obj is considered to be unbankable.
-// experience lamps, quest items, etc.
-[proc,bank_find_obj_unbankable](obj $obj)(boolean)
-switch_obj ($obj) {
-    case macro_genilamp : return(true); // cant bank xp lamps
-    case default : return(false);
-}
 
 [label,insert_bank](int $start_slot, int $target_slot)
 def_int $src = $start_slot;

@@ -9,6 +9,7 @@
 [opheld2,black_warhammer] @levelrequire_attack(10, last_slot);
 [opheld2,black_battleaxe] @levelrequire_attack(10, last_slot);
 [opheld2,black_2h_sword] @levelrequire_attack(10, last_slot);
+[opheld2,black_claws] @levelrequire_attack(10, last_slot);
 
 [opheld2,black_med_helm] @levelrequire_defence(10, last_slot);
 [opheld2,black_full_helm] @levelrequire_defence(10, last_slot);
@@ -30,6 +31,8 @@
 
 [opheld2,black_knife] @levelrequire_ranged(10, last_slot);
 [opheld2,black_knife_p] @levelrequire_ranged(10, last_slot);
+[opheld2,black_dart] @levelrequire_ranged(10, last_slot);
+[opheld2,black_dart_p] @levelrequire_ranged(10, last_slot);
 
 // Ranged
 [opheld2,hardleather_body] @levelrequire_defence(10, last_slot);

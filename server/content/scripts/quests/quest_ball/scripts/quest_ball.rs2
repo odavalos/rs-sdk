@@ -44,7 +44,7 @@ def_coord $loc_coord = loc_coord;
 def_int $next_angle = calc(loc_angle - 1);
 def_loc $next_loc = loc_param(next_loc_stage);
 $x, $z = ~door_open(loc_angle, loc_shape);
-sound_synth(grate_open, 0, 0); // iron_door_open
+sound_synth(iron_door_open, 0, 0);
 def_coord $dest = $loc_coord;
 if ($entering = true) {
     $dest = movecoord($loc_coord, $x, 0, $z);
@@ -147,7 +147,7 @@ if(last_useitem = witches_shedkey) {
             }
         }
         npc_huntall(coord, 7, 0);
-        while (npc_huntnext = true) {
+        while (npc_findnext = true) {
             if (npc_category = witches_experiment) {
                 npc_del;
             }
@@ -182,7 +182,7 @@ if(%ballquest = ^ball_defeated_experiment) {
     @pickup_obj;
 }
 npc_huntall(coord, 7, 0);
-while (npc_huntnext = true) {
+while (npc_findnext = true) {
     if (npc_category = witches_experiment) {
         mes("The shapeshifter glares at you. You feel slightly weakened.");
         stat_sub(attack, 1, 5);

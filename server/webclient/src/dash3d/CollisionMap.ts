@@ -1,28 +1,26 @@
 import { CollisionFlag } from '#/dash3d/CollisionFlag.js';
 import { DirectionFlag } from '#/dash3d/DirectionFlag.js';
 import { LocAngle } from '#/dash3d/LocAngle.js';
-import LocShape from '#/dash3d/LocShape.js';
+import { LocShape } from '#/dash3d/LocShape.js';
 
-export const enum CollisionConstants {
+// a standard build area is 4x13x13 zones, or 4x104x104 tiles
+export const enum BuildArea {
     LEVELS = 4,
-    SIZE = 104
+    SIZE = 13 << 3
 }
 
 export default class CollisionMap {
-    static index = (x: number, z: number): number => x * CollisionConstants.SIZE + z;
+    static index = (x: number, z: number): number => x * BuildArea.SIZE + z;
 
-    // constructor
-    readonly startX: number;
-    readonly startZ: number;
+    readonly startX: number = 0;
+    readonly startZ: number = 0;
     readonly sizeX: number;
     readonly sizeZ: number;
     readonly flags: Int32Array;
 
     constructor() {
-        this.startX = 0;
-        this.startZ = 0;
-        this.sizeX = CollisionConstants.SIZE;
-        this.sizeZ = CollisionConstants.SIZE;
+        this.sizeX = BuildArea.SIZE;
+        this.sizeZ = BuildArea.SIZE;
         this.flags = new Int32Array(this.sizeX * this.sizeZ);
         this.reset();
     }
@@ -40,11 +38,11 @@ export default class CollisionMap {
         }
     }
 
-    addFloor(tileX: number, tileZ: number): void {
+    blockGround(tileX: number, tileZ: number): void {
         this.flags[CollisionMap.index(tileX - this.startX, tileZ - this.startZ)] |= CollisionFlag.FLOOR;
     }
 
-    removeFloor(tileX: number, tileZ: number): void {
+    unblockGround(tileX: number, tileZ: number): void {
         this.flags[CollisionMap.index(tileX - this.startX, tileZ - this.startZ)] &= ~CollisionFlag.FLOOR;
     }
 
@@ -72,12 +70,12 @@ export default class CollisionMap {
                 if (!(tz >= 0 && tz < this.sizeZ)) {
                     continue;
                 }
-                this.add(tx, tz, flags);
+                this.addCMap(tx, tz, flags);
             }
         }
     }
 
-    removeLoc(tileX: number, tileZ: number, sizeX: number, sizeZ: number, angle: LocAngle, blockrange: boolean): void {
+    delLoc(tileX: number, tileZ: number, sizeX: number, sizeZ: number, angle: LocAngle, blockrange: boolean): void {
         let flags: number = CollisionFlag.LOC;
         if (blockrange) {
             flags |= CollisionFlag.LOC_PROJ_BLOCKER;
@@ -100,7 +98,7 @@ export default class CollisionMap {
                 if (!(tz >= 0 && tz < this.sizeZ)) {
                     continue;
                 }
-                this.remove(tx, tz, flags);
+                this.remCMap(tx, tz, flags);
             }
         }
     }
@@ -118,51 +116,51 @@ export default class CollisionMap {
         const northEast: number = blockrange ? CollisionFlag.WALL_NORTH_EAST_PROJ_BLOCKER : CollisionFlag.WALL_NORTH_EAST;
         const southWest: number = blockrange ? CollisionFlag.WALL_SOUTH_WEST_PROJ_BLOCKER : CollisionFlag.WALL_SOUTH_WEST;
 
-        if (shape === LocShape.WALL_STRAIGHT.id) {
+        if (shape === LocShape.WALL_STRAIGHT) {
             if (angle === LocAngle.WEST) {
-                this.add(x, z, west);
-                this.add(x - 1, z, east);
+                this.addCMap(x, z, west);
+                this.addCMap(x - 1, z, east);
             } else if (angle === LocAngle.NORTH) {
-                this.add(x, z, north);
-                this.add(x, z + 1, south);
+                this.addCMap(x, z, north);
+                this.addCMap(x, z + 1, south);
             } else if (angle === LocAngle.EAST) {
-                this.add(x, z, east);
-                this.add(x + 1, z, west);
+                this.addCMap(x, z, east);
+                this.addCMap(x + 1, z, west);
             } else if (angle === LocAngle.SOUTH) {
-                this.add(x, z, south);
-                this.add(x, z - 1, north);
+                this.addCMap(x, z, south);
+                this.addCMap(x, z - 1, north);
             }
-        } else if (shape === LocShape.WALL_DIAGONAL_CORNER.id || shape === LocShape.WALL_SQUARE_CORNER.id) {
+        } else if (shape === LocShape.WALL_DIAGONAL_CORNER || shape === LocShape.WALL_SQUARE_CORNER) {
             if (angle === LocAngle.WEST) {
-                this.add(x, z, northWest);
-                this.add(x - 1, z + 1, southEast);
+                this.addCMap(x, z, northWest);
+                this.addCMap(x - 1, z + 1, southEast);
             } else if (angle === LocAngle.NORTH) {
-                this.add(x, z, northEast);
-                this.add(x + 1, z + 1, southWest);
+                this.addCMap(x, z, northEast);
+                this.addCMap(x + 1, z + 1, southWest);
             } else if (angle === LocAngle.EAST) {
-                this.add(x, z, southEast);
-                this.add(x + 1, z - 1, northWest);
+                this.addCMap(x, z, southEast);
+                this.addCMap(x + 1, z - 1, northWest);
             } else if (angle === LocAngle.SOUTH) {
-                this.add(x, z, southWest);
-                this.add(x - 1, z - 1, northEast);
+                this.addCMap(x, z, southWest);
+                this.addCMap(x - 1, z - 1, northEast);
             }
-        } else if (shape === LocShape.WALL_L.id) {
+        } else if (shape === LocShape.WALL_L) {
             if (angle === LocAngle.WEST) {
-                this.add(x, z, north | west);
-                this.add(x - 1, z, east);
-                this.add(x, z + 1, south);
+                this.addCMap(x, z, north | west);
+                this.addCMap(x - 1, z, east);
+                this.addCMap(x, z + 1, south);
             } else if (angle === LocAngle.NORTH) {
-                this.add(x, z, north | east);
-                this.add(x, z + 1, south);
-                this.add(x + 1, z, west);
+                this.addCMap(x, z, north | east);
+                this.addCMap(x, z + 1, south);
+                this.addCMap(x + 1, z, west);
             } else if (angle === LocAngle.EAST) {
-                this.add(x, z, south | east);
-                this.add(x + 1, z, west);
-                this.add(x, z - 1, north);
+                this.addCMap(x, z, south | east);
+                this.addCMap(x + 1, z, west);
+                this.addCMap(x, z - 1, north);
             } else if (angle === LocAngle.SOUTH) {
-                this.add(x, z, south | west);
-                this.add(x, z - 1, north);
-                this.add(x - 1, z, east);
+                this.addCMap(x, z, south | west);
+                this.addCMap(x, z - 1, north);
+                this.addCMap(x - 1, z, east);
             }
         }
         if (blockrange) {
@@ -170,7 +168,7 @@ export default class CollisionMap {
         }
     }
 
-    removeWall(tileX: number, tileZ: number, shape: number, angle: LocAngle, blockrange: boolean): void {
+    delWall(tileX: number, tileZ: number, shape: number, angle: LocAngle, blockrange: boolean): void {
         const x: number = tileX - this.startX;
         const z: number = tileZ - this.startZ;
 
@@ -183,70 +181,70 @@ export default class CollisionMap {
         const northEast: number = blockrange ? CollisionFlag.WALL_NORTH_EAST_PROJ_BLOCKER : CollisionFlag.WALL_NORTH_EAST;
         const southWest: number = blockrange ? CollisionFlag.WALL_SOUTH_WEST_PROJ_BLOCKER : CollisionFlag.WALL_SOUTH_WEST;
 
-        if (shape === LocShape.WALL_STRAIGHT.id) {
+        if (shape === LocShape.WALL_STRAIGHT) {
             if (angle === LocAngle.WEST) {
-                this.remove(x, z, west);
-                this.remove(x - 1, z, east);
+                this.remCMap(x, z, west);
+                this.remCMap(x - 1, z, east);
             } else if (angle === LocAngle.NORTH) {
-                this.remove(x, z, north);
-                this.remove(x, z + 1, south);
+                this.remCMap(x, z, north);
+                this.remCMap(x, z + 1, south);
             } else if (angle === LocAngle.EAST) {
-                this.remove(x, z, east);
-                this.remove(x + 1, z, west);
+                this.remCMap(x, z, east);
+                this.remCMap(x + 1, z, west);
             } else if (angle === LocAngle.SOUTH) {
-                this.remove(x, z, south);
-                this.remove(x, z - 1, north);
+                this.remCMap(x, z, south);
+                this.remCMap(x, z - 1, north);
             }
-        } else if (shape === LocShape.WALL_DIAGONAL_CORNER.id || shape === LocShape.WALL_SQUARE_CORNER.id) {
+        } else if (shape === LocShape.WALL_DIAGONAL_CORNER || shape === LocShape.WALL_SQUARE_CORNER) {
             if (angle === LocAngle.WEST) {
-                this.remove(x, z, northWest);
-                this.remove(x - 1, z + 1, southEast);
+                this.remCMap(x, z, northWest);
+                this.remCMap(x - 1, z + 1, southEast);
             } else if (angle === LocAngle.NORTH) {
-                this.remove(x, z, northEast);
-                this.remove(x + 1, z + 1, southWest);
+                this.remCMap(x, z, northEast);
+                this.remCMap(x + 1, z + 1, southWest);
             } else if (angle === LocAngle.EAST) {
-                this.remove(x, z, southEast);
-                this.remove(x + 1, z - 1, northWest);
+                this.remCMap(x, z, southEast);
+                this.remCMap(x + 1, z - 1, northWest);
             } else if (angle === LocAngle.SOUTH) {
-                this.remove(x, z, southWest);
-                this.remove(x - 1, z - 1, northEast);
+                this.remCMap(x, z, southWest);
+                this.remCMap(x - 1, z - 1, northEast);
             }
-        } else if (shape === LocShape.WALL_L.id) {
+        } else if (shape === LocShape.WALL_L) {
             if (angle === LocAngle.WEST) {
-                this.remove(x, z, north | west);
-                this.remove(x - 1, z, east);
-                this.remove(x, z + 1, south);
+                this.remCMap(x, z, north | west);
+                this.remCMap(x - 1, z, east);
+                this.remCMap(x, z + 1, south);
             } else if (angle === LocAngle.NORTH) {
-                this.remove(x, z, north | east);
-                this.remove(x, z + 1, south);
-                this.remove(x + 1, z, west);
+                this.remCMap(x, z, north | east);
+                this.remCMap(x, z + 1, south);
+                this.remCMap(x + 1, z, west);
             } else if (angle === LocAngle.EAST) {
-                this.remove(x, z, south | east);
-                this.remove(x + 1, z, west);
-                this.remove(x, z - 1, north);
+                this.remCMap(x, z, south | east);
+                this.remCMap(x + 1, z, west);
+                this.remCMap(x, z - 1, north);
             } else if (angle === LocAngle.SOUTH) {
-                this.remove(x, z, south | west);
-                this.remove(x, z - 1, north);
-                this.remove(x - 1, z, east);
+                this.remCMap(x, z, south | west);
+                this.remCMap(x, z - 1, north);
+                this.remCMap(x - 1, z, east);
             }
         }
         if (blockrange) {
-            this.removeWall(tileX, tileZ, shape, angle, false);
+            this.delWall(tileX, tileZ, shape, angle, false);
         }
     }
 
-    reachedWall(sourceX: number, sourceZ: number, destX: number, destZ: number, shape: number, angle: LocAngle): boolean {
-        if (sourceX === destX && sourceZ === destZ) {
+    testWall(srcX: number, srcZ: number, dstX: number, dstZ: number, shape: number, angle: LocAngle): boolean {
+        if (srcX === dstX && srcZ === dstZ) {
             return true;
         }
 
-        const sx: number = sourceX - this.startX;
-        const sz: number = sourceZ - this.startZ;
-        const dx: number = destX - this.startX;
-        const dz: number = destZ - this.startZ;
+        const sx: number = srcX - this.startX;
+        const sz: number = srcZ - this.startZ;
+        const dx: number = dstX - this.startX;
+        const dz: number = dstZ - this.startZ;
         const index: number = CollisionMap.index(sx, sz);
 
-        if (shape === LocShape.WALL_STRAIGHT.id) {
+        if (shape === LocShape.WALL_STRAIGHT) {
             if (angle === LocAngle.WEST) {
                 if (sx === dx - 1 && sz === dz) {
                     return true;
@@ -280,7 +278,7 @@ export default class CollisionMap {
                     return true;
                 }
             }
-        } else if (shape === LocShape.WALL_L.id) {
+        } else if (shape === LocShape.WALL_L) {
             if (angle === LocAngle.WEST) {
                 if (sx === dx - 1 && sz === dz) {
                     return true;
@@ -322,7 +320,7 @@ export default class CollisionMap {
                     return true;
                 }
             }
-        } else if (shape === LocShape.WALL_DIAGONAL.id) {
+        } else if (shape === LocShape.WALL_DIAGONAL) {
             if (sx === dx && sz === dz + 1 && (this.flags[index] & CollisionFlag.WALL_SOUTH) === CollisionFlag.OPEN) {
                 return true;
             } else if (sx === dx && sz === dz - 1 && (this.flags[index] & CollisionFlag.WALL_NORTH) === CollisionFlag.OPEN) {
@@ -336,19 +334,19 @@ export default class CollisionMap {
         return false;
     }
 
-    reachedWallDecoration(sourceX: number, sourceZ: number, destX: number, destZ: number, shape: number, angle: number): boolean {
-        if (sourceX === destX && sourceZ === destZ) {
+    testWDecor(srcX: number, srcZ: number, dstX: number, dstZ: number, shape: number, angle: number): boolean {
+        if (srcX === dstX && srcZ === dstZ) {
             return true;
         }
 
-        const sx: number = sourceX - this.startX;
-        const sz: number = sourceZ - this.startZ;
-        const dx: number = destX - this.startX;
-        const dz: number = destZ - this.startZ;
+        const sx: number = srcX - this.startX;
+        const sz: number = srcZ - this.startZ;
+        const dx: number = dstX - this.startX;
+        const dz: number = dstZ - this.startZ;
         const index: number = CollisionMap.index(sx, sz);
 
-        if (shape === LocShape.WALLDECOR_DIAGONAL_OFFSET.id || shape === LocShape.WALLDECOR_DIAGONAL_NOOFFSET.id) {
-            if (shape === LocShape.WALLDECOR_DIAGONAL_NOOFFSET.id) {
+        if (shape === LocShape.WALLDECOR_DIAGONAL_OFFSET || shape === LocShape.WALLDECOR_DIAGONAL_NOOFFSET) {
+            if (shape === LocShape.WALLDECOR_DIAGONAL_NOOFFSET) {
                 angle = (angle + 2) & 0x3;
             }
 
@@ -377,7 +375,7 @@ export default class CollisionMap {
                     return true;
                 }
             }
-        } else if (shape === LocShape.WALLDECOR_DIAGONAL_BOTH.id) {
+        } else if (shape === LocShape.WALLDECOR_DIAGONAL_BOTH) {
             if (sx === dx && sz === dz + 1 && (this.flags[index] & CollisionFlag.WALL_SOUTH) === CollisionFlag.OPEN) {
                 return true;
             } else if (sx === dx && sz === dz - 1 && (this.flags[index] & CollisionFlag.WALL_NORTH) === CollisionFlag.OPEN) {
@@ -391,7 +389,7 @@ export default class CollisionMap {
         return false;
     }
 
-    reachedLoc(srcX: number, srcZ: number, dstX: number, dstZ: number, dstSizeX: number, dstSizeZ: number, forceapproach: number): boolean {
+    testLoc(srcX: number, srcZ: number, dstX: number, dstZ: number, dstSizeX: number, dstSizeZ: number, forceapproach: number): boolean {
         const maxX: number = dstX + dstSizeX - 1;
         const maxZ: number = dstZ + dstSizeZ - 1;
         const index: number = CollisionMap.index(srcX - this.startX, srcZ - this.startZ);
@@ -410,11 +408,11 @@ export default class CollisionMap {
         return false;
     }
 
-    private add(x: number, z: number, flags: number): void {
+    private addCMap(x: number, z: number, flags: number): void {
         this.flags[CollisionMap.index(x, z)] |= flags;
     }
 
-    private remove(x: number, z: number, flags: number): void {
+    private remCMap(x: number, z: number, flags: number): void {
         this.flags[CollisionMap.index(x, z)] &= CollisionFlag.BOUNDS - flags;
     }
 }

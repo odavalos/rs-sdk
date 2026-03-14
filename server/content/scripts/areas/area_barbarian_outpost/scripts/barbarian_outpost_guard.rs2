@@ -52,7 +52,7 @@ if(inv_total(inv, barcrawl_card) = 0 & inv_total(bank, barcrawl_card) = 0) {
         // (which will allow you to restart the minigame, this is consistent with OSRS)
         inv_del(inv, barcrawl_card, inv_total(inv, barcrawl_card));
         if(inv_total(bank, barcrawl_card) > 0) {
-            inv_del(bank, barcrawl_card, inv_total(inv, barcrawl_card));
+            inv_del(bank, barcrawl_card, inv_total(bank, barcrawl_card));
         }
         ~mesbox("You give the card to the barbarian");
         ~chatnpc("<p,happy>Yep that seems fine, you can come in now.|I never learned to read,|but you look like you've drunk plenty.");

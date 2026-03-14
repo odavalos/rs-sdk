@@ -289,7 +289,7 @@ param=sa_energy,250
 [bronze_spear_p]
 members=yes
 name=Bronze spear(p)
-desc=A bronze tipped spear.
+desc=A poisoned bronze tipped spear.
 cost=26
 model=model_2719_obj
 recol1s=8456
@@ -328,7 +328,7 @@ param=poison_severity,20
 [iron_spear_p]
 members=yes
 name=Iron spear(p)
-desc=An iron tipped spear.
+desc=A poisoned iron tipped spear.
 cost=91
 model=model_2719_obj
 recol1s=7399
@@ -366,7 +366,7 @@ param=poison_severity,20
 [steel_spear_p]
 members=yes
 name=Steel spear(p)
-desc=A steel tipped spear.
+desc=A poisoned steel tipped spear.
 cost=325
 model=model_2719_obj
 recol1s=8456
@@ -406,7 +406,7 @@ param=poison_severity,20
 [mithril_spear_p]
 members=yes
 name=Mithril spear(p)
-desc=A mithril tipped spear.
+desc=A poisoned mithril tipped spear.
 cost=845
 model=model_2719_obj
 recol1s=8456
@@ -446,7 +446,7 @@ param=poison_severity,20
 [adamant_spear_p]
 members=yes
 name=Adamant spear(p)
-desc=An adamantite tipped spear.
+desc=A poisoned adamantite tipped spear.
 cost=2080
 model=model_2719_obj
 recol1s=8456
@@ -486,7 +486,7 @@ param=poison_severity,20
 [rune_spear_p]
 members=yes
 name=Rune spear(p)
-desc=A rune tipped spear.
+desc=A poisoned rune tipped spear.
 cost=20800
 model=model_2719_obj
 recol1s=8456
@@ -526,7 +526,7 @@ param=poison_severity,20
 [dragon_spear_p]
 members=yes
 name=Dragon spear(p)
-desc=A dragon tipped spear.
+desc=A poisoned dragon tipped spear.
 cost=62400
 model=model_2482_obj
 recol1s=896

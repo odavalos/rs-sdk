@@ -127,7 +127,7 @@ export function packMaps(cache, modelFlags) {
         const serverNpcFile = `data/pack/server/maps/n${mapX}_${mapZ}`;
         const serverObjFile = `data/pack/server/maps/o${mapX}_${mapZ}`;
 
-        const packerUpdated = shouldBuildFile(__filename, mapFile);
+        const packerUpdated = shouldBuildFile(Environment.IS_BUN ? __filename : import.meta.filename, mapFile);
 
         const data = fs
             .readFileSync(file, 'utf8')
@@ -361,8 +361,6 @@ export function packMaps(cache, modelFlags) {
         if (packerUpdated || shouldBuildFile(file, serverNpcFile)) {
             let out = Packet.alloc(1);
 
-            NpcType.load('data/pack');
-
             for (let level = 0; level < 4; level++) {
                 if (!map.npc[level]) {
                     continue;
@@ -386,21 +384,6 @@ export function packMaps(cache, modelFlags) {
                         out.p1(npcs.length);
                         for (let i = 0; i < npcs.length; i++) {
                             out.p2(npcs[i]);
-
-                            const type = NpcType.get(npcs[i]);
-                            if (!type) {
-                                printFatalError(`m${mapX}_${mapZ}: NPC type does not exist: ${npcs[i]}`);
-                            }
-                            if (type.models) {
-                                for (const model of type.models) {
-                                    modelFlags[model] |= 0x4;
-                                }
-                            }
-                            if (type.heads) {
-                                for (const model of type.heads) {
-                                    modelFlags[model] |= 0x4;
-                                }
-                            }
                         }
                     }
                 }
@@ -448,5 +431,44 @@ export function packMaps(cache, modelFlags) {
 
         cache.write(4, MapPack.getByName(`m${mapX}_${mapZ}`), fs.readFileSync(mapFile), 1);
         cache.write(4, MapPack.getByName(`l${mapX}_${mapZ}`), fs.readFileSync(locFile), 1);
+
+        // update model flags
+        NpcType.load('data/pack');
+
+        for (let level = 0; level < 4; level++) {
+            if (!map.npc[level]) {
+                continue;
+            }
+
+            for (let x = 0; x < 64; x++) {
+                if (!map.npc[level][x]) {
+                    continue;
+                }
+
+                for (let z = 0; z < 64; z++) {
+                    if (!map.npc[level][x][z]) {
+                        continue;
+                    }
+
+                    let npcs = map.npc[level][x][z];
+                    for (let i = 0; i < npcs.length; i++) {
+                        const type = NpcType.get(npcs[i]);
+                        if (!type) {
+                            printFatalError(`m${mapX}_${mapZ}: NPC type does not exist: ${npcs[i]}`);
+                        }
+                        if (type.models) {
+                            for (const model of type.models) {
+                                modelFlags[model] |= 0x4;
+                            }
+                        }
+                        if (type.heads) {
+                            for (const model of type.heads) {
+                                modelFlags[model] |= 0x4;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

@@ -35,7 +35,7 @@ import ScriptRunner from '#/engine/script/ScriptRunner.js';
 import ScriptState from '#/engine/script/ScriptState.js';
 import ServerTriggerType from '#/engine/script/ServerTriggerType.js';
 import World from '#/engine/World.js';
-import LinkList from '#/util/LinkList.js';
+import LinkList from '#/datastruct/LinkList.js';
 import { printError } from '#/util/Logger.js';
 
 export default class Npc extends PathingEntity {
@@ -59,12 +59,12 @@ export default class Npc extends PathingEntity {
     queue: LinkList<NpcQueueRequest> = new LinkList();
     timerInterval: number = 0;
     timerClock: number = 0;
+    regenInterval: number = 0;
     regenClock: number = 0;
     huntClock: number = 0;
     huntMode: number = -1;
     huntTarget: Entity | null = null;
     huntrange: number = 0;
-    spawnTriggerPending: boolean = true;
 
     nextPatrolTick: number = -1;
     nextPatrolPoint: number = 0;
@@ -162,7 +162,7 @@ export default class Npc extends PathingEntity {
             if (hunt.nobodyNear !== HuntNobodyNear.PAUSEHUNT || rsbuf.getNpcObservers(this.nid) > 0 || hunt.type === HuntModeType.PLAYER) {
                 // - hunt npc/obj/loc
                 if (hunt && hunt.type !== HuntModeType.PLAYER) {
-                    this.huntAll();
+                    this.huntAll(hunt);
                 }
 
                 // Increment huntclock
@@ -246,10 +246,8 @@ export default class Npc extends PathingEntity {
 
     // https://x.com/JagexAsh/status/1821236327150710829
     // https://x.com/JagexAsh/status/1799793914595131463
-    huntAll(): void {
+    huntAll(hunt: HuntType): void {
         this.huntTarget = null;
-
-        const hunt: HuntType = HuntType.get(this.huntMode);
 
         // If a huntrate is defined, this acts as a throttle
         if (this.huntClock < hunt.rate - 1) {
@@ -274,8 +272,7 @@ export default class Npc extends PathingEntity {
 
         // Pick randomly from the hunted entities
         if (hunted.length > 0) {
-            const entity: Entity = hunted[Math.floor(Math.random() * hunted.length)];
-            this.huntTarget = entity;
+            this.huntTarget = hunted[Math.floor(Math.random() * hunted.length)];
         }
     }
 
@@ -436,7 +433,7 @@ export default class Npc extends PathingEntity {
         this.uid = (type << 16) | this.nid;
         this.resetOnRevert = reset;
 
-        if(reset) {
+        if (reset) {
             const npcType = NpcType.get(type);
             for (let index = 0; index < npcType.stats.length; index++) {
                 const level = npcType.stats[index];
@@ -512,13 +509,15 @@ export default class Npc extends PathingEntity {
 
     // --- Npc turn
     private processRegen() {
-        const type = NpcType.get(this.type);
+        if (++this.regenClock >= this.regenInterval) {
+            // Every time we regen, let's reload regen interval from NPC type
+            // This seems to match NPC behavior for when they change type, the regenrate doesn't update until a regen happens
+            // See: Vorkath in OSRS
+            const type = NpcType.get(this.type);
+            this.regenInterval = type.regenrate;
+            this.regenClock = 0;
 
-        // Hp regen timer counts down and procs every `regenrate` ticks
-        // Since regenClock is initialized to 0, NPCs regen their hp on their first turn alive, and then on turn 101
-        // This is accurate to OSRS behavior
-        if (type.regenrate !== 0 && --this.regenClock <= 0) {
-            this.regenClock = type.regenrate;
+            // Regen the stats
             for (let index = 0; index < this.baseLevels.length; index++) {
                 const stat = this.levels[index];
                 const baseStat = this.baseLevels[index];
@@ -895,7 +894,7 @@ export default class Npc extends PathingEntity {
         const hunt: HuntType = HuntType.get(this.huntMode);
 
         // We need a huntTarget and a huntMode
-        if (!this.huntTarget || hunt.type === HuntModeType.OFF) {
+        if (!this.huntTarget || typeof hunt === 'undefined' || hunt.type === HuntModeType.OFF) {
             return;
         }
 
@@ -993,7 +992,7 @@ export default class Npc extends PathingEntity {
 
     // --- Other
 
-    private getTrigger(type : NpcType): ScriptFile | null {
+    private getTrigger(type: NpcType): ScriptFile | null {
         const trigger: ServerTriggerType | null = this.getTriggerForMode(this.targetOp);
         if (trigger) {
             return ScriptProvider.getByTrigger(trigger, this.type, type.category) ?? null;

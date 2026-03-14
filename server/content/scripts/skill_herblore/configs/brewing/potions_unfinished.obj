@@ -190,3 +190,31 @@ recol1d=26324
 weight=2oz
 category=category_69
 members=yes
+
+[toadflaxvial]
+name=Unfinished potion
+recol1s=15855
+recol1d=12681
+desc=I need another ingredient to finish this Toadflax potion.
+cost=48
+model=model_2789_obj
+2dyof=-1
+2dzoom=550
+2dyan=1996
+2dxan=84
+members=yes
+weight=2oz
+
+[snapdragonvial]
+name=Unfinished potion
+recol1s=15855
+recol1d=21956
+desc=I need another ingredient to finish this Snapdragon potion.
+cost=59
+model=model_2789_obj
+2dyof=-1
+2dzoom=550
+2dyan=1996
+2dxan=84
+members=yes
+weight=2oz

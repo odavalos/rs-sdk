@@ -75,6 +75,14 @@ if (stat_base(ranged) < $ranged_level | stat_base(defence) < $defence_level) {
 }
 ~equip($slot);
 
+[label,levelrequire_defence_and_strength](int $level, int $slot)
+if (stat_base(strength) < $level | stat_base(defence) < $level) {
+    mes("You are not a high enough level to use this item.");
+    mes("You need to have Defence and Strength levels of <tostring($level)>.");
+    return;
+}
+~equip($slot);
+
 [label,levelrequire_dragon_slayer_quest_defence](int $level, int $slot)
 if (~levelrequire_dragon_slayer_quest = false) {
     return;

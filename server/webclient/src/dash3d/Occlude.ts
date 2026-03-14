@@ -1,5 +1,4 @@
 export default class Occlude {
-    // constructor
     readonly minTileX: number;
     readonly maxTileX: number;
     readonly minTileZ: number;
@@ -12,7 +11,6 @@ export default class Occlude {
     readonly minY: number;
     readonly maxY: number;
 
-    // runtime
     mode: number = 0;
     minDeltaX: number = 0;
     maxDeltaX: number = 0;

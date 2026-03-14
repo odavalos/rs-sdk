@@ -899,6 +899,7 @@ hillskew=yes
 model=model_loc_1862
 hillskew=yes
 sharelight=yes
+forcedecor=yes
 recol1s=15855
 recol1d=7329
 
@@ -906,6 +907,7 @@ recol1d=7329
 model=model_loc_3323
 hillskew=yes
 sharelight=yes
+forcedecor=yes
 recol1s=15855
 recol1d=7329
 
@@ -913,6 +915,7 @@ recol1d=7329
 model=model_loc_3324
 hillskew=yes
 sharelight=yes
+forcedecor=yes
 recol1s=15855
 recol1d=7329
 
@@ -1203,7 +1206,6 @@ recol6d=14798
 [iban_firewall_straight]
 model=model_loc_715
 anim=firewall
-hasalpha=yes
 ambient=100
 contrast=100
 resizey=512
@@ -1212,7 +1214,6 @@ mapscene=22
 [iban_firewall_diagonal]
 model=model_loc_716
 anim=firewall
-hasalpha=yes
 ambient=100
 contrast=100
 resizey=512

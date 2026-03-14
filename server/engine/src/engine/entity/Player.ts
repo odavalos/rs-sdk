@@ -59,7 +59,7 @@ import ResetClientVarCache from '#/network/game/server/model/ResetClientVarCache
 import TutOpen from '#/network/game/server/model/TutOpen.js';
 import UnsetMapFlag from '#/network/game/server/model/UnsetMapFlag.js';
 import UpdateInvStopTransmit from '#/network/game/server/model/UpdateInvStopTransmit.js';
-import UpdateUid192 from '#/network/game/server/model/UpdatePid.js';
+import UpdatePid from '#/network/game/server/model/UpdatePid.js';
 import UpdateRebootTimer from '#/network/game/server/model/UpdateRebootTimer.js';
 import UpdateRunEnergy from '#/network/game/server/model/UpdateRunEnergy.js';
 import UpdateStat from '#/network/game/server/model/UpdateStat.js';
@@ -70,8 +70,10 @@ import { LoggerEventType } from '#/server/logger/LoggerEventType.js';
 import { ChatModePrivate, ChatModePublic, ChatModeTradeDuel } from '#/engine/entity/ChatModes.js';
 import Environment from '#/util/Environment.js';
 import { toDisplayName } from '#/util/JString.js';
-import LinkList from '#/util/LinkList.js';
+import LinkList from '#/datastruct/LinkList.js';
 import { MidiPack } from '#tools/pack/PackFile.js';
+import VarBitType from '#/cache/config/VarBitType.js';
+import FriendlistLoaded from '#/network/game/server/model/FriendlistLoaded.js';
 import UpdateIgnoreList from '#/network/game/server/model/UpdateIgnoreList.js';
 
 const levelExperience = new Int32Array(99);
@@ -188,7 +190,7 @@ export default class Player extends PathingEntity {
     ]);
 
     save() {
-        const sav = Packet.alloc(1);
+        const sav = Packet.alloc(2);
         sav.p2(PlayerLoading.SAV_MAGIC); // magic
         sav.p2(PlayerLoading.SAV_VERSION); // version
 
@@ -269,7 +271,6 @@ export default class Player extends PathingEntity {
         return sav.data.subarray(0, sav.pos);
     }
 
-    // constructor properties
     username: string;
     username37: bigint;
     hash64: bigint;
@@ -302,13 +303,10 @@ export default class Player extends PathingEntity {
     privateChat: ChatModePrivate = ChatModePrivate.ON;
     tradeDuel: ChatModeTradeDuel = ChatModeTradeDuel.ON;
 
-    // input tracking
-    account_id: number = -1;
+    session: string = 'headless';
     input: InputTracking;
-    submitInput: boolean = false;
 
-    // runtime variables
-    pid: number = -1;
+    slot: number = -1;
     uid: number = -1;
     reconnecting: boolean = false;
     lowMemory: boolean = false;
@@ -438,7 +436,7 @@ export default class Player extends PathingEntity {
     }
 
     cleanup(): void {
-        this.pid = -1;
+        this.slot = -1;
         this.uid = -1;
         this.activeScript = null;
         this.invListeners.length = 0;
@@ -454,6 +452,7 @@ export default class Player extends PathingEntity {
         this.lastAppearance = 0;
         this.appearanceBuf = null;
         this.isActive = false;
+        this.input.flush();
     }
 
     resetEntity(respawn: boolean) {
@@ -468,7 +467,6 @@ export default class Player extends PathingEntity {
         this.chatRights = null;
         this.chatMessage = null;
         this.logMessage = null;
-        this.appearanceInv = -1;
         this.socialProtect = false;
         this.reportAbuseProtect = false;
     }
@@ -493,12 +491,15 @@ export default class Player extends PathingEntity {
         this.write(new ChatFilterSettings(this.publicChat, this.privateChat, this.tradeDuel));
 
         // todo: exact order
-        if (!Environment.FRIEND_SERVER) {
+        if (Environment.FRIEND_SERVER) {
+            this.write(new FriendlistLoaded(1));
+        } else {
+            this.write(new FriendlistLoaded(2));
             this.write(new UpdateIgnoreList([]));
         }
 
         this.write(new IfClose());
-        this.write(new UpdateUid192(this.pid, this.members));
+        this.write(new UpdatePid(this.slot, this.members));
         this.write(new ResetClientVarCache());
         for (let varp = 0; varp < this.vars.length; varp++) {
             const type = VarPlayerType.get(varp);
@@ -557,6 +558,8 @@ export default class Player extends PathingEntity {
         }
         this.write(new UpdateRunEnergy(this.runenergy));
         this.write(new ResetAnims());
+        this.masks |= this.entitymask; // resync face_entity
+        this.masks |= PlayerInfoProt.APPEARANCE; // resync appearance (todo: is it possible to do this for the local observer only?)
         this.moveSpeed = MoveSpeed.INSTANT;
         this.tele = true;
         this.jump = true;
@@ -631,20 +634,19 @@ export default class Player extends PathingEntity {
     }
 
     addSessionLog(event_type: LoggerEventType, message: string, ...args: string[]): void {
-        World.addSessionLog(event_type, this.account_id, 'headless', CoordGrid.packCoord(this.level, this.x, this.z), message, ...args);
+        World.addSessionLog(event_type, this.session, CoordGrid.packCoord(this.level, this.x, this.z), message, ...args);
     }
 
     addWealthEvent(event: WealthEventParams) {
         World.addWealthEvent({
             coord: CoordGrid.packCoord(this.level, this.x, this.z),
-            account_id: this.account_id,
-            account_session: 'headless',
+            session_uuid: this.session,
             ...event
         });
     }
 
     processEngineQueue() {
-        for (let request = this.engineQueue.head(); request !== null; request = this.engineQueue.next()) {
+        for (const request of this.engineQueue.all()) {
             const delay = request.delay--;
             if (this.canAccess() && delay <= 0) {
                 const script = ScriptRunner.init(request.script, this, null, request.args);
@@ -841,18 +843,18 @@ export default class Player extends PathingEntity {
 
     unlinkQueuedScript(scriptId: number, type: QueueType = PlayerQueueType.NORMAL) {
         if (type === PlayerQueueType.ENGINE) {
-            for (let request = this.engineQueue.head(); request !== null; request = this.engineQueue.next()) {
+            for (const request of this.engineQueue.all()) {
                 if (request.script.id === scriptId) {
                     request.unlink();
                 }
             }
         } else {
-            for (let request = this.queue.head(); request !== null; request = this.queue.next()) {
+            for (const request of this.queue.all()) {
                 if (request.script.id === scriptId) {
                     request.unlink();
                 }
             }
-            for (let request = this.weakQueue.head(); request !== null; request = this.weakQueue.next()) {
+            for (const request of this.weakQueue.all()) {
                 if (request.script.id === scriptId) {
                     request.unlink();
                 }
@@ -862,7 +864,7 @@ export default class Player extends PathingEntity {
 
     processQueues() {
         // the presence of a strong script closes modals before queue runs
-        for (let request = this.queue.head(); request !== null; request = this.queue.next()) {
+        for (const request of this.queue.all()) {
             if (request.type === PlayerQueueType.STRONG) {
                 this.requestModalClose = true;
                 break;
@@ -883,7 +885,7 @@ export default class Player extends PathingEntity {
         // regardless of whether the end of the list has been reached (i.e. the previous iteration added to the end of the list)
         // - thank you De0 for the explanation
         // essentially, if a script is before the end of the list, it can be processed this tick and result in inconsistent queue timing (authentic)
-        for (let request = this.queue.head(); request !== null; request = this.queue.next()) {
+        for (const request of this.queue.all()) {
             if (this.loggingOut && request.type === PlayerQueueType.LONG && request.args[0] === 0) {
                 // ^accelerate
                 request.delay = 0;
@@ -893,31 +895,23 @@ export default class Player extends PathingEntity {
             if (this.canAccess() && delay <= 0) {
                 request.unlink();
 
-                const save = this.queue.cursor; // LinkList-specific behavior so we can getqueue/clearqueue inside of this
-
                 if (request.type === PlayerQueueType.LONG) {
                     request.args.shift();
                 }
                 const script = ScriptRunner.init(request.script, this, null, request.args);
                 this.executeScript(script, true);
-
-                this.queue.cursor = save;
             }
         }
     }
 
     processWeakQueue() {
-        for (let request = this.weakQueue.head(); request !== null; request = this.weakQueue.next()) {
+        for (const request of this.weakQueue.all()) {
             const delay = request.delay--;
             if (this.canAccess() && delay <= 0) {
                 request.unlink();
 
-                const save = this.queue.cursor; // LinkList-specific behavior so we can getqueue/clearqueue inside of this
-
                 const script = ScriptRunner.init(request.script, this, null, request.args);
                 this.executeScript(script, true);
-
-                this.queue.cursor = save;
             }
         }
     }
@@ -1330,6 +1324,8 @@ export default class Player extends PathingEntity {
         stream.p1(this.gender);
         stream.p1(this.headicons);
 
+        // todo: transmog support - write first "slot" with -1, followed by npc ID
+
         const skippedSlots = [];
 
         let worn = this.getInventory(this.appearanceInv);
@@ -1414,8 +1410,10 @@ export default class Player extends PathingEntity {
         }
     }
 
-    getInventoryFromListener(listener: InventoryListener) {
-        if (listener.source === -1) {
+    getInventoryFromListener(listener: InventoryListener | undefined) {
+        if (!listener) {
+            return null;
+        } else if (listener.source === -1) {
             return World.getInventory(listener.type);
         } else {
             const player = World.getPlayerByUid(listener.source);
@@ -1744,6 +1742,35 @@ export default class Player extends PathingEntity {
         }
     }
 
+    getVarBit(id: number) {
+        const varbit = VarBitType.get(id);
+        if (!varbit) {
+            return 0;
+        }
+
+        const { basevar, startbit, endbit } = varbit;
+        const mask = Packet.bitmask[endbit - startbit + 1];
+
+        return this.vars[basevar] >> startbit & mask;
+    }
+
+    setVarBit(id: number, value: number) {
+        const varbit = VarBitType.get(id);
+        if (!varbit) {
+            return 0;
+        }
+
+        const { basevar, startbit, endbit } = varbit;
+        let mask = Packet.bitmask[endbit - startbit + 1];
+
+        if (value < 0 || value > mask) {
+            value = 0;
+        }
+
+        mask <<= startbit;
+        this.setVar(basevar, mask & value << startbit | this.vars[basevar] & ~mask);
+    }
+
     private writeVarp(id: number, value: number): void {
         if (value >= -128 && value <= 127) {
             this.write(new VarpSmall(id, value));
@@ -1824,7 +1851,7 @@ export default class Player extends PathingEntity {
 
         if (this.combatLevel != this.getCombatLevel()) {
             this.combatLevel = this.getCombatLevel();
-            this.buildAppearance(InvType.WORN);
+            this.buildAppearance(this.appearanceInv);
         }
     }
 
@@ -1842,9 +1869,9 @@ export default class Player extends PathingEntity {
         this.levels[stat] = level;
         this.stats[stat] = getExpByLevel(level);
 
-        if (this.getCombatLevel() != this.combatLevel) {
+        if (this.combatLevel != this.getCombatLevel()) {
             this.combatLevel = this.getCombatLevel();
-            this.buildAppearance(InvType.WORN);
+            this.buildAppearance(this.appearanceInv);
         }
     }
 
@@ -1954,9 +1981,14 @@ export default class Player extends PathingEntity {
         this.modalState |= ModalState.MAIN;
         this.modalMain = com;
         this.refreshModal = true;
+
+        // clear old suspended scripts
+        if (this.activeScript?.execution === ScriptState.COUNTDIALOG || this.activeScript?.execution === ScriptState.PAUSEBUTTON) {
+            this.activeScript = null;
+        }
     }
 
-    openOverlay(com: number) {
+    openMainOverlay(com: number) {
         if (this.overlay === com) {
             return;
         }
@@ -1968,7 +2000,7 @@ export default class Player extends PathingEntity {
         this.overlay = com;
     }
 
-    openChat(com: number) {
+    openChatModal(com: number) {
         if ((this.modalState & ModalState.MAIN) !== ModalState.NONE) {
             this.write(new IfClose());
             this.modalState &= ~ModalState.MAIN;
@@ -1984,6 +2016,11 @@ export default class Player extends PathingEntity {
         this.modalState |= ModalState.CHAT;
         this.modalChat = com;
         this.refreshModal = true;
+
+        // clear old suspended scripts
+        if (this.activeScript?.execution === ScriptState.COUNTDIALOG || this.activeScript?.execution === ScriptState.PAUSEBUTTON) {
+            this.activeScript = null;
+        }
     }
 
     openSideModal(com: number) {
@@ -2002,6 +2039,11 @@ export default class Player extends PathingEntity {
         this.modalState |= ModalState.SIDE;
         this.modalSide = com;
         this.refreshModal = true;
+
+        // clear old suspended scripts
+        if (this.activeScript?.execution === ScriptState.COUNTDIALOG || this.activeScript?.execution === ScriptState.PAUSEBUTTON) {
+            this.activeScript = null;
+        }
     }
 
     openTutorial(com: number) {
@@ -2010,7 +2052,7 @@ export default class Player extends PathingEntity {
         this.modalTutorial = com;
     }
 
-    openMainModalSide(top: number, side: number) {
+    openMainSideModal(top: number, side: number) {
         if ((this.modalState & ModalState.CHAT) !== ModalState.NONE) {
             this.write(new IfClose());
             this.modalState &= ~ModalState.CHAT;
@@ -2022,6 +2064,11 @@ export default class Player extends PathingEntity {
         this.modalState |= ModalState.SIDE;
         this.modalSide = side;
         this.refreshModal = true;
+
+        // clear old suspended scripts
+        if (this.activeScript?.execution === ScriptState.COUNTDIALOG || this.activeScript?.execution === ScriptState.PAUSEBUTTON) {
+            this.activeScript = null;
+        }
     }
 
     exactMove(startX: number, startZ: number, endX: number, endZ: number, startCycle: number, endCycle: number, direction: number) {
@@ -2182,8 +2229,8 @@ export default class Player extends PathingEntity {
         this.write(new HintArrow(offset, 0, 0, x, z, height));
     }
 
-    hintPlayer(pid: number) {
-        this.write(new HintArrow(10, 0, pid, 0, 0, 0));
+    hintPlayer(playerSlot: number) {
+        this.write(new HintArrow(10, 0, playerSlot, 0, 0, 0));
     }
 
     stopHint() {

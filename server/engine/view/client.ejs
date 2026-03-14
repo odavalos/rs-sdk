@@ -54,6 +54,7 @@
             outline: none;
             -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
             z-index: -1;
+            image-rendering: pixelated;
         }
 
         html:-webkit-full-screen {
@@ -247,8 +248,6 @@
                 case 'auto':
                     canvas.style.width = '100%';
                     canvas.style.height = 'auto';
-                    let maxWidth = ((window.innerHeight - 120) / 503) * 765;
-                    canvas.style.maxWidth = maxWidth + 'px';
                     break;
             }
             document.getElementById('size').value = size;
@@ -339,10 +338,6 @@
 
     <script type="module">
         import { Client } from './client/client.js';
-
-        <% if (per_deployment_token) { %>
-            document.cookie = 'per_deployment_token="<%= per_deployment_token %>"; Domain=' + window.location.hostname;
-        <% } %>
 
         (() => {
             new Client(<%= nodeid %>, <%= lowmem %>, <%= members %>);

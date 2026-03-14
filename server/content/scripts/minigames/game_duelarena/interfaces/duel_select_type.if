@@ -112,16 +112,16 @@ graphic=tradebacking,0
 
 [com_14]
 type=graphic
-x=188
-y=260
+x=276
+y=20
 width=88
 height=60
 graphic=tradebacking,0
 
 [com_15]
 type=graphic
-x=276
-y=20
+x=188
+y=260
 width=88
 height=60
 graphic=tradebacking,0
@@ -704,49 +704,6 @@ graphic=steelborder2,0
 
 [com_88]
 type=layer
-x=36
-y=20
-width=440
-height=299
-
-[com_102]
-layer=com_88
-type=graphic
-x=203
-y=71
-width=36
-height=36
-graphic=miscgraphics,2
-
-[com_103]
-layer=com_88
-type=graphic
-x=203
-y=35
-width=36
-height=36
-graphic=miscgraphics,2
-
-[com_104]
-layer=com_88
-type=graphic
-x=203
-y=122
-width=36
-height=36
-graphic=miscgraphics,2
-
-[com_106]
-layer=com_88
-type=graphic
-x=203
-y=107
-width=36
-height=36
-graphic=miscgraphics,2
-
-[com_89]
-type=layer
 x=19
 y=55
 width=218
@@ -754,7 +711,7 @@ height=122
 scroll=216
 
 [inv]
-layer=com_89
+layer=com_88
 type=inv
 x=9
 y=16
@@ -767,8 +724,8 @@ option3=Remove 10
 option4=Remove All
 option5=Remove X
 
-[com_97]
-layer=com_89
+[com_96]
+layer=com_88
 type=text
 x=76
 y=0
@@ -779,7 +736,7 @@ shadowed=yes
 text=Your Stake:
 colour=0xAA8822
 
-[com_90]
+[com_89]
 type=layer
 x=258
 y=55
@@ -788,7 +745,7 @@ height=122
 scroll=216
 
 [otherinv]
-layer=com_90
+layer=com_89
 type=inv
 x=9
 y=16
@@ -796,8 +753,8 @@ width=5
 height=6
 margin=10,1
 
-[com_96]
-layer=com_90
+[com_95]
+layer=com_89
 type=text
 x=62
 y=0
@@ -808,7 +765,7 @@ shadowed=yes
 text=Opponents Stake:
 colour=0xAA8822
 
-[com_91]
+[com_90]
 type=layer
 x=391
 y=192
@@ -816,7 +773,7 @@ width=78
 height=42
 
 [accept]
-layer=com_91
+layer=com_90
 type=rect
 x=6
 y=6
@@ -824,9 +781,10 @@ buttontype=normal
 width=66
 height=31
 fill=yes
+option=Accept stake and duel options
 
 [accept_text]
-layer=com_91
+layer=com_90
 type=text
 x=21
 y=14
@@ -838,7 +796,91 @@ text=Accept
 colour=0x008000
 overcolour=0x00FF00
 
-[com_105]
+[com_104]
+layer=com_90
+type=graphic
+x=21
+y=-15
+width=36
+height=36
+graphic=steelborder2,0
+
+[com_109]
+layer=com_90
+type=graphic
+x=0
+y=0
+width=25
+height=30
+graphic=steelborder,0
+
+[com_111]
+layer=com_90
+type=graphic
+x=53
+y=0
+width=25
+height=30
+graphic=steelborder,1
+
+[com_113]
+layer=com_90
+type=graphic
+x=0
+y=13
+width=25
+height=30
+graphic=steelborder,2
+
+[com_115]
+layer=com_90
+type=graphic
+x=53
+y=13
+width=25
+height=30
+graphic=steelborder,3
+
+[com_116]
+layer=com_90
+type=graphic
+x=21
+y=22
+width=36
+height=36
+graphic=miscgraphics,3
+
+[com_91]
+type=layer
+x=391
+y=242
+width=78
+height=43
+
+[decline]
+layer=com_91
+type=rect
+x=6
+y=6
+buttontype=close
+width=66
+height=31
+fill=yes
+
+[decline_text]
+layer=com_91
+type=text
+x=20
+y=14
+width=40
+height=14
+font=p12
+shadowed=yes
+text=Decline
+colour=0x800000
+overcolour=0xFF0000
+
+[com_106]
 layer=com_91
 type=graphic
 x=21
@@ -846,6 +888,15 @@ y=-15
 width=36
 height=36
 graphic=steelborder2,0
+
+[com_108]
+layer=com_91
+type=graphic
+x=22
+y=22
+width=36
+height=36
+graphic=miscgraphics,3
 
 [com_110]
 layer=com_91
@@ -874,101 +925,8 @@ width=25
 height=30
 graphic=steelborder,2
 
-[com_116]
-layer=com_91
-type=graphic
-x=53
-y=13
-width=25
-height=30
-graphic=steelborder,3
-
 [com_117]
 layer=com_91
-type=graphic
-x=21
-y=22
-width=36
-height=36
-graphic=miscgraphics,3
-
-[com_92]
-type=layer
-x=391
-y=242
-width=78
-height=43
-
-[decline]
-layer=com_92
-type=rect
-x=6
-y=6
-buttontype=close
-width=66
-height=31
-fill=yes
-
-[decline_text]
-layer=com_92
-type=text
-x=20
-y=14
-width=40
-height=14
-font=p12
-shadowed=yes
-text=Decline
-colour=0x800000
-overcolour=0xFF0000
-
-[com_107]
-layer=com_92
-type=graphic
-x=21
-y=-15
-width=36
-height=36
-graphic=steelborder2,0
-
-[com_109]
-layer=com_92
-type=graphic
-x=22
-y=22
-width=36
-height=36
-graphic=miscgraphics,3
-
-[com_111]
-layer=com_92
-type=graphic
-x=0
-y=0
-width=25
-height=30
-graphic=steelborder,0
-
-[com_113]
-layer=com_92
-type=graphic
-x=53
-y=0
-width=25
-height=30
-graphic=steelborder,1
-
-[com_115]
-layer=com_92
-type=graphic
-x=0
-y=13
-width=25
-height=30
-graphic=steelborder,2
-
-[com_118]
-layer=com_92
 type=graphic
 x=53
 y=13
@@ -987,19 +945,51 @@ shadowed=yes
 text=Dueling with:
 colour=0xFFAA44
 
+[com_101]
+type=graphic
+x=237
+y=87
+width=36
+height=36
+graphic=miscgraphics,2
+
+[com_102]
+type=graphic
+x=237
+y=51
+width=36
+height=36
+graphic=miscgraphics,2
+
+[com_103]
+type=graphic
+x=237
+y=142
+width=36
+height=36
+graphic=miscgraphics,2
+
+[com_105]
+type=graphic
+x=237
+y=111
+width=36
+height=36
+graphic=miscgraphics,2
+
 [status]
 type=text
-x=73
-y=293
-width=360
+x=143
+y=300
+width=220
 height=11
 center=yes
 font=p11
 shadowed=yes
-text=You can't have No Ranged, No Melee AND No Magic, how would you fight?
+text=Neither player is allowed to forfeit the duel.
 colour=0xAAAAAA
 
-[com_119]
+[com_118]
 type=text
 x=423
 y=29
@@ -1019,10 +1009,12 @@ y=190
 buttontype=normal
 width=57
 height=14
+overlayer=com_161
 font=p12
 shadowed=yes
 text=No Forfeit
 colour=0xAA8822
+option=Toggle option
 
 [no_magic_text]
 type=text
@@ -1031,10 +1023,12 @@ y=230
 buttontype=normal
 width=50
 height=14
+overlayer=com_175
 font=p12
 shadowed=yes
 text=No Magic
 colour=0xAA8822
+option=Toggle option
 
 [no_ranged_text]
 type=text
@@ -1043,10 +1037,12 @@ y=190
 buttontype=normal
 width=60
 height=14
+overlayer=com_171
 font=p12
 shadowed=yes
 text=No Ranged
 colour=0xAA8822
+option=Toggle option
 
 [no_melee_text]
 type=text
@@ -1055,10 +1051,12 @@ y=210
 buttontype=normal
 width=51
 height=14
+overlayer=com_173
 font=p12
 shadowed=yes
 text=No Melee
 colour=0xAA8822
+option=Toggle option
 
 [no_weapons_text]
 type=text
@@ -1067,10 +1065,12 @@ y=230
 buttontype=normal
 width=69
 height=14
+overlayer=com_165
 font=p12
 shadowed=yes
 text=No Weapons
 colour=0xAA8822
+option=Toggle option
 
 [no_potions_text]
 type=text
@@ -1079,10 +1079,12 @@ y=190
 buttontype=normal
 width=61
 height=14
+overlayer=com_181
 font=p12
 shadowed=yes
 text=No Potions
 colour=0xAA8822
+option=Toggle option
 
 [no_food_text]
 type=text
@@ -1091,10 +1093,12 @@ y=210
 buttontype=normal
 width=45
 height=14
+overlayer=com_183
 font=p12
 shadowed=yes
 text=No Food
 colour=0xAA8822
+option=Toggle option
 
 [no_prayer_text]
 type=text
@@ -1103,10 +1107,12 @@ y=230
 buttontype=normal
 width=56
 height=14
+overlayer=com_185
 font=p12
 shadowed=yes
 text=No Prayer
 colour=0xAA8822
+option=Toggle option
 
 [no_movement_text]
 type=text
@@ -1115,10 +1121,12 @@ y=210
 buttontype=normal
 width=76
 height=14
+overlayer=com_163
 font=p12
 shadowed=yes
 text=No Movement
 colour=0xAA8822
+option=Toggle option
 
 [no_armour_text]
 type=text
@@ -1127,12 +1135,14 @@ y=250
 buttontype=normal
 width=59
 height=14
+overlayer=com_167
 font=p12
 shadowed=yes
 text=No Armour
 colour=0xAA8822
+option=Toggle option
 
-[com_130]
+[com_129]
 type=graphic
 x=18
 y=162
@@ -1140,7 +1150,7 @@ width=36
 height=36
 graphic=steelborder2,0
 
-[com_131]
+[com_130]
 type=graphic
 x=54
 y=162
@@ -1148,7 +1158,7 @@ width=36
 height=36
 graphic=steelborder2,0
 
-[com_132]
+[com_131]
 type=graphic
 x=90
 y=162
@@ -1156,7 +1166,7 @@ width=36
 height=36
 graphic=steelborder2,0
 
-[com_133]
+[com_132]
 type=graphic
 x=126
 y=162
@@ -1164,7 +1174,7 @@ width=36
 height=36
 graphic=steelborder2,0
 
-[com_134]
+[com_133]
 type=graphic
 x=162
 y=162
@@ -1172,7 +1182,7 @@ width=36
 height=36
 graphic=steelborder2,0
 
-[com_135]
+[com_134]
 type=graphic
 x=198
 y=162
@@ -1180,7 +1190,7 @@ width=36
 height=36
 graphic=steelborder2,0
 
-[com_136]
+[com_135]
 type=graphic
 x=234
 y=162
@@ -1188,7 +1198,7 @@ width=36
 height=36
 graphic=steelborder2,0
 
-[com_137]
+[com_136]
 type=graphic
 x=270
 y=162
@@ -1196,7 +1206,7 @@ width=36
 height=36
 graphic=steelborder2,0
 
-[com_138]
+[com_137]
 type=graphic
 x=306
 y=162
@@ -1204,7 +1214,7 @@ width=36
 height=36
 graphic=steelborder2,0
 
-[com_139]
+[com_138]
 type=graphic
 x=342
 y=162
@@ -1212,7 +1222,7 @@ width=36
 height=36
 graphic=steelborder2,0
 
-[com_140]
+[com_139]
 type=graphic
 x=378
 y=162
@@ -1220,7 +1230,7 @@ width=36
 height=36
 graphic=steelborder2,0
 
-[com_141]
+[com_140]
 type=graphic
 x=414
 y=162
@@ -1228,7 +1238,7 @@ width=36
 height=36
 graphic=steelborder2,0
 
-[com_142]
+[com_141]
 type=graphic
 x=450
 y=162
@@ -1236,21 +1246,13 @@ width=36
 height=36
 graphic=steelborder2,0
 
-[com_143]
+[com_142]
 type=graphic
 x=458
 y=162
 width=36
 height=36
 graphic=steelborder2,0
-
-[com_144]
-type=inv
-x=9
-y=16
-width=5
-height=6
-margin=10,1
 
 [no_forfeit]
 type=graphic
@@ -1259,10 +1261,12 @@ y=190
 buttontype=normal
 width=14
 height=15
+overlayer=com_161
 script1op1=testbit,dueloptions,0
 script1=eq,1
 graphic=miscgraphics,10
 activegraphic=miscgraphics,11
+option=Toggle option
 
 [no_movement]
 type=graphic
@@ -1271,10 +1275,12 @@ y=210
 buttontype=normal
 width=14
 height=15
+overlayer=com_163
 script1op1=testbit,dueloptions,1
 script1=eq,1
 graphic=miscgraphics,10
 activegraphic=miscgraphics,11
+option=Toggle option
 
 [no_weapons]
 type=graphic
@@ -1283,10 +1289,12 @@ y=230
 buttontype=normal
 width=14
 height=15
+overlayer=com_165
 script1op1=testbit,dueloptions,2
 script1=eq,1
 graphic=miscgraphics,10
 activegraphic=miscgraphics,11
+option=Toggle option
 
 [no_armour]
 type=graphic
@@ -1295,10 +1303,12 @@ y=250
 buttontype=normal
 width=14
 height=15
+overlayer=com_167
 script1op1=testbit,dueloptions,3
 script1=eq,1
 graphic=miscgraphics,10
 activegraphic=miscgraphics,11
+option=Toggle option
 
 [no_ranged]
 type=graphic
@@ -1307,10 +1317,12 @@ y=190
 buttontype=normal
 width=14
 height=15
+overlayer=com_171
 script1op1=testbit,dueloptions,4
 script1=eq,1
 graphic=miscgraphics,10
 activegraphic=miscgraphics,11
+option=Toggle option
 
 [no_melee]
 type=graphic
@@ -1319,10 +1331,12 @@ y=210
 buttontype=normal
 width=14
 height=15
+overlayer=com_173
 script1op1=testbit,dueloptions,5
 script1=eq,1
 graphic=miscgraphics,10
 activegraphic=miscgraphics,11
+option=Toggle option
 
 [no_magic]
 type=graphic
@@ -1331,10 +1345,12 @@ y=230
 buttontype=normal
 width=14
 height=15
+overlayer=com_175
 script1op1=testbit,dueloptions,6
 script1=eq,1
 graphic=miscgraphics,10
 activegraphic=miscgraphics,11
+option=Toggle option
 
 [no_potions]
 type=graphic
@@ -1343,10 +1359,12 @@ y=190
 buttontype=normal
 width=14
 height=15
+overlayer=com_181
 script1op1=testbit,dueloptions,7
 script1=eq,1
 graphic=miscgraphics,10
 activegraphic=miscgraphics,11
+option=Toggle option
 
 [no_food]
 type=graphic
@@ -1355,10 +1373,12 @@ y=210
 buttontype=normal
 width=14
 height=15
+overlayer=com_183
 script1op1=testbit,dueloptions,8
 script1=eq,1
 graphic=miscgraphics,10
 activegraphic=miscgraphics,11
+option=Toggle option
 
 [no_prayer]
 type=graphic
@@ -1367,10 +1387,12 @@ y=230
 buttontype=normal
 width=14
 height=15
+overlayer=com_185
 script1op1=testbit,dueloptions,9
 script1=eq,1
 graphic=miscgraphics,10
 activegraphic=miscgraphics,11
+option=Toggle option
 
 [obstacle_text]
 type=text
@@ -1379,10 +1401,12 @@ y=250
 buttontype=normal
 width=57
 height=14
+overlayer=com_187
 font=p12
 shadowed=yes
 text=Obstacles
 colour=0xAA8822
+option=Toggle option
 
 [obstacles]
 type=graphic
@@ -1391,10 +1415,12 @@ y=250
 buttontype=normal
 width=14
 height=15
+overlayer=com_187
 script1op1=testbit,dueloptions,10
 script1=eq,1
 graphic=miscgraphics,10
 activegraphic=miscgraphics,11
+option=Toggle option
 
 [no_jewelry_text]
 type=text
@@ -1403,10 +1429,12 @@ y=270
 buttontype=normal
 width=61
 height=14
+overlayer=com_169
 font=p12
 shadowed=yes
 text=No Jewelry
 colour=0xAA8822
+option=Toggle option
 
 [flower_power_text]
 type=text
@@ -1415,10 +1443,12 @@ y=270
 buttontype=normal
 width=71
 height=14
+overlayer=com_179
 font=p12
 shadowed=yes
 text=Flower Power
 colour=0xAA8822
+option=Toggle option
 
 [flower_power]
 type=graphic
@@ -1427,10 +1457,12 @@ y=270
 buttontype=normal
 width=14
 height=15
+overlayer=com_179
 script1op1=testbit,dueloptions,12
 script1=eq,1
 graphic=miscgraphics,10
 activegraphic=miscgraphics,11
+option=Toggle option
 
 [no_jewelry]
 type=graphic
@@ -1439,10 +1471,12 @@ y=270
 buttontype=normal
 width=14
 height=15
+overlayer=com_169
 script1op1=testbit,dueloptions,11
 script1=eq,1
 graphic=miscgraphics,10
 activegraphic=miscgraphics,11
+option=Toggle option
 
 [no_specs]
 type=graphic
@@ -1451,10 +1485,12 @@ y=250
 buttontype=normal
 width=14
 height=15
+overlayer=com_177
 script1op1=testbit,dueloptions,13
 script1=eq,1
 graphic=miscgraphics,10
 activegraphic=miscgraphics,11
+option=Toggle option
 
 [no_specs_text]
 type=text
@@ -1463,7 +1499,303 @@ y=250
 buttontype=normal
 width=57
 height=14
+overlayer=com_177
 font=p12
 shadowed=yes
 text=No Sp. Atk
 colour=0xAA8822
+option=Toggle option
+
+[com_161]
+type=layer
+x=44
+y=288
+width=430
+height=13
+hide=yes
+
+[com_162]
+layer=com_161
+type=text
+x=99
+y=0
+width=220
+height=11
+center=yes
+font=p11
+shadowed=yes
+text=Neither player is allowed to forfeit the duel.
+colour=0xAAAAAA
+
+[com_163]
+type=layer
+x=44
+y=288
+width=430
+height=13
+hide=yes
+
+[com_164]
+layer=com_163
+type=text
+x=61
+y=0
+width=304
+height=11
+center=yes
+font=p11
+shadowed=yes
+text=Players stand next to each other and aren't allowed to move.
+colour=0xAAAAAA
+
+[com_165]
+type=layer
+x=44
+y=288
+width=430
+height=13
+hide=yes
+
+[com_166]
+layer=com_165
+type=text
+x=108
+y=0
+width=207
+height=11
+center=yes
+font=p11
+shadowed=yes
+text=Neither player is allowed to use weapons.
+colour=0xAAAAAA
+
+[com_167]
+type=layer
+x=44
+y=288
+width=430
+height=13
+hide=yes
+
+[com_168]
+layer=com_167
+type=text
+x=106
+y=0
+width=199
+height=11
+center=yes
+font=p11
+shadowed=yes
+text=Neither player is allowed to use armour.
+colour=0xAAAAAA
+
+[com_169]
+type=layer
+x=44
+y=288
+width=430
+height=13
+hide=yes
+
+[com_170]
+layer=com_169
+type=text
+x=105
+y=0
+width=208
+height=11
+center=yes
+font=p11
+shadowed=yes
+text=Neither player is allowed to wear jewelry.
+colour=0xAAAAAA
+
+[com_171]
+type=layer
+x=44
+y=288
+width=430
+height=13
+hide=yes
+
+[com_172]
+layer=com_171
+type=text
+x=90
+y=0
+width=238
+height=11
+center=yes
+font=p11
+shadowed=yes
+text=Neither player is allowed to use ranged attacks.
+colour=0xAAAAAA
+
+[com_173]
+type=layer
+x=44
+y=288
+width=430
+height=13
+hide=yes
+
+[com_174]
+layer=com_173
+type=text
+x=96
+y=0
+width=231
+height=11
+center=yes
+font=p11
+shadowed=yes
+text=Neither player is allowed to use melee attacks.
+colour=0xAAAAAA
+
+[com_175]
+type=layer
+x=44
+y=288
+width=430
+height=13
+hide=yes
+
+[com_176]
+layer=com_175
+type=text
+x=95
+y=0
+width=230
+height=11
+center=yes
+font=p11
+shadowed=yes
+text=Neither player is allowed to use magic attacks.
+colour=0xAAAAAA
+
+[com_177]
+type=layer
+x=44
+y=288
+width=430
+height=13
+hide=yes
+
+[com_178]
+layer=com_177
+type=text
+x=81
+y=0
+width=260
+height=11
+center=yes
+font=p11
+shadowed=yes
+text=Neither player will be allowed to use special attacks.
+colour=0xAAAAAA
+
+[com_179]
+type=layer
+x=44
+y=288
+width=430
+height=13
+hide=yes
+
+[com_180]
+layer=com_179
+type=text
+x=92
+y=0
+width=230
+height=11
+center=yes
+font=p11
+shadowed=yes
+text=Both players will use flowers as their weapon.
+colour=0xAAAAAA
+
+[com_181]
+type=layer
+x=44
+y=288
+width=430
+height=13
+hide=yes
+
+[com_182]
+layer=com_181
+type=text
+x=97
+y=0
+width=223
+height=11
+center=yes
+font=p11
+shadowed=yes
+text=Neither player will be allowed to use potions.
+colour=0xAAAAAA
+
+[com_183]
+type=layer
+x=44
+y=288
+width=430
+height=13
+hide=yes
+
+[com_184]
+layer=com_183
+type=text
+x=102
+y=0
+width=209
+height=11
+center=yes
+font=p11
+shadowed=yes
+text=Neither player will be allowed to use food.
+colour=0xAAAAAA
+
+[com_185]
+type=layer
+x=44
+y=288
+width=430
+height=13
+hide=yes
+
+[com_186]
+layer=com_185
+type=text
+x=100
+y=0
+width=220
+height=11
+center=yes
+font=p11
+shadowed=yes
+text=Neither player will be allowed to use prayer.
+colour=0xAAAAAA
+
+[com_187]
+type=layer
+x=44
+y=288
+width=430
+height=13
+hide=yes
+
+[com_188]
+layer=com_187
+type=text
+x=101
+y=0
+width=211
+height=11
+center=yes
+font=p11
+shadowed=yes
+text=The duel will be in an arena with obstacles.
+colour=0xAAAAAA

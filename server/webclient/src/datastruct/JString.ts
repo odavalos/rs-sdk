@@ -1,13 +1,12 @@
 export default class JString {
     // prettier-ignore
-    private static BASE37_LOOKUP: string[] = [
-        '_', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
-        'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
-        't', 'u', 'v', 'w', 'x', 'y', 'z',
+    private static USERHASH_CHAR: string[] = [
+        '_',
+        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',  'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
     ];
 
-    static toBase37(string: string): bigint {
+    static toUserhash(string: string): bigint {
         string = string.trim();
         let l: bigint = 0n;
 
@@ -27,10 +26,14 @@ export default class JString {
             }
         }
 
+        while (l % 37n === 0n && l !== 0n) {
+            l /= 37n;
+        }
+
         return l;
     }
 
-    static fromBase37(value: bigint): string {
+    static toRawUsername(value: bigint): string {
         // >= 37 to the 12th power
         if (value < 0n || value >= 6582952005840035281n) {
             return 'invalid_name';
@@ -45,7 +48,7 @@ export default class JString {
         while (value !== 0n) {
             const l1: bigint = value;
             value /= 37n;
-            chars[11 - len++] = this.BASE37_LOOKUP[Number(l1 - value * 37n)];
+            chars[11 - len++] = this.USERHASH_CHAR[Number(l1 - value * 37n)];
         }
 
         return chars.slice(12 - len).join('');
@@ -67,7 +70,7 @@ export default class JString {
         return chars.join('');
     }
 
-    static toAsterisks(str: string): string {
+    static getRepeatedCharacter(str: string): string {
         let temp: string = '';
         for (let i: number = 0; i < str.length; i++) {
             temp = temp + '*';
@@ -79,7 +82,7 @@ export default class JString {
         return ((ip >> 24) & 0xff) + '.' + ((ip >> 16) & 0xff) + '.' + ((ip >> 8) & 0xff) + '.' + (ip & 0xff);
     }
 
-    static formatName(str: string): string {
+    static toScreenName(str: string): string {
         if (str.length === 0) {
             return str;
         }

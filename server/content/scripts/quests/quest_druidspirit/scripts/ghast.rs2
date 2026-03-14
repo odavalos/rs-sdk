@@ -186,6 +186,7 @@ if (oc_category($consumable) = category_129) {
     inv_setslot(inv, $slot, piedish, 1);
 }
 inv_add(inv, rotten_food, 1);
+sound_synth(food_rot, 0, 0);
 mes("You feel something attacking your backpack, and smell a terrible stench.");
 return (true);
 

@@ -220,6 +220,7 @@ model=model_2591_obj
 2dxan=132
 weight=500g
 category=category_131
+param=party_clean_exempt,^true
 
 [easter_egg]
 name=Easter egg
@@ -232,6 +233,7 @@ model=model_2534_obj
 2dxan=2044
 weight=3oz
 category=category_59
+param=party_clean_exempt,^true
 
 // Typo of `bannana` in model name is Jagex consistent.
 [banana]
@@ -404,6 +406,7 @@ name=Chocolate dust
 desc=It's ground up chocolate.
 param=gnome_topping,^true
 param=cocktail_message,You sprinkle the chocolate dust over the drink.
+param=brew_potion_struct,3dose1energy
 
 [pot_empty]
 name=Pot

@@ -4,8 +4,8 @@
 @multi3("Balloon Bonanza.", partyroom_balloons, "Nightly Dance.", partyroom_knights, "No action.", exit);
 
 [label,partyroom_balloons]
-~mesbox("Balloon Bonanza costs 5000 coins.");
-if(inv_total(inv, coins) < 5000) {
+~mesbox("Balloon Bonanza costs 1000 coins.");
+if(inv_total(inv, coins) < 1000) {
     return;
 }
 def_int $choice = ~p_choice2_header("Yes.", 1, "No.", 2, "Continue?");
@@ -14,7 +14,7 @@ if ($choice = 2) {
     return;
 }
 if (npc_find(coord, partyroom_pete, 16, 0) = true) {
-    ~pull_partylever(5000);
+    ~pull_partylever(1000);
     @partyroom_drop_balloons(0);
 }
 
@@ -26,8 +26,8 @@ anim(human_boxlever, 0);
 sound_synth(lever, 0, 0);
 
 [label,partyroom_knights]
-~mesbox("Nightly Dance costs 2000 coins.");
-if(inv_total(inv, coins) < 2000) {
+~mesbox("Nightly Dance costs 500 coins.");
+if(inv_total(inv, coins) < 500) {
     return;
 }
 def_int $choice = ~p_choice2_header("Yes.", 1, "No.", 2, "Continue?");
@@ -39,7 +39,7 @@ if(npc_find(coord, partyroom_knight, 7, 0) = true) {
     ~mesbox("The party room knights are already here!");
     return;
 }
-~pull_partylever(2000);
+~pull_partylever(500);
 def_int $knights_spawned = 0;
 while($knights_spawned < 6) {
     npc_add(movecoord(^partyroom_starting_knight_coord, $knights_spawned, 0, 0), partyroom_knight, 100);
@@ -128,14 +128,21 @@ anim(human_stamp, 0);
 p_delay(0);
 // Temp note: dur updated, does it need ? @indio
 loc_change($broken_balloon, 6);
-// todo: chance was fixed before Jul 2004, was changed to scale off of chest freespace afterwards (this chance is just a guess unfortunately)
-if (~inzone_coord_pair_table(party_room_zones, loc_coord) = true & random(4) = 0) {
-    def_int $partyroom_size = inv_size(partyroom_dropinv);
-    def_int $free_slots = calc($partyroom_size - inv_freespace(partyroom_dropinv));
-    def_int $rand_slot = random(calc($free_slots + ~partyroom_empty_slots($free_slots)));
-    def_obj $obj = inv_getobj(partyroom_dropinv, $rand_slot);
-    def_int $count = 1;
-    def_int $obj_total = inv_getnum(partyroom_dropinv, $rand_slot);
+def_int $partyroom_size = inv_size(partyroom_dropinv);
+def_int $free_slots = calc($partyroom_size - inv_freespace(partyroom_dropinv));
+def_int $rand_slot;
+def_obj $obj;
+def_int $count = 1;
+def_int $obj_total;
+// estimated off OSRS
+def_int $rand_chest = random(4);
+if($free_slots >= 100) { // if 100 or more items are in the chest, something will always drop (OSRS)
+    $rand_chest = 0;
+}
+if (~inzone_coord_pair_table(party_room_zones, loc_coord) = true & $rand_chest = 0) {
+    $rand_slot = random(calc($free_slots + ~partyroom_empty_slots($free_slots)));
+    $obj = inv_getobj(partyroom_dropinv, $rand_slot);
+    $obj_total = inv_getnum(partyroom_dropinv, $rand_slot);
     if($obj = null) {
         return;
     }

@@ -1,12 +1,45 @@
-[proc,macro_mysterious_old_man_spawn]
+[proc,macro_mysterious_old_man_spawn](int $random_old_man_event)
 spotanim_map(smokepuff, npc_coord, 124, 0);
 sound_synth(smokepuff, 0, 0);
-npc_anim(emote_bow, 20);
-npc_say("Greetings <displayname>!");
-%npc_macro_event_target = uid;
-
 // to match genie in this video: https://www.youtube.com/watch?v=el-h9hbSH80&t=293s
 npc_setmode(playerfollow);
+
+if ($random_old_man_event = ^macro_cube & (inv_freespace(inv) = 0 | inv_total(inv, macro_cube) >= 28)) { // Cannot give strange box if no inventory space, so becomes Maze. Also can not have more than 28 of them (guess)
+    $random_old_man_event = ^macro_maze;
+}
+
+switch_int ($random_old_man_event) {
+    case ^macro_mime : // Mime
+        npc_say("Aha, you're required <displayname>!"); // https://www.youtube.com/watch?v=aqNlh2YPezM&t=49s No bow or greetings. Unsure if mime or maze
+        p_delay(1);
+        npc_del;
+        %macro_event = ^macro_mime;
+        ~mime_entry_point;
+        return;
+    case ^macro_cube : // Strange box
+        npc_anim(emote_bow, 20);
+        npc_say("Greetings <displayname>!");
+        p_delay(1);
+        npc_say("Here you go <displayname>, it's all yours!");
+        p_delay(1);
+        npc_del;
+        ~macro_events_varps_reset;
+        ~give_strange_box;
+        return;
+    case ^macro_maze : // Maze
+        npc_say("Aha, you'll do <displayname>!"); // No bowing for maze event, either according to https://youtu.be/A0V4NJn11ow?si=iVJ16Z7Yv4ueT4ao&t=11
+        p_delay(1);
+        npc_del;
+        %macro_event = ^macro_maze;
+        ~start_macro_maze;
+        return;
+    case ^macro_mysterious_old_man : // Gift
+        npc_anim(emote_bow, 20);
+        npc_say("Greetings <displayname>!");
+        p_delay(1);
+        %npc_macro_event_target = uid;
+        return;
+}
 
 // other videos:
 // https://youtu.be/_PPxvNjIgq4?t=63
@@ -69,6 +102,7 @@ if (%npc_int = ^mysterious_old_man_happy) {
     ~chatnpc("<p,neutral>Goodbye.");
     return;
 }
+
 %npc_int = ^mysterious_old_man_happy;
 %macro_event = ^no_macro_event;
 inv_add(inv, ~macro_mysterious_old_man_reward);

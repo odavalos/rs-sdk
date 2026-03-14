@@ -37,6 +37,8 @@ switch_coord (loc_coord) {
     case 0_40_49_53_3 : p_telejump(1_40_49_52_3);
     case 0_45_73_41_13 : p_telejump(1_45_73_41_12); // Yanille west gate - level 0
     case 0_45_73_41_24 : p_telejump(1_45_73_41_27); // Yanille west gate - level 0
+    case 0_45_55_17_46 : p_telejump(1_45_55_17_49); // Burthorpe castle - level 0
+    case 0_45_55_34_19 : p_telejump(1_45_55_34_22); // Burthorpe pub - level 0
     case default : @unhandled_stairs(loc_coord);
 }
 
@@ -80,6 +82,8 @@ switch_coord (loc_coord) {
     case 1_40_49_53_3 : p_telejump(0_40_49_56_3);
     case 1_45_73_41_13 : p_telejump(0_45_73_41_16); // Yanille west gate - level 1
     case 1_45_73_41_25 : p_telejump(0_45_73_41_23); // Yanille west gate - level 1
+    case 1_45_55_17_47 : p_telejump(0_45_55_17_45); // Burthorpe castle - level 1
+    case 1_45_55_34_20 : p_telejump(0_45_55_34_18); // Burthorpe pub - level 1
     case default : @unhandled_stairs(loc_coord);
 }
 
@@ -217,7 +221,7 @@ switch_coord (loc_coord) {
     case 0_51_49_48_49 : p_telejump(1_51_49_50_49); // Al Kharid General Store
     case 0_45_52_27_6 : p_telejump(1_45_52_28_8); // Dark Wizard's Tower - Ground Floor
     case 1_45_52_27_6 : p_telejump(2_45_52_28_8); // Dark Wizard's Tower - First Floor
-    case 0_45_51_51_18 : p_telejump(1_45_51_52_17); // Crafting Guild
+    case 0_45_51_51_18 : p_telejump(1_45_51_53_18); // Crafting Guild
     case 0_39_53_21_37 : p_telejump(1_39_53_22_39); // Hadley house - ground floor
     case 0_48_48_10_52 : p_telejump(1_48_48_12_52); // Tutorial island Quest Guide house - ground floor
     case 0_43_73_9_8 : p_telejump(1_43_73_10_10); // Grail castle (quest) - ground floor

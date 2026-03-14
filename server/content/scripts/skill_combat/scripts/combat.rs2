@@ -33,6 +33,7 @@ switch_category(oc_category($weapon)) {
     case weapon_thrown : return(weapon_thrown_table);
     case weapon_javelin : return(weapon_thrown_table);
     case weapon_staff : return(weapon_staff_table);
+    case weapon_claws : return(weapon_claws_table);
     case default : return(weapon_unarmed_table);
 }
 
@@ -168,8 +169,11 @@ if (%tutorial < ^tutorial_complete) {
 
 
 // returns the defend anim to use for this combat
-[proc,combat_defend_anim](obj $weapon)(seq)
-if ($weapon = null | (map_members = ^false & oc_members($weapon) = true)) {
-    return(human_unarmedblock);
+[proc,combat_defend_anim](obj $weapon, obj $shield)(seq)
+// priority is shield anim (if it exists) -> weapon -> unarmedblock
+if ($shield ! null & oc_param($shield, defend_anim) ! human_unarmed_def & (map_members ! ^false | oc_members($shield) = true)) {
+    return(oc_param($shield, defend_anim));
+} else if ($weapon ! null & (map_members ! ^false | oc_members($weapon) ! true)) {
+    return(oc_param($weapon, defend_anim));
 }
-return(oc_param($weapon, defend_anim));
+return(human_unarmedblock);

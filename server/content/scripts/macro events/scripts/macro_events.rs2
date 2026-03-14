@@ -41,7 +41,7 @@ switch_int ($event) {
     case ^macro_triffidseed : ~macro_event_triffid_spawn;
     case ^macro_dwarf : ~macro_dwarf_spawn;
     case ^macro_geni : ~macro_geni_spawn;
-    case ^macro_mysterious_old_man : ~macro_mysterious_old_man_spawn;
+    case ^macro_mysterious_old_man, ^macro_cube, ^macro_mime, ^macro_maze : ~macro_mysterious_old_man_spawn($event);
 }
 
 [proc,macro_event_area](coord $coord)(boolean)
@@ -90,27 +90,28 @@ if (npc_finduid(%macro_event_uid) = true) {
 }
 
 [proc,macro_event_npc](int $event)(npc)
-def_npc $event_npc;
-if (map_members = ^true) {
-    $event_npc = enum(int, npc, general_macro_events_members, $event);
-} else {
-    $event_npc = enum(int, npc, general_macro_events_free, $event);
-}
-return($event_npc);
+return(enum(int, npc, general_macro_events, $event));
 
 [proc,macro_event_set_random]()(int)
-if (map_members = ^true) {
-    return(~random_range(1, enum_getoutputcount(general_macro_events_members)));
-} else {
-    return(~random_range(1, enum_getoutputcount(general_macro_events_free)));
+def_int $random = ~random_range(1, enum_getoutputcount(general_macro_events));
+
+if ($random >= ^teleport_macro_start & (random(4) ! 0 | ~wilderness_level(coord) > 20)) {
+    //Only give teleport events 25% of the time they are rolled and only under 20 wildy
+    while ($random >= ^teleport_macro_start) {
+        $random = ~random_range(1, sub(^teleport_macro_start, 1));
+    }
 }
+
+if(map_members = ^false) {
+    while($random = ^macro_triffidseed) $random = ~random_range(1, sub(^teleport_macro_start, 1));
+}
+return($random);
 
 // used for skilling random events
 [proc,macro_event_general_count]()(int)
-if (map_members = ^true) {
-    return(enum_getoutputcount(general_macro_events_members));
-}
-return(enum_getoutputcount(general_macro_events_free));
+def_int $count = enum_getoutputcount(general_macro_events);
+if(map_members = ^false) $count = sub($count, ^members_macro_count);
+return($count);
 
 // teleports the player to a random location, using the coords in configs/macro_events_teleports.enum
 [queue,macro_event_fail_teleport]
@@ -209,3 +210,28 @@ while ($i < 50) {
     $i = calc($i + 1);
 }
 return(null);
+
+[proc,macro_events_set_tabs]
+if_settab(null, 0);
+if_settab(null, 1);
+if_settab(null, 2);
+if_settab(null, 3);
+if_settab(null, 4);
+if_settab(null, 5);
+if_settab(null, 6);
+if_settab(null, 11);
+if_settab(null, 12);
+if_settabactive(^tab_friends);
+
+[proc,macro_events_varps_reset]
+%macro_event = ^no_macro_event;
+%macro_event_target_coord = null;
+%macro_event_uid = null;
+
+[proc,macro_return_teleport]
+if(%macro_event_target_coord = null | map_blocked(%macro_event_target_coord) = true) {
+    mes("Whoops, you couldn't be returned to where you came from.");
+    p_teleport(map_findsquare(0_50_50_21_18, 0, 2, ^map_findsquare_lineofwalk));
+    return;
+}
+p_teleport(%macro_event_target_coord);

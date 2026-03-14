@@ -22,8 +22,9 @@ def_synth $sound;
 $final_obj, $anim, $spotanim, $sound = ~magic_spell_search_convertobj($spell_data, $initial_obj);
 // if you cant enchant the item, display this message
 if ($final_obj = null) {
-    // this checks if initial_obj has a specific message with the current spell
-    ~magic_spell_specificobj_reqmessage($spell_data, $initial_obj); 
+    if(~magic_spell_amulet_reqmessage($spell_data, $initial_obj) = true) {
+        return;
+    }
     mes(db_getfield($spell_data, magic_spell_table:additional_reqmessage, 0));
     return;
 }

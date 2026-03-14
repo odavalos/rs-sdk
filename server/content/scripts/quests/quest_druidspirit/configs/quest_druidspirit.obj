@@ -191,6 +191,7 @@ model=obj_2970
 2dxan=232
 members=yes
 weight=10g
+param=brew_potion_struct,3dose2energy
 
 [mortmyrebuddingstem]
 name=Mort myre stem

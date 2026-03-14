@@ -1,19 +1,24 @@
 export default class QuickGround {
-    readonly southwestColor: number;
-    readonly southeastColor: number;
-    readonly northeastColor: number;
-    readonly northwestColor: number;
-    readonly textureId: number;
-    readonly colour: number;
+    readonly colourSW: number;
+    readonly colourSE: number;
+    readonly colourNE: number;
+    readonly colourNW: number;
+    readonly texture: number;
+    readonly minimapRgb: number;
     readonly flat: boolean;
 
-    constructor(southwestColor: number, southeastColor: number, northeastColor: number, northwestColor: number, textureId: number, color: number, flat: boolean) {
-        this.southwestColor = southwestColor;
-        this.southeastColor = southeastColor;
-        this.northeastColor = northeastColor;
-        this.northwestColor = northwestColor;
-        this.textureId = textureId;
-        this.colour = color;
+    constructor(
+        colourSW: number, colourSE: number, colourNE: number, colourNW: number,
+        texture: number,
+        minimapRgb: number,
+        flat: boolean
+    ) {
+        this.colourSW = colourSW;
+        this.colourSE = colourSE;
+        this.colourNE = colourNE;
+        this.colourNW = colourNW;
+        this.texture = texture;
+        this.minimapRgb = minimapRgb;
         this.flat = flat;
     }
 }

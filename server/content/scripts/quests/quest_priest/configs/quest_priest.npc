@@ -4,7 +4,6 @@ name=Restless ghost
 desc=Eek! A ghost!
 walkanim=ghosthuman_walk_forward
 readyanim=ghosthuman_ready
-hasalpha=yes
 op1=Talk-to
 recol1s=2340
 recol1d=6342

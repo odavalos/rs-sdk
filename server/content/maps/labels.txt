@@ -112,3 +112,8 @@
 =River/Salve,3410,3438,0
 =River Lum,3167,3350,0
 =Temple,3421,3489,0
+=Agility/Arena,2815,3193,0
+=Burthorpe,2895,3549,1
+=Death/Plateau,2865,3592,0
+=Trollheim,2892,3678,0
+=Troll/Stronghold,2835,3681,0

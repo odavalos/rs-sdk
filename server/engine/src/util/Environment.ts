@@ -3,11 +3,10 @@ import { tryParseBoolean, tryParseInt, tryParseString } from '#/util/TryParse.js
 import { WalkTriggerSetting } from '#/engine/entity/WalkTriggerSetting.js';
 
 export default {
+    IS_BUN: typeof process.versions.bun !== 'undefined', // not user-configurable
+
     EASY_STARTUP: tryParseBoolean(process.env.EASY_STARTUP, false),
     WEBSITE_REGISTRATION: tryParseBoolean(process.env.WEBSITE_REGISTRATION, false),
-
-    // bundler/webrtc browser mode
-    STANDALONE_BUNDLE: tryParseBoolean(process.env.STANDALONE_BUNDLE, false),
 
     /// web server
     WEB_PORT: tryParseInt(process.env.WEB_PORT, 8888),
@@ -24,7 +23,7 @@ export default {
     WEB_MANAGEMENT_PORT: tryParseInt(process.env.WEB_MANAGEMENT_PORT, 8898),
 
     /// game server
-    ENGINE_REVISION: tryParseInt(process.env.ENGINE_REVISION, 245),
+    ENGINE_REVISION: tryParseInt(process.env.ENGINE_REVISION, 254),
     // world id - offset by 9, so 1 = 10, 2 = 11, etc
     NODE_ID: tryParseInt(process.env.NODE_ID, 10),
     NODE_PORT: tryParseInt(process.env.NODE_PORT, 43594),
@@ -64,9 +63,13 @@ export default {
     NODE_MAX_PLAYERS: tryParseInt(process.env.NODE_MAX_PLAYERS, 2047),
     NODE_MAX_CONNECTED: tryParseInt(process.env.NODE_MAX_CONNECTED, 1000),
     NODE_MAX_LOGINS_PER_IP: tryParseInt(process.env.NODE_MAX_LOGINS_PER_IP, 100),
-    NODE_MAX_NPCS: tryParseInt(process.env.NODE_MAX_NPCS, 8191),
+    NODE_MAX_NPCS: tryParseInt(process.env.NODE_MAX_NPCS, 16383),
     NODE_DEBUGPROC_CHAR: tryParseString(process.env.NODE_DEBUGPROC_CHAR, '~'),
     NODE_WS_ONDEMAND: tryParseBoolean(process.env.NODE_WS_ONDEMAND, false),
+    NODE_HOP_TIME: tryParseInt(process.env.NODE_MAX_NPCS, 45000), // 45s
+    // limit login attempts
+    NODE_RATELIMIT_ADDRESS_LOGIN: tryParseInt(process.env.NODE_RATELIMIT_ADDRESS_LOGIN, 30), // ip (60s)
+    NODE_RATELIMIT_DEVICE_LOGIN: tryParseInt(process.env.NODE_RATELIMIT_DEVICE_LOGIN, 5), // uid+ip (15s)
 
     /// hiscores
     HISCORES_WEB_PORT: tryParseInt(process.env.HISCORES_WEB_PORT, 8889),

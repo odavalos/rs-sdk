@@ -77,7 +77,8 @@ if ($entering = true) {
 [label,templedoors_agree_help]
 ~chatplayer("<p,neutral>Sure. I'm a helpful person!");
 %priestperil = ^priestperil_agree_to_kill_dog;
-~mesbox("@dre@HAHAHAHA! Really? Thanks buddy! You see that mausoleum out|@dre@there? There's a horrible big dog underneath it that I'd like you to|@dre@kill for me! It's been really bugging me! Barking all the time and|@dre@stuff! Please kill it for me buddy!");
+~mesbox("@dre@HAHAHAHA! Really? Thanks buddy!|@dre@You see that mausoleum out @dre@there?|@dre@There's a horrible big dog underneath it|@dre@that I'd like you to @dre@kill for me!");
+~mesbox("@dre@It's been really bugging me!|@dre@Barking all the time and stuff!|@dre@Please kill it for me buddy!");
 ~chatplayer("<p,happy>Okey-dokey, one dead dog coming up.");
 
 [label,templedoors_nope]

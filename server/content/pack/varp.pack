@@ -33,7 +33,7 @@
 32=haunted
 33=ernestlever
 34=haunted_manor_fountain_poisoned
-35=cog_cooled
+35=cog_bits
 36=damagetype
 37=damagestyle
 38=lastcombat
@@ -207,7 +207,7 @@
 206=macro_whirlpool_counter
 207=macro_gas_counter
 208=macro_ent_counter
-209=macro_chest_gas_coord
+209=macro_event_target_coord
 210=smithbars
 211=modified_smith
 212=itwatchtower
@@ -307,3 +307,14 @@
 306=mortmyre
 307=druidspirit
 308=druidspirit_bits
+309=agilityarena_varbit
+310=varp_310
+311=varp_311
+312=varp_312
+313=emote_access
+314=death_equiproom
+315=death_map
+316=death_bits
+317=troll_quest
+318=troll_varbit
+319=varp_319

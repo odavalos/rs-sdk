@@ -11,15 +11,13 @@ import Decor from '#/dash3d/Decor.js';
 import { TypedArray1d } from '#/util/Arrays.js';
 
 export default class Square extends Linkable {
-    // constructor
     level: number;
     readonly x: number;
     readonly z: number;
     readonly originalLevel: number;
-    readonly locs: (Sprite | null)[];
-    readonly primaryExtendDirections: Int32Array;
+    readonly sprites: (Sprite | null)[] = new TypedArray1d(5, null);
+    readonly spriteSpan: Int32Array = new Int32Array(5);
 
-    // runtime
     quickGround: QuickGround | null = null;
     ground: Ground | null = null;
     wall: Wall | null = null;
@@ -27,12 +25,12 @@ export default class Square extends Linkable {
     groundDecor: GroundDecor | null = null;
     groundObject: GroundObject | null = null;
     linkedSquare: Square | null = null;
-    primaryCount: number = 0;
-    combinedPrimaryExtendDirections: number = 0;
+    spriteCount: number = 0;
+    spriteSpans: number = 0;
     drawLevel: number = 0;
     drawFront: boolean = false;
     drawBack: boolean = false;
-    drawPrimaries: boolean = false;
+    drawSprites: boolean = false;
     cornerSides: number = 0;
     sidesBeforeCorner: number = 0;
     sidesAfterCorner: number = 0;
@@ -43,7 +41,5 @@ export default class Square extends Linkable {
         this.originalLevel = this.level = level;
         this.x = x;
         this.z = z;
-        this.locs = new TypedArray1d(5, null);
-        this.primaryExtendDirections = new Int32Array(5);
     }
 }

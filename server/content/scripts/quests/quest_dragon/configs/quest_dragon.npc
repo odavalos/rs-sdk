@@ -5,7 +5,7 @@ size=4
 walkanim=dragon_walk
 readyanim=dragon_ready
 op2=Attack
-vislevel=86
+vislevel=83
 recol1s=15855
 recol1d=4484
 model1=model_2853_npc
@@ -69,7 +69,7 @@ head3=model_37_npc_head
 wanderrange=0
 moverestrict=nomove
 
-[dragonslayer_giant_rat]
+[dragonslayer_giantrat]
 size=2
 walkanim=giantrat_walk
 readyanim=giantrat_ready
@@ -94,16 +94,15 @@ param=defend_sound,rat_hit
 param=death_sound,rat_death
 huntmode=cowardly
 huntrange=1
+category=giantrat
 // stats and information taken from normal 6lv Giant rat  // Vislvl match 1:1
 // https://raw.githubusercontent.com/Joshua-F/osrs-dumps/refs/heads/master/config/dump.npc npc_3969 (3lv)
 
 [dragonslayer_ghost]
 name=Ghost
 desc=Eeek! A ghost!
-hasalpha=yes
 walkanim=ghost_walk
 readyanim=ghost_ready
-hasalpha=yes
 op2=Attack
 vislevel=19
 model1=model_2961_npc
@@ -147,10 +146,10 @@ model2=model_2946_npc
 wanderrange=9
 maxrange=11
 respawnrate=70
-hitpoints=17
-attack=24
-strength=24
-defence=24
+hitpoints=29
+attack=15
+strength=18
+defence=17
 param=attackbonus,15
 param=strengthbonus,14
 param=stabdefence,9

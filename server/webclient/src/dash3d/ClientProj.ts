@@ -1,116 +1,121 @@
-import SpotAnimType from '#/config/SpotAnimType.js';
+import SpotType from '#/config/SpotType.js';
 
+import AnimFrame from '#/dash3d/AnimFrame.js';
 import Model from '#/dash3d/Model.js';
 import ModelSource from '#/dash3d/ModelSource.js';
 
 export default class ClientProj extends ModelSource {
-    readonly spotanim: SpotAnimType;
-    readonly projLevel: number;
+    readonly spotanim: SpotType;
+    readonly level: number;
     readonly srcX: number;
     readonly srcZ: number;
-    readonly srcY: number;
-    readonly projOffsetY: number;
-    readonly startCycle: number;
-    readonly lastCycle: number;
-    readonly peakPitch: number;
-    readonly projArc: number;
-    readonly projTarget: number;
+    readonly h1: number;
+    readonly h2: number;
+    readonly t1: number;
+    readonly t2: number;
+    readonly angle: number;
+    readonly startpos: number;
+    readonly target: number;
 
-    // runtime
     mobile: boolean = false;
     x: number = 0.0;
     z: number = 0.0;
     y: number = 0.0;
-    projVelocityX: number = 0.0;
-    projVelocityZ: number = 0.0;
-    projVelocity: number = 0.0;
-    projVelocityY: number = 0.0;
+    velocityX: number = 0.0;
+    velocityZ: number = 0.0;
+    velocity: number = 0.0;
+    velocityY: number = 0.0;
     accelerationY: number = 0.0;
     yaw: number = 0;
     pitch: number = 0;
-    seqFrame: number = 0;
-    seqCycle: number = 0;
+    animFrame: number = 0;
+    animCycle: number = 0;
 
-    constructor(spotanim: number, level: number, srcX: number, srcY: number, srcZ: number, startCycle: number, lastCycle: number, peakPitch: number, arc: number, target: number, offsetY: number) {
+    constructor(spotanim: number, level: number, srcX: number, h1: number, srcZ: number, t1: number, t2: number, angle: number, startpos: number, target: number, h2: number) {
         super();
-        this.spotanim = SpotAnimType.types[spotanim];
-        this.projLevel = level;
+
+        this.spotanim = SpotType.list[spotanim];
+        this.level = level;
         this.srcX = srcX;
         this.srcZ = srcZ;
-        this.srcY = srcY;
-        this.startCycle = startCycle;
-        this.lastCycle = lastCycle;
-        this.peakPitch = peakPitch;
-        this.projArc = arc;
-        this.projTarget = target;
-        this.projOffsetY = offsetY;
+        this.h1 = h1;
+        this.t1 = t1;
+        this.t2 = t2;
+        this.angle = angle;
+        this.startpos = startpos;
+        this.target = target;
+        this.h2 = h2;
+        this.mobile = false;
     }
 
-    updateVelocity(dstX: number, dstY: number, dstZ: number, cycle: number): void {
+    setTarget(dstX: number, dstY: number, dstZ: number, cycle: number): void {
         if (!this.mobile) {
             const dx: number = dstX - this.srcX;
             const dz: number = dstZ - this.srcZ;
             const d: number = Math.sqrt(dx * dx + dz * dz);
 
-            this.x = this.srcX + (dx * this.projArc) / d;
-            this.z = this.srcZ + (dz * this.projArc) / d;
-            this.y = this.srcY;
+            this.x = this.srcX + (dx * this.startpos) / d;
+            this.z = this.srcZ + (dz * this.startpos) / d;
+            this.y = this.h1;
         }
 
-        const dt: number = this.lastCycle + 1 - cycle;
-        this.projVelocityX = (dstX - this.x) / dt;
-        this.projVelocityZ = (dstZ - this.z) / dt;
-        this.projVelocity = Math.sqrt(this.projVelocityX * this.projVelocityX + this.projVelocityZ * this.projVelocityZ);
+        const dt: number = this.t2 + 1 - cycle;
+        this.velocityX = (dstX - this.x) / dt;
+        this.velocityZ = (dstZ - this.z) / dt;
+        this.velocity = Math.sqrt(this.velocityX * this.velocityX + this.velocityZ * this.velocityZ);
         if (!this.mobile) {
-            this.projVelocityY = -this.projVelocity * Math.tan(this.peakPitch * 0.02454369);
+            this.velocityY = -this.velocity * Math.tan(this.angle * 0.02454369);
         }
-        this.accelerationY = ((dstY - this.y - this.projVelocityY * dt) * 2.0) / (dt * dt);
+        this.accelerationY = ((dstY - this.y - this.velocityY * dt) * 2.0) / (dt * dt);
     }
 
-    update(delta: number): void {
+    move(delta: number): void {
         this.mobile = true;
-        this.x += this.projVelocityX * delta;
-        this.z += this.projVelocityZ * delta;
-        this.y += this.projVelocityY * delta + this.accelerationY * 0.5 * delta * delta;
-        this.projVelocityY += this.accelerationY * delta;
-        this.yaw = ((Math.atan2(this.projVelocityX, this.projVelocityZ) * 325.949 + 1024) | 0) & 0x7ff;
-        this.pitch = ((Math.atan2(this.projVelocityY, this.projVelocity) * 325.949) | 0) & 0x7ff;
+        this.x += this.velocityX * delta;
+        this.z += this.velocityZ * delta;
+        this.y += this.velocityY * delta + this.accelerationY * 0.5 * delta * delta;
+        this.velocityY += this.accelerationY * delta;
+        this.yaw = ((Math.atan2(this.velocityX, this.velocityZ) * 325.949 + 1024) | 0) & 0x7ff;
+        this.pitch = ((Math.atan2(this.velocityY, this.velocity) * 325.949) | 0) & 0x7ff;
 
-        if (!this.spotanim.seq) {
-            return;
-        }
+        if (this.spotanim.seq) {
+            this.animCycle += delta;
 
-        this.seqCycle += delta;
-
-        while (this.seqCycle > this.spotanim.seq.getFrameDuration(this.seqFrame)) {
-            this.seqCycle -= this.spotanim.seq.getFrameDuration(this.seqFrame) + 1;
-            this.seqFrame++;
-            if (this.seqFrame >= this.spotanim.seq.frameCount) {
-                this.seqFrame = 0;
+            while (this.animCycle > this.spotanim.seq.getDuration(this.animFrame)) {
+                this.animCycle -= this.spotanim.seq.getDuration(this.animFrame) + 1;
+                this.animFrame++;
+                if (this.animFrame >= this.spotanim.seq.numFrames) {
+                    this.animFrame = 0;
+                }
             }
         }
     }
 
-    getModel(): Model | null {
-        const spotModel: Model | null = this.spotanim.getModel();
+    override getTempModel(): Model | null {
+        const spotModel: Model | null = this.spotanim.getTempModel2();
         if (!spotModel) {
             return null;
         }
 
-        const model: Model = Model.modelShareColored(spotModel, true, !this.spotanim.animHasAlpha, false);
-
+        let frame = -1;
         if (this.spotanim.seq && this.spotanim.seq.frames) {
-            model.createLabelReferences();
-            model.applyTransform(this.spotanim.seq.frames[this.seqFrame]);
+            frame = this.spotanim.seq.frames[this.animFrame];
+        }
+
+        const model: Model = Model.copyForAnim(spotModel, true, AnimFrame.shareAlpha(frame), false);
+
+        if (frame !== -1) {
+            model.prepareAnim();
+            model.animate(frame);
             model.labelFaces = null;
             model.labelVertices = null;
         }
 
         if (this.spotanim.resizeh !== 128 || this.spotanim.resizev !== 128) {
-            model.scale(this.spotanim.resizeh, this.spotanim.resizev, this.spotanim.resizeh);
+            model.resize(this.spotanim.resizeh, this.spotanim.resizev, this.spotanim.resizeh);
         }
 
-        model.rotateX(this.pitch);
+        model.rotateXAxis(this.pitch);
         model.calculateNormals(64 + this.spotanim.ambient, 850 + this.spotanim.contrast, -30, -50, -30, true);
         return model;
     }

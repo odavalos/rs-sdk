@@ -62,7 +62,7 @@ export async function startWeb() {
             // Player positions endpoint
             if (url.pathname === '/playerpositions' || url.pathname === '/playerpositions/') {
                 const players: {x: number, z: number, level: number, name: string}[] = [];
-                for (const player of World.players) {
+                for (const player of World.playerLoop.all()) {
                     players.push({ x: player.x, z: player.z, level: player.level, name: player.displayName });
                 }
                 return new Response(JSON.stringify(players), {

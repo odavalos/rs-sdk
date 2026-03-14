@@ -245,3 +245,27 @@ model=model_2364_obj
 2dyan=1588
 2dxan=376
 weight=7g
+
+[unidentified_toadflax]
+name=Herb
+iop1=Identify
+members=yes
+desc=I need a closer look to identify this.
+model=model_2364_obj
+2dxof=4
+2dzoom=700
+2dyan=1588
+2dxan=376
+weight=7g
+
+[unidentified_snapdragon]
+name=Herb
+iop1=Identify
+members=yes
+desc=I need a closer look to identify this.
+model=model_2364_obj
+2dxof=4
+2dzoom=700
+2dyan=1588
+2dxan=376
+weight=7g

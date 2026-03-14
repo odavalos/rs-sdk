@@ -600,7 +600,7 @@ walkanim=human_walk_f,human_walk_b,human_walk_l,human_walk_r
 readyanim=human_ready
 op1=Talk-to
 op2=Attack
-vislevel=17
+vislevel=23
 recol1s=2340
 recol1d=4226
 recol2s=14724
@@ -630,7 +630,7 @@ param=magicdefence,-6
 param=rangedefence,20
 param=damagetype,^slash_style
 param=attack_sound,stabsword_slash
-// param=defend,sound,blade3
+param=defend_sound,blade3
 // Stats match osrs version but our version Vislvl is different.
 // https://raw.githubusercontent.com/Joshua-F/osrs-dumps/refs/heads/master/config/dump.npc npc_14137
 
@@ -673,7 +673,7 @@ walkanim=human_walk_f,human_walk_b,human_walk_l,human_walk_r
 readyanim=human_ready
 op1=Talk-to
 op2=Attack
-vislevel=5
+vislevel=2
 recol1s=2340
 recol1d=4234
 recol2s=14724

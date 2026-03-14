@@ -23,7 +23,7 @@ export default class WordFilter {
             .map((char): number => char.charCodeAt(0))
     );
 
-    private static whitelist: string[] = ['cook', "cook's", 'cooks', 'seeks', 'sheet'];
+    private static whitelist: string[] = ['cook', "cook's", 'cooks', 'seeks', 'sheet', 'woop', 'woops', 'faq'];
 
     private static readonly tlds: Uint16Array[] = [];
     private static readonly tldTypes: number[] = [];

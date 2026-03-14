@@ -1,5 +1,4 @@
-import { BZip2 } from '#3rdparty/deps.js';
-
+import { bunzip2 } from '#/io/BZip2.js';
 import Packet from '#/io/Packet.js';
 
 export default class Jagfile {
@@ -11,8 +10,9 @@ export default class Jagfile {
         }
         return hash;
     }
-    jagSrc: Uint8Array;
-    compressedWhole: boolean;
+
+    data: Uint8Array;
+    unpacked: boolean;
     fileCount: number;
     fileHash: number[];
     fileUnpackedSize: number[];
@@ -26,12 +26,12 @@ export default class Jagfile {
         const packedSize: number = data.g3();
 
         if (unpackedSize === packedSize) {
-            this.jagSrc = src;
-            this.compressedWhole = false;
+            this.data = src;
+            this.unpacked = false;
         } else {
-            this.jagSrc = BZip2.decompress(src.subarray(6), unpackedSize, true);
-            data = new Packet(new Uint8Array(this.jagSrc));
-            this.compressedWhole = true;
+            this.data = bunzip2(src.subarray(6));
+            data = new Packet(new Uint8Array(this.data));
+            this.unpacked = true;
         }
 
         this.fileCount = data.g2();
@@ -70,12 +70,12 @@ export default class Jagfile {
 
         const offset: number = this.fileOffset[index];
         const length: number = this.filePackedSize[index];
-        const src: Uint8Array = new Uint8Array(this.jagSrc.subarray(offset, offset + length));
-        if (this.compressedWhole) {
+        const src: Uint8Array = new Uint8Array(this.data.subarray(offset, offset + length));
+        if (this.unpacked) {
             this.fileUnpacked[index] = src;
             return src;
         } else {
-            const data: Uint8Array = BZip2.decompress(src, this.fileUnpackedSize[index], true);
+            const data: Uint8Array = bunzip2(src);
             this.fileUnpacked[index] = data;
             return data;
         }

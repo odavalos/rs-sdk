@@ -566,3 +566,218 @@ recol1d=6476
 weight=2lb
 cost=12799
 param=fixed,rune_axe
+
+[macro_mime_mask]
+name=Mime mask
+desc=A mime would wear this.
+model=obj_3057
+2dyof=-2
+2dzoom=480
+2dzan=2024
+2dxan=436
+iop2=Wear
+manwear=model_3598,0
+womanwear=obj_3057_womanwear,0
+manhead=model_3548
+womanhead=model_3548
+wearpos=hat
+wearpos2=jaw
+weight=1g
+tradeable=no
+
+[macro_mime_top]
+name=Mime top
+recol1s=8384
+recol1d=23263
+recol2s=14724
+recol2d=2114
+desc=A mime would wear this.
+model=obj_3058
+2dyof=4
+2dzoom=1160
+2dxan=528
+iop2=Wear
+manwear=model_292_idk,0
+manwear2=model_163_idk
+manwear3=obj_3058_manwear3
+womanwear=model_456_idk,0
+womanwear2=model_348_idk
+womanwear3=obj_3058_womanwear3
+wearpos=torso
+wearpos2=arms
+weight=1g
+tradeable=no
+
+[macro_mime_legs]
+name=Mime legs
+recol1s=2340
+recol1d=2114
+desc=A mime would wear these.
+model=model_2517
+manwear=model_254_idk,0
+womanwear=model_419_idk,0
+iop2=Wear
+2dxof=1
+2dyof=4
+2dzoom=1690
+2dyan=2044
+2dzan=32
+2dxan=620
+wearpos=legs
+weight=1g
+tradeable=no
+
+[macro_mime_gloves]
+name=Mime gloves
+recol1s=9473
+recol1d=23263
+desc=A mime would wear these.
+model=model_2649_obj
+iop2=Wear
+manwear=model_179_obj_wear,0
+womanwear=model_356_obj_wear,0
+2dxof=8
+2dyof=-8
+2dzoom=930
+2dyan=828
+2dxan=420
+wearpos=hands
+weight=1g
+tradeable=no
+
+[macro_mime_boots]
+name=Mime boots
+recol1s=7298
+recol1d=2114
+desc=A mime would wear these.
+model=model_2837_obj
+manwear=model_185_obj_wear,0
+womanwear=model_361_obj_wear,0
+iop2=Wear
+2dxof=1
+2dyof=-6
+2dzoom=770
+2dyan=160
+2dxan=152
+wearpos=feet
+weight=12oz
+tradeable=no
+
+[macro_cube]
+name=Strange box
+model=obj_3062
+2dxof=15
+2dyof=-126
+2dzoom=3840
+2dyan=1684
+2dxan=108
+iop1=Open
+desc=It seems to be humming...
+stackable=yes
+weight=5kg
+tradeable=no
+
+[macro_cube_redtriangle]
+name=Cube part
+recol1s=29596
+recol1d=16547
+model=obj_3063
+2dzoom=1500
+
+[macro_cube_bluetriangle]
+name=Cube part
+recol1s=29596
+recol1d=5293
+model=obj_3063
+2dzoom=1500
+
+[macro_cube_yellowtriangle]
+name=Cube part
+recol1s=29596
+recol1d=17893
+model=obj_3063
+2dzoom=1500
+
+[macro_cube_redsquare]
+name=Cube part
+recol1s=29596
+recol1d=16547
+model=obj_3069
+2dzoom=1500
+
+[macro_cube_bluesquare]
+name=Cube part
+recol1s=29596
+recol1d=5293
+model=obj_3069
+2dzoom=1500
+
+[macro_cube_yellowsquare]
+name=Cube part
+recol1s=29596
+recol1d=17893
+model=obj_3069
+2dzoom=1500
+
+[macro_cube_redcircle]
+name=Cube part
+recol1s=29596
+recol1d=16547
+model=obj_3075
+2dzoom=1500
+
+[macro_cube_bluecircle]
+name=Cube part
+recol1s=29596
+recol1d=5293
+model=obj_3075
+2dzoom=1500
+
+[macro_cube_yellowcircle]
+name=Cube part
+recol1s=29596
+recol1d=17893
+model=obj_3075
+2dzoom=1500
+
+[macro_cube_redstar]
+name=Cube part
+recol1s=29596
+recol1d=16547
+model=obj_3081
+2dzoom=1500
+
+[macro_cube_bluestar]
+name=Cube part
+recol1s=29596
+recol1d=5293
+model=obj_3081
+2dzoom=1500
+
+[macro_cube_yellowstar]
+name=Cube part
+recol1s=29596
+recol1d=17893
+model=obj_3081
+2dzoom=1500
+
+[macro_cube_redhalfmoon]
+name=Cube part
+recol1s=29596
+recol1d=16547
+model=obj_3087
+2dzoom=1500
+
+[macro_cube_bluehalfmoon]
+name=Cube part
+recol1s=29596
+recol1d=5293
+model=obj_3087
+2dzoom=1500
+
+[macro_cube_yellowhalfmoon]
+name=Cube part
+recol1s=29596
+recol1d=17893
+model=obj_3087
+2dzoom=1500

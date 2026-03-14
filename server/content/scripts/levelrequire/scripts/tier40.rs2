@@ -12,6 +12,7 @@
 [opheld2,rune_spear] @levelrequire_attack(40, last_slot);
 [opheld2,rune_spear_p] @levelrequire_attack(40, last_slot);
 [opheld2,rune_2h_sword] @levelrequire_attack(40, last_slot);
+[opheld2,rune_claws] @levelrequire_attack(40, last_slot);
 
 [opheld2,rune_med_helm] @levelrequire_defence(40, last_slot);
 [opheld2,rune_full_helm] @levelrequire_defence(40, last_slot);
@@ -66,3 +67,4 @@
 [opheld2,mystic_water_staff] @levelrequire_magic_and_attack(40, 40, last_slot);
 [opheld2,mystic_air_staff] @levelrequire_magic_and_attack(40, 40, last_slot);
 [opheld2,mystic_earth_staff] @levelrequire_magic_and_attack(40, 40, last_slot);
+[opheld2,mystic_lava_staff] @levelrequire_magic_and_attack(40, 40, last_slot);

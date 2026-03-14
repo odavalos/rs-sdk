@@ -3,7 +3,7 @@
 (function () {
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     if (window.AudioContext) {
-        window.audioContext = new window.AudioContext();
+        window.audioContext = new window.AudioContext({ sampleRate: 22050 });
     }
     var fixAudioContext = function (e) {
         if (window.audioContext) {
@@ -51,16 +51,16 @@ export async function playWave(data) {
         bufferSource.buffer = audioBuffer;
         bufferSource.connect(waveGain);
         bufferSource.start();
-    } catch (err) {
-        console.error(err);
+    } catch (e) {
+        console.error(e);
     }
 }
 
-export function setWaveVolume(vol) {
+export function setWaveVolume(dB) {
     if (!waveGain) {
         waveGain = window.audioContext.createGain();
         waveGain.connect(window.audioContext.destination);
     }
 
-    waveGain.gain.value = vol / 128;
+    waveGain.gain.value = Math.pow(10, dB / 20);
 }

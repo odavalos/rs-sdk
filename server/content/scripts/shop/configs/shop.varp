@@ -1,6 +1,7 @@
 [shop]
 type=inv
 scope=temp
+transmit=yes
 
 [shop_buy]
 type=int
@@ -15,4 +16,3 @@ transmit=yes
 [shop_haggle]
 type=int
 scope=temp
-transmit=yes

@@ -25,6 +25,7 @@
 [if_button,music:attack6] ~music_playbybutton(music:attack6);
 [if_button,music:attention] ~music_playbybutton(music:attention);
 [if_button,music:autumn_voyage] ~music_playbybutton(music:autumn_voyage);
+[if_button,music:aztec] ~music_playbybutton(music:aztec);
 [if_button,music:background2] ~music_playbybutton(music:background2);
 [if_button,music:ballad_of_enchantment] ~music_playbybutton(music:ballad_of_enchantment);
 [if_button,music:baroque] ~music_playbybutton(music:baroque);
@@ -38,6 +39,7 @@
 [if_button,music:chain_of_command] ~music_playbybutton(music:chain_of_command);
 [if_button,music:chompy_hunt] ~music_playbybutton(music:chompy_hunt);
 [if_button,music:close_quarters] ~music_playbybutton(music:close_quarters);
+[if_button,music:contest] ~music_playbybutton(music:contest);
 [if_button,music:crystal_cave] ~music_playbybutton(music:crystal_cave);
 [if_button,music:crystal_sword] ~music_playbybutton(music:crystal_sword);
 [if_button,music:cursed] ~music_playbybutton(music:cursed);
@@ -79,11 +81,13 @@
 [if_button,music:harmony] ~music_playbybutton(music:harmony);
 [if_button,music:harmony2] ~music_playbybutton(music:harmony2);
 [if_button,music:heart_and_mind] ~music_playbybutton(music:heart_and_mind);
+[if_button,music:hermit] ~music_playbybutton(music:hermit);
 [if_button,music:high_seas] ~music_playbybutton(music:high_seas);
 [if_button,music:horizon] ~music_playbybutton(music:horizon);
 [if_button,music:iban] ~music_playbybutton(music:iban);
 [if_button,music:ice_melody] ~music_playbybutton(music:ice_melody);
 [if_button,music:in_the_manor] ~music_playbybutton(music:in_the_manor);
+[if_button,music:insect_queen] ~music_playbybutton(music:insect_queen);
 [if_button,music:inspiration] ~music_playbybutton(music:inspiration);
 [if_button,music:intrepid] ~music_playbybutton(music:intrepid);
 [if_button,music:jollyr] ~music_playbybutton(music:jollyr);
@@ -92,6 +96,7 @@
 [if_button,music:jungly2] ~music_playbybutton(music:jungly2);
 [if_button,music:jungly3] ~music_playbybutton(music:jungly3);
 [if_button,music:knightly] ~music_playbybutton(music:knightly);
+[if_button,music:kingdom] ~music_playbybutton(music:kingdom);
 [if_button,music:landlubber] ~music_playbybutton(music:landlubber);
 [if_button,music:lasting] ~music_playbybutton(music:lasting);
 [if_button,music:legion] ~music_playbybutton(music:legion);
@@ -101,7 +106,9 @@
 [if_button,music:long_ago] ~music_playbybutton(music:long_ago);
 [if_button,music:long_way_home] ~music_playbybutton(music:long_way_home);
 [if_button,music:march2] ~music_playbybutton(music:march2);
+[if_button,music:marzipan] ~music_playbybutton(music:marzipan);
 [if_button,music:lullaby] ~music_playbybutton(music:lullaby);
+[if_button,music:mad_eadgar] ~music_playbybutton(music:mad_eadgar);
 [if_button,music:mage_arena] ~music_playbybutton(music:mage_arena);
 [if_button,music:magic_dance] ~music_playbybutton(music:magic_dance);
 [if_button,music:magical_journey] ~music_playbybutton(music:magical_journey);
@@ -121,11 +128,13 @@
 [if_button,music:oriental] ~music_playbybutton(music:oriental);
 [if_button,music:overture] ~music_playbybutton(music:overture);
 [if_button,music:parade] ~music_playbybutton(music:parade);
+[if_button,music:principality] ~music_playbybutton(music:principality);
 [if_button,music:quest] ~music_playbybutton(music:quest);
 [if_button,music:regal2] ~music_playbybutton(music:regal2);
 [if_button,music:reggae] ~music_playbybutton(music:reggae);
 [if_button,music:reggae2] ~music_playbybutton(music:reggae2);
 [if_button,music:riverside] ~music_playbybutton(music:riverside);
+[if_button,music:righteousness] ~music_playbybutton(music:righteousness);
 [if_button,music:royale] ~music_playbybutton(music:royale);
 [if_button,music:rune_essence] ~music_playbybutton(music:rune_essence);
 [if_button,music:sad_meadow] ~music_playbybutton(music:sad_meadow);
@@ -140,6 +149,7 @@
 [if_button,music:serene] ~music_playbybutton(music:serene);
 [if_button,music:shine] ~music_playbybutton(music:shine);
 [if_button,music:shining] ~music_playbybutton(music:shining);
+[if_button,music:sojourn] ~music_playbybutton(music:sojourn);
 [if_button,music:soundscape] ~music_playbybutton(music:soundscape);
 [if_button,music:spirit] ~music_playbybutton(music:spirit);
 [if_button,music:splendour] ~music_playbybutton(music:splendour);
@@ -151,6 +161,7 @@
 [if_button,music:still_night] ~music_playbybutton(music:still_night);
 [if_button,music:stratosphere] ~music_playbybutton(music:stratosphere);
 [if_button,music:talking_forest] ~music_playbybutton(music:talking_forest);
+[if_button,music:time_out] ~music_playbybutton(music:time_out);
 [if_button,music:the_desert] ~music_playbybutton(music:the_desert);
 [if_button,music:the_shadow] ~music_playbybutton(music:the_shadow);
 [if_button,music:the_tower] ~music_playbybutton(music:the_tower);
@@ -159,6 +170,7 @@
 [if_button,music:trawler] ~music_playbybutton(music:trawler);
 [if_button,music:trawler_minor] ~music_playbybutton(music:trawler_minor);
 [if_button,music:tree_spirits] ~music_playbybutton(music:tree_spirits);
+[if_button,music:tremble] ~music_playbybutton(music:tremble);
 [if_button,music:tribal] ~music_playbybutton(music:tribal);
 [if_button,music:tribal2] ~music_playbybutton(music:tribal2);
 [if_button,music:tribal_background] ~music_playbybutton(music:tribal_background);

@@ -4,20 +4,20 @@ export default class Decor {
     readonly y: number;
     x: number;
     z: number;
-    readonly angle1: number;
-    readonly angle2: number;
+    readonly wshape: number;
+    readonly angle: number;
     model: ModelSource;
     readonly typecode: number;
-    readonly info: number; // byte
+    readonly typecode2: number;
 
-    constructor(y: number, x: number, z: number, type: number, angle: number, model: ModelSource, typecode: number, info: number) {
+    constructor(y: number, x: number, z: number, wshape: number, angle: number, model: ModelSource, typecode: number, info: number) {
         this.y = y;
         this.x = x;
         this.z = z;
-        this.angle1 = type;
-        this.angle2 = angle;
+        this.wshape = wshape;
+        this.angle = angle;
         this.model = model;
         this.typecode = typecode;
-        this.info = info;
+        this.typecode2 = info;
     }
 }

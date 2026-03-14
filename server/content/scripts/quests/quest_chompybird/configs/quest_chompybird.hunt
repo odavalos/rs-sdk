@@ -7,5 +7,5 @@ find_keephunting=on
 check_notcombat=%lastcombat
 check_notcombat_self=%npc_lastcombat
 // confirm rate
-rate=10
+rate=3
 find_newmode=queue4

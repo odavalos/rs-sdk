@@ -2,7 +2,7 @@
 [proc,playerwalk3](coord $coord)
 p_walk($coord);
 if (%option_run = ^player_run_off) {
-    p_delay(sub(distance(coord, $coord), 1));
+    p_delay(max(0, sub(distance(coord, $coord), 1)));
 } else {
-    p_delay(sub(divide(distance(coord, $coord), 2), 1));
+    p_delay(max(0, sub(divide(distance(coord, $coord), 2), 1)));
 }

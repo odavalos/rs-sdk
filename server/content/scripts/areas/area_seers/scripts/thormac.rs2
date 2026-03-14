@@ -100,29 +100,32 @@ def_int $option = ~p_choice2("That's ok.", 1, "You said you'd enchant my battles
 if($option = 1) {
     ~chatplayer("<p,happy>That's ok.");
 } else if($option = 2) {
-    // 1-1 with RSC but changed battlestaff names to match RS2
     ~chatplayer("<p,quiz>You said you'd enchant my battlestaff for me.");
     ~chatnpc("<p,neutral>Yes, it'll cost you 40,000 coins for the materials needed though. Which sort of staff did you want enchanting?");
-    switch_int (~p_choice5("Fire battlestaff.", 1, "Water battlestaff.", 2, "Air battlestaff.", 3, "Earth battlestaff.", 4, "I won't bother yet actually.", 5)) {
-        case 1 : @thormac_makestaff("Fire battlestaff", fire_battlestaff, mystic_fire_staff);
-        case 2 : @thormac_makestaff("Water battlestaff",  water_battlestaff, mystic_water_staff);
-        case 3 : @thormac_makestaff("Air battlestaff", air_battlestaff, mystic_air_staff);
-        case 4 : @thormac_makestaff("Earth battlestaff", earth_battlestaff, mystic_earth_staff);
-        case 5 : ~chatplayer("<p,neutral>I won't bother yet actually.");
-    }
+    if_setobject(thormac:water, water_battlestaff, 150);
+    if_setobject(thormac:earth, earth_battlestaff, 150);
+    if_setobject(thormac:fire, fire_battlestaff, 150);
+    if_setobject(thormac:lava, lava_battlestaff, 150);
+    if_openmain(thormac);
 }
 
-[label,thormac_makestaff](string $staff_name, namedobj $bstaff, namedobj $enchantedstaff) 
-~chatplayer("<p,happy><$staff_name> please.");
+[if_button,thormac:air] @thormac_makestaff(air_battlestaff, mystic_air_staff);
+[if_button,thormac:water] @thormac_makestaff(water_battlestaff, mystic_water_staff);
+[if_button,thormac:earth] @thormac_makestaff(earth_battlestaff, mystic_earth_staff);
+[if_button,thormac:fire] @thormac_makestaff(fire_battlestaff, mystic_fire_staff);
+[if_button,thormac:lava] @thormac_makestaff(lava_battlestaff, mystic_lava_staff);
+
+[label,thormac_makestaff](namedobj $bstaff, namedobj $enchantedstaff)
+def_string $staff_name = oc_name($bstaff);
 if(inv_total(inv, $bstaff) = 0) {
-    ~chatplayer("<p,sad>I don't have <~add_article(lowercase($staff_name))> yet though.");
+    mes("You don't have <~add_article(lowercase($staff_name))>.");
     return;
 }
 if(inv_total(inv, coins) < 40000) {
-    ~chatplayer("<p,sad>I'll just get the money for you.");
+    ~mesbox("You need 40,000 coins to pay Thormac.");
     return;
 }
 inv_del(inv, coins, 40000);
 inv_del(inv, $bstaff, 1);
 inv_add(inv, $enchantedstaff, 1);
-mes("Thormac enchants your staff.");
+mes("Thormac enchants your <$staff_name>.");

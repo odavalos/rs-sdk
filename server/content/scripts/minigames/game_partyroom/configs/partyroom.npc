@@ -23,6 +23,7 @@ model9=model_181_idk
 head1=model_63_idk_head
 head2=model_77_npc_head
 head3=model_29_obj_wear
+timer=1
 
 [partyroom_knight]
 name=Knight

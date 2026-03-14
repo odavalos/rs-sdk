@@ -724,3 +724,50 @@ data=consumable,moonlight_mead
 data=consume_message1,You drink the foul smelling brew.
 data=consume_message2,It tastes like something just died in your mouth.
 data=restore_message2,0
+
+[agility_potion_consume_messages]
+table=consume_messages_table
+data=consumable,4dose1agility
+data=consumable,3dose1agility
+data=consumable,2dose1agility
+data=consumable,1dose1agility
+data=consume_message1,You drink some of your agility potion.
+data=message_delay,1
+
+[2restore_potion_consume_messages]
+table=consume_messages_table
+data=consumable,4dose2restore
+data=consumable,3dose2restore
+data=consumable,2dose2restore
+data=consumable,1dose2restore
+// https://www.youtube.com/watch?v=EDr-eXtcSYE
+data=consume_message1,You drink some of your super restore potion.
+data=message_delay,1
+
+[1energy_potion_consume_messages]
+table=consume_messages_table
+data=consumable,4dose1energy
+data=consumable,3dose1energy
+data=consumable,2dose1energy
+data=consumable,1dose1energy
+// https://youtu.be/SWiWSBpaJew?si=2aWi8-L8AcmECRhc&t=387
+data=consume_message1,You drink some of your energy potion.
+data=message_delay,1
+
+[2energy_potion_consume_messages]
+table=consume_messages_table
+data=consumable,4dose2energy
+data=consumable,3dose2energy
+data=consumable,2dose2energy
+data=consumable,1dose2energy
+data=consume_message1,You drink some of your super energy potion.
+data=message_delay,1
+
+[magic_potion_consume_messages]
+table=consume_messages_table
+data=consumable,4dose1magic
+data=consumable,3dose1magic
+data=consumable,2dose1magic
+data=consumable,1dose1magic
+data=consume_message1,You drink some of your magic potion.
+data=message_delay,1

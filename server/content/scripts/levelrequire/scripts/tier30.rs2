@@ -12,6 +12,7 @@
 [opheld2,adamant_spear] @levelrequire_attack(30, last_slot);
 [opheld2,adamant_spear_p] @levelrequire_attack(30, last_slot);
 [opheld2,adamant_2h_sword] @levelrequire_attack(30, last_slot);
+[opheld2,adamant_claws] @levelrequire_attack(30, last_slot);
 
 [opheld2,adamant_med_helm] @levelrequire_defence(30, last_slot);
 [opheld2,adamant_full_helm] @levelrequire_defence(30, last_slot);
@@ -50,3 +51,4 @@
 [opheld2,water_battlestaff] @levelrequire_magic_and_attack(30, 30, last_slot);
 [opheld2,earth_battlestaff] @levelrequire_magic_and_attack(30, 30, last_slot);
 [opheld2,fire_battlestaff] @levelrequire_magic_and_attack(30, 30, last_slot);
+[opheld2,lava_battlestaff] @levelrequire_magic_and_attack(30, 30, last_slot);

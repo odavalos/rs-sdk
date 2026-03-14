@@ -2,13 +2,18 @@ import Packet from '#/io/Packet.js';
 
 import Envelope from '#/sound/Envelope.js';
 
+import JavaRandom from '#/util/JavaRandom.js';
+
 export default class Tone {
-    frequencyBase: Envelope | null = null;
-    amplitudeBase: Envelope | null = null;
+    frequencyBase: Envelope = new Envelope();
+    amplitudeBase: Envelope = new Envelope();
+
     frequencyModRate: Envelope | null = null;
     frequencyModRange: Envelope | null = null;
+
     amplitudeModRate: Envelope | null = null;
     amplitudeModRange: Envelope | null = null;
+
     release: Envelope | null = null;
     attack: Envelope | null = null;
 
@@ -18,126 +23,119 @@ export default class Tone {
 
     reverbDelay: number = 0;
     reverbVolume: number = 100;
-    start: number = 0;
+
     length: number = 500;
+    start: number = 0;
 
-    static buffer: Int32Array | null = null;
-    static noise: Int32Array | null = null;
-    static sin: Int32Array | null = null;
+    static buf: Int32Array = new Int32Array(22050 * 10);
+    static noise: Int32Array = new Int32Array(32768);
+    static sine: Int32Array = new Int32Array(32768);
 
-    static tmpPhases: Int32Array = new Int32Array(5);
-    static tmpDelays: Int32Array = new Int32Array(5);
-    static tmpVolumes: Int32Array = new Int32Array(5);
-    static tmpSemitones: Int32Array = new Int32Array(5);
-    static tmpStarts: Int32Array = new Int32Array(5);
+    static fPos: Int32Array = new Int32Array(5);
+    static fDel: Int32Array = new Int32Array(5);
+    static fAmp: Int32Array = new Int32Array(5);
+    static fMulti: Int32Array = new Int32Array(5);
+    static fOffset: Int32Array = new Int32Array(5);
 
-    static init(): void {
-        this.noise = new Int32Array(32768);
-        for (let i: number = 0; i < 32768; i++) {
-            if (Math.random() > 0.5) {
-                this.noise[i] = 1;
-            } else {
-                this.noise[i] = -1;
-            }
+    static {
+        const rand = new JavaRandom(0);
+        for (let i = 0; i < 32768; i++) {
+            this.noise[i] = (rand.nextInt() & 0x2) - 1;
         }
 
-        this.sin = new Int32Array(32768);
-        for (let i: number = 0; i < 32768; i++) {
-            this.sin[i] = (Math.sin(i / 5215.1903) * 16384.0) | 0;
+        for (let i = 0; i < 32768; i++) {
+            this.sine[i] = (Math.sin(i / 5215.1903) * 16384.0) | 0;
         }
-
-        this.buffer = new Int32Array(22050 * 10); // 22050 KHz * 10s
     }
 
     generate(sampleCount: number, length: number): Int32Array {
-        if (!this.frequencyBase || !this.amplitudeBase) {
-            return Tone.buffer!;
-        }
-
-        for (let sample: number = 0; sample < sampleCount; sample++) {
-            Tone.buffer![sample] = 0;
+        for (let sample = 0; sample < sampleCount; sample++) {
+            Tone.buf[sample] = 0;
         }
 
         if (length < 10) {
-            return Tone.buffer!;
+            return Tone.buf;
         }
 
-        const samplesPerStep: number = (sampleCount / length) | 0;
+        const samplesPerStep = sampleCount / length;
 
-        this.frequencyBase.reset();
-        this.amplitudeBase.reset();
+        this.frequencyBase.genInit();
+        this.amplitudeBase.genInit();
 
-        let frequencyStart: number = 0;
-        let frequencyDuration: number = 0;
-        let frequencyPhase: number = 0;
+        let frequencyStart = 0;
+        let frequencyDuration = 0;
+        let frequencyPhase = 0;
+        if (this.frequencyModRate !== null && this.frequencyModRange !== null) {
+            this.frequencyModRate.genInit();
+            this.frequencyModRange.genInit();
 
-        if (this.frequencyModRate && this.frequencyModRange) {
-            this.frequencyModRate.reset();
-            this.frequencyModRange.reset();
             frequencyStart = (((this.frequencyModRate.end - this.frequencyModRate.start) * 32.768) / samplesPerStep) | 0;
             frequencyDuration = ((this.frequencyModRate.start * 32.768) / samplesPerStep) | 0;
         }
 
-        let amplitudeStart: number = 0;
-        let amplitudeDuration: number = 0;
-        let amplitudePhase: number = 0;
-        if (this.amplitudeModRate && this.amplitudeModRange) {
-            this.amplitudeModRate.reset();
-            this.amplitudeModRange.reset();
+        let amplitudeStart = 0;
+        let amplitudeDuration = 0;
+        let amplitudePhase = 0;
+        if (this.amplitudeModRate !== null && this.amplitudeModRange !== null) {
+            this.amplitudeModRate.genInit();
+            this.amplitudeModRange.genInit();
+
             amplitudeStart = (((this.amplitudeModRate.end - this.amplitudeModRate.start) * 32.768) / samplesPerStep) | 0;
             amplitudeDuration = ((this.amplitudeModRate.start * 32.768) / samplesPerStep) | 0;
         }
 
-        for (let harmonic: number = 0; harmonic < 5; harmonic++) {
-            if (this.frequencyBase && this.harmonicVolume[harmonic] !== 0) {
-                Tone.tmpPhases[harmonic] = 0;
-                Tone.tmpDelays[harmonic] = this.harmonicDelay[harmonic] * samplesPerStep;
-                Tone.tmpVolumes[harmonic] = ((this.harmonicVolume[harmonic] << 14) / 100) | 0;
-                Tone.tmpSemitones[harmonic] = (((this.frequencyBase.end - this.frequencyBase.start) * 32.768 * Math.pow(1.0057929410678534, this.harmonicSemitone[harmonic])) / samplesPerStep) | 0;
-                Tone.tmpStarts[harmonic] = ((this.frequencyBase.start * 32.768) / samplesPerStep) | 0;
+        for (let harmonic = 0; harmonic < 5; harmonic++) {
+            if (this.harmonicVolume[harmonic] !== 0) {
+                Tone.fPos[harmonic] = 0;
+                Tone.fDel[harmonic] = this.harmonicDelay[harmonic] * samplesPerStep;
+                Tone.fAmp[harmonic] = ((this.harmonicVolume[harmonic] << 14) / 100) | 0;
+                Tone.fMulti[harmonic] = (((this.frequencyBase.end - this.frequencyBase.start) * 32.768 * Math.pow(1.0057929410678534, this.harmonicSemitone[harmonic])) / samplesPerStep) | 0;
+                Tone.fOffset[harmonic] = ((this.frequencyBase.start * 32.768) / samplesPerStep) | 0;
             }
         }
 
-        for (let sample: number = 0; sample < sampleCount; sample++) {
-            let frequency: number = this.frequencyBase.evaluate(sampleCount);
-            let amplitude: number = this.amplitudeBase.evaluate(sampleCount);
+        for (let sample = 0; sample < sampleCount; sample++) {
+            let frequency = this.frequencyBase.genNext(sampleCount);
+            let amplitude = this.amplitudeBase.genNext(sampleCount);
 
-            if (this.frequencyModRate && this.frequencyModRange) {
-                const rate: number = this.frequencyModRate.evaluate(sampleCount);
-                const range: number = this.frequencyModRange.evaluate(sampleCount);
-                frequency += this.generate2(range, frequencyPhase, this.frequencyModRate.form) >> 1;
+            if (this.frequencyModRate !== null && this.frequencyModRange !== null) {
+                const rate = this.frequencyModRate.genNext(sampleCount);
+                const range = this.frequencyModRange.genNext(sampleCount);
+
+                frequency += this.waveFunc(range, frequencyPhase, this.frequencyModRate.form) >> 1;
                 frequencyPhase += ((rate * frequencyStart) >> 16) + frequencyDuration;
             }
 
-            if (this.amplitudeModRate && this.amplitudeModRange) {
-                const rate: number = this.amplitudeModRate.evaluate(sampleCount);
-                const range: number = this.amplitudeModRange.evaluate(sampleCount);
-                amplitude = (amplitude * ((this.generate2(range, amplitudePhase, this.amplitudeModRate.form) >> 1) + 32768)) >> 15;
+            if (this.amplitudeModRate !== null && this.amplitudeModRange !== null) {
+                const rate = this.amplitudeModRate.genNext(sampleCount);
+                const range = this.amplitudeModRange.genNext(sampleCount);
+
+                amplitude = (amplitude * ((this.waveFunc(range, amplitudePhase, this.amplitudeModRate.form) >> 1) + 32768)) >> 15;
                 amplitudePhase += ((rate * amplitudeStart) >> 16) + amplitudeDuration;
             }
 
-            for (let harmonic: number = 0; harmonic < 5; harmonic++) {
+            for (let harmonic = 0; harmonic < 5; harmonic++) {
                 if (this.harmonicVolume[harmonic] !== 0) {
-                    const position: number = sample + Tone.tmpDelays[harmonic];
+                    const position = sample + Tone.fDel[harmonic];
 
                     if (position < sampleCount) {
-                        Tone.buffer![position] += this.generate2((amplitude * Tone.tmpVolumes[harmonic]) >> 15, Tone.tmpPhases[harmonic], this.frequencyBase.form);
-                        Tone.tmpPhases[harmonic] += ((frequency * Tone.tmpSemitones[harmonic]) >> 16) + Tone.tmpStarts[harmonic];
+                        Tone.buf[position] += this.waveFunc((amplitude * Tone.fAmp[harmonic]) >> 15, Tone.fPos[harmonic], this.frequencyBase.form);
+                        Tone.fPos[harmonic] += ((frequency * Tone.fMulti[harmonic]) >> 16) + Tone.fOffset[harmonic];
                     }
                 }
             }
         }
 
-        if (this.release && this.attack) {
-            this.release.reset();
-            this.attack.reset();
+        if (this.release !== null && this.attack !== null) {
+            this.release.genInit();
+            this.attack.genInit();
 
-            let counter: number = 0;
-            let muted: boolean = true;
+            let counter = 0;
+            let muted = true;
 
-            for (let sample: number = 0; sample < sampleCount; sample++) {
-                const releaseValue: number = this.release.evaluate(sampleCount);
-                const attackValue: number = this.attack.evaluate(sampleCount);
+            for (let sample = 0; sample < sampleCount; sample++) {
+                const releaseValue = this.release.genNext(sampleCount);
+                const attackValue = this.attack.genNext(sampleCount);
 
                 let threshold: number;
                 if (muted) {
@@ -153,86 +151,85 @@ export default class Tone {
                 }
 
                 if (muted) {
-                    Tone.buffer![sample] = 0;
+                    Tone.buf[sample] = 0;
                 }
             }
         }
 
         if (this.reverbDelay > 0 && this.reverbVolume > 0) {
-            const start: number = this.reverbDelay * samplesPerStep;
+            const start = (this.reverbDelay * samplesPerStep) | 0;
 
-            for (let sample: number = start; sample < sampleCount; sample++) {
-                Tone.buffer![sample] += ((Tone.buffer![sample - start] * this.reverbVolume) / 100) | 0;
-                Tone.buffer![sample] |= 0;
+            for (let sample = start; sample < sampleCount; sample++) {
+                Tone.buf[sample] += ((Tone.buf[sample - start] * this.reverbVolume) / 100) | 0;
             }
         }
 
-        for (let sample: number = 0; sample < sampleCount; sample++) {
-            if (Tone.buffer![sample] < -32768) {
-                Tone.buffer![sample] = -32768;
+        for (let sample = 0; sample < sampleCount; sample++) {
+            if (Tone.buf[sample] < -32768) {
+                Tone.buf[sample] = -32768;
             }
 
-            if (Tone.buffer![sample] > 32767) {
-                Tone.buffer![sample] = 32767;
+            if (Tone.buf[sample] > 32767) {
+                Tone.buf[sample] = 32767;
             }
         }
 
-        return Tone.buffer!;
+        return Tone.buf;
     }
 
-    generate2(amplitude: number, phase: number, form: number): number {
+    waveFunc(amplitude: number, phase: number, form: number): number {
         if (form === 1) {
             return (phase & 0x7fff) < 16384 ? amplitude : -amplitude;
         } else if (form === 2) {
-            return (Tone.sin![phase & 0x7fff] * amplitude) >> 14;
+            return (Tone.sine[phase & 0x7fff] * amplitude) >> 14;
         } else if (form === 3) {
             return (((phase & 0x7fff) * amplitude) >> 14) - amplitude;
         } else if (form === 4) {
-            return Tone.noise![((phase / 2607) | 0) & 0x7fff] * amplitude;
+            return Tone.noise[((phase / 2607) | 0) & 0x7fff] * amplitude;
         } else {
             return 0;
         }
     }
 
-    unpack(dat: Packet): void {
+    load(dat: Packet): void {
         this.frequencyBase = new Envelope();
-        this.frequencyBase.unpack(dat);
+        this.frequencyBase.load(dat);
 
         this.amplitudeBase = new Envelope();
-        this.amplitudeBase.unpack(dat);
+        this.amplitudeBase.load(dat);
 
         if (dat.g1() !== 0) {
             dat.pos--;
 
             this.frequencyModRate = new Envelope();
-            this.frequencyModRate.unpack(dat);
+            this.frequencyModRate.load(dat);
 
             this.frequencyModRange = new Envelope();
-            this.frequencyModRange.unpack(dat);
+            this.frequencyModRange.load(dat);
         }
 
         if (dat.g1() !== 0) {
             dat.pos--;
 
             this.amplitudeModRate = new Envelope();
-            this.amplitudeModRate.unpack(dat);
+            this.amplitudeModRate.load(dat);
 
             this.amplitudeModRange = new Envelope();
-            this.amplitudeModRange.unpack(dat);
+            this.amplitudeModRange.load(dat);
         }
 
         if (dat.g1() !== 0) {
             dat.pos--;
 
             this.release = new Envelope();
-            this.release.unpack(dat);
+            this.release.load(dat);
 
             this.attack = new Envelope();
-            this.attack.unpack(dat);
+            this.attack.load(dat);
         }
 
-        for (let harmonic: number = 0; harmonic < 10; harmonic++) {
-            const volume: number = dat.gsmarts();
+        for (let harmonic = 0; harmonic < 10; harmonic++) {
+            const volume = dat.gsmarts();
             if (volume === 0) {
                 break;
             }

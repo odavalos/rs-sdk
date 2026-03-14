@@ -2,7 +2,7 @@ import Packet from '#/io/Packet.js';
 import Environment from '#/util/Environment.js';
 import { printError } from '#/util/Logger.js';
 import { loadDir, loadOrder } from '#tools/pack/NameMap.js';
-import { InterfacePack, ModelPack, ObjPack, SeqPack, VarpPack } from '#tools/pack/PackFile.js';
+import { InterfacePack, ModelPack, ObjPack, SeqPack, VarbitPack, VarpPack } from '#tools/pack/PackFile.js';
 
 function nameToType(name: string) {
     switch (name) {
@@ -88,6 +88,20 @@ function nameToScript(name: string) {
             return 12;
         case 'testbit':
             return 13;
+        case 'push_varbit':
+            return 14;
+        case 'subtract':
+            return 15;
+        case 'divide':
+            return 16;
+        case 'multiply':
+            return 17;
+        case 'coordx':
+            return 18;
+        case 'coordz':
+            return 19;
+        case 'push_constant':
+            return 20;
     }
 
     return 0;
@@ -336,6 +350,12 @@ export function packInterface(modelFlags: number[]) {
                         case 'testbit':
                             opCount += 2;
                             break;
+                        case 'push_varbit':
+                            opCount += 1;
+                            break;
+                        case 'push_constant':
+                            opCount += 1;
+                            break;
                     }
                 }
             }
@@ -413,6 +433,19 @@ export function packInterface(modelFlags: number[]) {
 
                             client.p2(varpLink);
                             client.p2(parseInt(parts[2]));
+                            break;
+                        }
+                        case 'push_varbit': {
+                            const varbitLink = VarbitPack.getByName(parts[1]);
+                            if (varbitLink === -1) {
+                                printError(`${com.root} invalid lookup ${parts[1]}`);
+                            }
+
+                            client.p2(varbitLink);
+                            break;
+                        }
+                        case 'push_constant': {
+                            client.p2(parseInt(parts[1]));
                             break;
                         }
                     }

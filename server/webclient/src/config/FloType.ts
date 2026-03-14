@@ -1,55 +1,64 @@
-import { ConfigType } from '#/config/ConfigType.js';
-
 import Jagfile from '#/io/Jagfile.js';
 import Packet from '#/io/Packet.js';
 
-export default class FloType extends ConfigType {
-    static count: number = 0;
-    static types: FloType[] = [];
+export default class FloType {
+    static numDefinitions: number = 0;
+    static list: FloType[] = [];
+
     rgb: number = 0;
     texture: number = -1;
     overlay: boolean = false;
     occlude: boolean = true;
+    debugname: string = '';
+
     hue: number = 0;
     saturation: number = 0;
     lightness: number = 0;
-    luminance: number = 0;
-    chroma: number = 0;
-    hsl: number = 0;
 
-    static unpack(config: Jagfile): void {
+    chroma: number = 0;
+    underlayHue: number = 0;
+    overlayHsl: number = 0;
+
+    static init(config: Jagfile): void {
         const dat: Packet = new Packet(config.read('flo.dat'));
 
-        this.count = dat.g2();
-        this.types = new Array(this.count);
+        this.numDefinitions = dat.g2();
+        this.list = new Array(this.numDefinitions);
 
-        for (let id: number = 0; id < this.count; id++) {
-            if (!this.types[id]) {
-                this.types[id] = new FloType(id);
+        for (let id: number = 0; id < this.numDefinitions; id++) {
+            if (!this.list[id]) {
+                this.list[id] = new FloType();
             }
 
-            this.types[id].unpackType(dat);
+            this.list[id].decode(dat);
         }
     }
 
-    unpack(code: number, dat: Packet): void {
-        if (code === 1) {
-            this.rgb = dat.g3();
-            this.setColour(this.rgb);
-        } else if (code === 2) {
-            this.texture = dat.g1();
-        } else if (code === 3) {
-            this.overlay = true;
-        } else if (code === 5) {
-            this.occlude = false;
-        } else if (code === 6) {
-            this.debugname = dat.gjstr();
-        } else {
-            console.log('Error unrecognised config code: ', code);
+    decode(dat: Packet): void {
+        while (true) {
+            const code = dat.g1();
+            if (code === 0) {
+                break;
+            }
+
+            if (code === 1) {
+                this.rgb = dat.g3();
+                this.getHsl(this.rgb);
+            } else if (code === 2) {
+                this.texture = dat.g1();
+            } else if (code === 3) {
+                this.overlay = true;
+            } else if (code === 5) {
+                this.occlude = false;
+            } else if (code === 6) {
+                this.debugname = dat.gjstr();
+            } else {
+                console.log('Error unrecognised config code: ', code);
+            }
         }
     }
 
-    private setColour(rgb: number): void {
+    private getHsl(rgb: number): void {
         const red: number = ((rgb >> 16) & 0xff) / 256.0;
         const green: number = ((rgb >> 8) & 0xff) / 256.0;
         const blue: number = (rgb & 0xff) / 256.0;
@@ -110,16 +119,16 @@ export default class FloType extends ConfigType {
         }
 
         if (l > 0.5) {
-            this.luminance = ((1.0 - l) * s * 512.0) | 0;
+            this.chroma = ((1.0 - l) * s * 512.0) | 0;
         } else {
-            this.luminance = (l * s * 512.0) | 0;
+            this.chroma = (l * s * 512.0) | 0;
         }
 
-        if (this.luminance < 1) {
-            this.luminance = 1;
+        if (this.chroma < 1) {
+            this.chroma = 1;
         }
 
-        this.chroma = (h * this.luminance) | 0;
+        this.underlayHue = (h * this.chroma) | 0;
 
         let hue: number = this.hue + ((Math.random() * 16.0) | 0) - 8;
         if (hue < 0) {
@@ -142,10 +151,10 @@ export default class FloType extends ConfigType {
             lightness = 255;
         }
 
-        this.hsl = FloType.hsl24to16(hue, saturation, lightness);
+        this.overlayHsl = FloType.getTable(hue, saturation, lightness);
     }
 
-    static hsl24to16(hue: number, saturation: number, lightness: number): number {
+    static getTable(hue: number, saturation: number, lightness: number): number {
         if (lightness > 179) {
             saturation = (saturation / 2) | 0;
         }

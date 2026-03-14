@@ -111,7 +111,6 @@ model=model_loc_123
 anim=balloon_burst
 blockwalk=no
 blockrange=no
-hasalpha=yes
 ambient=60
 
 [balloon_red_pop]
@@ -121,7 +120,6 @@ model=model_loc_123
 anim=balloon_burst
 blockwalk=no
 blockrange=no
-hasalpha=yes
 ambient=60
 recol1s=31649
 recol1d=30753
@@ -133,7 +131,6 @@ model=model_loc_123
 anim=balloon_burst
 blockwalk=no
 blockrange=no
-hasalpha=yes
 ambient=60
 recol1s=31649
 recol1d=31
@@ -145,7 +142,6 @@ model=model_loc_123
 anim=balloon_burst
 blockwalk=no
 blockrange=no
-hasalpha=yes
 ambient=60
 recol1s=31649
 recol1d=992
@@ -157,7 +153,6 @@ model=model_loc_123
 anim=balloon_burst
 blockwalk=no
 blockrange=no
-hasalpha=yes
 ambient=60
 recol1s=31649
 recol1d=24638
@@ -169,7 +164,6 @@ model=model_loc_123
 anim=balloon_burst
 blockwalk=no
 blockrange=no
-hasalpha=yes
 ambient=60
 recol1s=31649
 recol1d=32767
@@ -181,7 +175,6 @@ model=model_loc_129
 anim=balloon_burst_2
 blockwalk=no
 blockrange=no
-hasalpha=yes
 ambient=60
 
 [balloon3_pop]
@@ -191,7 +184,6 @@ model=model_loc_130
 anim=balloon_burst_3
 blockwalk=no
 blockrange=no
-hasalpha=yes
 ambient=60
 
 [loc_2416]

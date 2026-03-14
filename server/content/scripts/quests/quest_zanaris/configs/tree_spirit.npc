@@ -3,7 +3,6 @@ name=Tree spirit
 desc=Guardian of the dramen tree.
 walkanim=ghost_walk
 readyanim=ghost_ready
-hasalpha=yes
 op2=Attack
 vislevel=101
 recol1s=25471

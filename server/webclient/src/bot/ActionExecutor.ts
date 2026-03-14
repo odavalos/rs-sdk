@@ -195,7 +195,7 @@ export class ActionExecutor {
 
                 case 'closeModal':
                     return this.wrapBool(
-                        this.client.closeModal(),
+                        this.client.closeBotModal(),
                         'Closed modal',
                         'Failed to close modal'
                     );

@@ -13,6 +13,7 @@ if (~check_spell_requirements($spell_data) = false) {
 if (~is_alchable($item, $spell_data) = false) {
     return;
 }
+
 // play sound and anim
 sound_synth(high_alchemy, 0, 0);
 anim(human_casthighlvlalchemy, 0);
@@ -48,6 +49,7 @@ if (~check_spell_requirements($spell_data) = false) {
 if (~is_alchable($item, $spell_data) = false) {
     return;
 }
+
 // play sound and anim
 sound_synth(low_alchemy, 0, 0);
 anim(human_castlowlvlalchemy, 0);
@@ -91,12 +93,15 @@ switch_obj($item) {
     case coins :
         mes("Coins are already made of gold.");
         return(false);
+    case macro_cube :
+        ~try_add_macro_cube;
+        return(false);
     case default :
         if(oc_category($item) = kitten) {
             mes("You can't do that to a defenceless kitten!");
             return(false);
         }
-        if(oc_category($item) = cat) { // you can alch witches cat (RS3)
+        if(oc_category($item) = cat | oc_category($item) = overgrown) { // you can alch witches cat (RS3)
             mes("You can't do that to a defenceless cat!"); // https://youtu.be/jZUswQjpW4A?t=93
             return(false);
         }

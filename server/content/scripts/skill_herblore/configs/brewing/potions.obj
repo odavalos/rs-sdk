@@ -1154,3 +1154,399 @@ recol1d=28570
 weight=25g
 members=yes
 tradeable=no
+
+[firework]
+name=Firework
+recol1s=15855
+recol1d=29389
+desc=A firework potion, this'll look pretty!
+cost=60
+model=model_2789_obj
+2dyof=-1
+2dzoom=550
+2dyan=1996
+2dxan=84
+members=yes
+op4=hidden
+op5=Light
+weight=35g
+
+[4dose1energy]
+name=Energy potion(4)
+recol1s=15855
+recol1d=20746
+desc=4 doses of energy potion.
+iop1=Drink
+cost=146
+model=model_2789_obj
+2dyof=-1
+2dzoom=550
+2dyan=1996
+2dxan=84
+members=yes
+weight=35g
+category=category_69
+param=next_obj_stage,3dose1energy
+param=decant_potion_enum,potion_1energy
+param=dose_count,4
+
+[3dose1energy]
+name=Energy potion(3)
+recol1s=15855
+recol1d=20746
+desc=3 doses of energy potion.
+iop1=Drink
+cost=110
+model=model_2697_obj
+2dyof=-1
+2dzoom=550
+2dyan=1996
+2dxan=84
+members=yes
+weight=30g
+category=category_69
+param=next_obj_stage,2dose1energy
+param=decant_potion_enum,potion_1energy
+param=dose_count,3
+
+[2dose1energy]
+name=Energy potion(2)
+recol1s=15855
+recol1d=20746
+desc=2 doses of energy potion.
+iop1=Drink
+cost=72
+model=model_2384_obj
+2dyof=-1
+2dzoom=550
+2dyan=1996
+2dxan=84
+members=yes
+weight=25g
+category=category_69
+param=next_obj_stage,1dose1energy
+param=decant_potion_enum,potion_1energy
+param=dose_count,2
+
+[1dose1energy]
+name=Energy potion(1)
+recol1s=15855
+recol1d=20746
+desc=1 dose of energy potion.
+iop1=Drink
+cost=36
+model=model_2621_obj
+2dyof=-1
+2dzoom=550
+2dyan=1996
+2dxan=84
+members=yes
+weight=20g
+category=category_69
+param=next_obj_stage,vial_empty
+param=decant_potion_enum,potion_1energy
+param=dose_count,1
+
+[4dose2energy]
+name=Super energy(4)
+recol1s=15855
+recol1d=24850
+desc=4 doses of super energy potion.
+iop1=Drink
+cost=300
+model=model_2789_obj
+2dyof=-1
+2dzoom=550
+2dyan=1996
+2dxan=84
+members=yes
+weight=35g
+category=category_69
+param=next_obj_stage,3dose2energy
+param=decant_potion_enum,potion_2energy
+param=dose_count,4
+
+[3dose2energy]
+name=Super energy(3)
+recol1s=15855
+recol1d=24850
+desc=3 doses of super energy potion.
+iop1=Drink
+cost=230
+model=model_2697_obj
+2dyof=-1
+2dzoom=550
+2dyan=1996
+2dxan=84
+members=yes
+weight=30g
+category=category_69
+param=next_obj_stage,2dose2energy
+param=decant_potion_enum,potion_2energy
+param=dose_count,3
+
+[2dose2energy]
+name=Super energy(2)
+recol1s=15855
+recol1d=24850
+desc=2 doses of super energy potion.
+iop1=Drink
+cost=160
+model=model_2384_obj
+2dyof=-1
+2dzoom=550
+2dyan=1996
+2dxan=84
+members=yes
+weight=25g
+category=category_69
+param=next_obj_stage,1dose2energy
+param=decant_potion_enum,potion_2energy
+param=dose_count,2
+
+[1dose2energy]
+name=Super energy(1)
+recol1s=15855
+recol1d=24850
+desc=1 dose of super energy potion.
+iop1=Drink
+cost=90
+model=model_2621_obj
+2dyof=-1
+2dzoom=550
+2dyan=1996
+2dxan=84
+members=yes
+weight=20g
+category=category_69
+param=next_obj_stage,vial_empty
+param=decant_potion_enum,potion_2energy
+param=dose_count,1
+
+[4dose2restore]
+name=Super restore(4)
+recol1s=15855
+recol1d=22699
+desc=4 doses of super restore potion.
+iop1=Drink
+cost=300
+model=model_2789_obj
+2dyof=-1
+2dzoom=550
+2dyan=1996
+2dxan=84
+members=yes
+weight=35g
+category=category_69
+param=next_obj_stage,3dose2restore
+param=decant_potion_enum,potion_2restore
+param=dose_count,4
+
+[3dose2restore]
+name=Super restore(3)
+recol1s=15855
+recol1d=22699
+desc=3 doses of super restore potion.
+iop1=Drink
+cost=240
+model=model_2697_obj
+2dyof=-1
+2dzoom=550
+2dyan=1996
+2dxan=84
+members=yes
+weight=30g
+category=category_69
+param=next_obj_stage,2dose2restore
+param=decant_potion_enum,potion_2restore
+param=dose_count,3
+
+[2dose2restore]
+name=Super restore(2)
+recol1s=15855
+recol1d=22699
+desc=2 doses of super restore potion.
+iop1=Drink
+cost=180
+model=model_2384_obj
+2dyof=-1
+2dzoom=550
+2dyan=1996
+2dxan=84
+members=yes
+weight=25g
+category=category_69
+param=next_obj_stage,1dose2restore
+param=decant_potion_enum,potion_2restore
+param=dose_count,2
+
+[1dose2restore]
+name=Super restore(1)
+recol1s=15855
+recol1d=22699
+desc=1 dose of super restore potion.
+iop1=Drink
+cost=120
+model=model_2621_obj
+2dyof=-1
+2dzoom=550
+2dyan=1996
+2dxan=84
+members=yes
+weight=20g
+category=category_69
+param=next_obj_stage,vial_empty
+param=decant_potion_enum,potion_2restore
+param=dose_count,1
+
+[4dose1agility]
+name=Agility potion(4)
+recol1s=15855
+recol1d=12801
+desc=4 doses of agility potion.
+iop1=Drink
+cost=200
+model=model_2789_obj
+2dyof=-1
+2dzoom=550
+2dyan=1996
+2dxan=84
+members=yes
+weight=35g
+category=category_69
+param=next_obj_stage,3dose1agility
+param=decant_potion_enum,potion_1agility
+param=dose_count,4
+
+[3dose1agility]
+name=Agility potion(3)
+recol1s=15855
+recol1d=12801
+desc=3 doses of agility potion.
+iop1=Drink
+cost=150
+model=model_2697_obj
+2dyof=-1
+2dzoom=550
+2dyan=1996
+2dxan=84
+members=yes
+weight=30g
+category=category_69
+param=next_obj_stage,2dose1agility
+param=decant_potion_enum,potion_1agility
+param=dose_count,3
+
+[2dose1agility]
+name=Agility potion(2)
+recol1s=15855
+recol1d=12801
+desc=2 doses of agility potion.
+iop1=Drink
+cost=50
+model=model_2384_obj
+2dyof=-1
+2dzoom=550
+2dyan=1996
+2dxan=84
+members=yes
+weight=25g
+category=category_69
+param=next_obj_stage,1dose1agility
+param=decant_potion_enum,potion_1agility
+param=dose_count,2
+
+[1dose1agility]
+name=Agility potion(1)
+recol1s=15855
+recol1d=12801
+desc=1 dose of agility potion.
+iop1=Drink
+cost=50
+model=model_2621_obj
+2dyof=-1
+2dzoom=550
+2dyan=1996
+2dxan=84
+members=yes
+weight=20g
+category=category_69
+param=next_obj_stage,vial_empty
+param=decant_potion_enum,potion_1agility
+param=dose_count,1
+
+[4dose1magic]
+name=Magic potion(4)
+recol1s=15855
+recol1d=6713
+desc=4 doses of magic potion.
+iop1=Drink
+cost=300
+model=model_2789_obj
+2dyof=-1
+2dzoom=550
+2dyan=1996
+2dxan=84
+members=yes
+weight=35g
+category=category_69
+param=next_obj_stage,3dose1magic
+param=decant_potion_enum,potion_1magic
+param=dose_count,4
+
+[3dose1magic]
+name=Magic potion(3)
+recol1s=15855
+recol1d=6713
+desc=3 doses of magic potion.
+iop1=Drink
+cost=250
+model=model_2697_obj
+2dyof=-1
+2dzoom=550
+2dyan=1996
+2dxan=84
+members=yes
+weight=30g
+category=category_69
+param=next_obj_stage,2dose1magic
+param=decant_potion_enum,potion_1magic
+param=dose_count,3
+
+[2dose1magic]
+name=Magic potion(2)
+recol1s=15855
+recol1d=6713
+desc=2 doses of magic potion.
+iop1=Drink
+cost=200
+model=model_2384_obj
+2dyof=-1
+2dzoom=550
+2dyan=1996
+2dxan=84
+members=yes
+weight=25g
+category=category_69
+param=next_obj_stage,1dose1magic
+param=decant_potion_enum,potion_1magic
+param=dose_count,2
+
+[1dose1magic]
+name=Magic potion(1)
+recol1s=15855
+recol1d=6713
+desc=1 dose of magic potion.
+iop1=Drink
+cost=150
+model=model_2621_obj
+2dyof=-1
+2dzoom=550
+2dyan=1996
+2dxan=84
+members=yes
+weight=20g
+category=category_69
+param=next_obj_stage,vial_empty
+param=decant_potion_enum,potion_1magic
+param=dose_count,1

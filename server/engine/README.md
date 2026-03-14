@@ -1,5 +1,5 @@
 <div align="center">
-    <h1>Lost City - July 13, 2004</h1>
+    <h1>Lost City - September 7, 2004</h1>
 </div>
 
 > [!NOTE]
@@ -23,8 +23,8 @@ The [Server](https://github.com/LostCityRS/Server) repository will simplify setu
 In absence of the [Server](https://github.com/LostCityRS/Server) scripts, download the specific engine and content repositories/branches you desire and extract them to the same parent folder.
 
 ```sh
-git clone https://github.com/LostCityRS/Engine-TS -b 245.2 --single-branch engine
-git clone https://github.com/LostCityRS/Content -b 245.2 --single-branch content
+git clone https://github.com/LostCityRS/Engine-TS -b 254 --single-branch engine
+git clone https://github.com/LostCityRS/Content -b 254 --single-branch content
 cd engine
 bun start
 ```
@@ -53,14 +53,6 @@ Be aware it may have compatibility issues (that are addressed in the Client-Java
 Content developers should run `bun start`. The server will watch for changes to scripts and configs, then automatically repack everything.
 
 Engine developers should run `bun dev`. This does what `bun start` does above, but also completely restarts the server when engine code has changed.
-
-## Configuration
-
-Environment variables can be set in the `.env` file. See `.env.example` for all available options.
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `NODE_RANDOM_EVENTS` | `true` | Enable or disable random events (anti-macro events). Set to `false` to disable. |
 
 ## Common Issues
 

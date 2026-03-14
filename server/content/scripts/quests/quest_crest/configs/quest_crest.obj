@@ -173,7 +173,7 @@ tradeable=no
 // 20 July 2004 - The model for Johnathon's part was corrected; previously it used the same model as Caleb's part.
 // https://oldschool.runescape.wiki/w/Crest_part#Changes
 [johnathon_crest]
-model=model_2691_obj
+model=model_2693
 name=Crest part
 desc=A fragment of the Fitzharmon family crest.
 members=yes

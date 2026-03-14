@@ -1,68 +1,68 @@
 import Packet from '#/io/Packet.js';
 
 export default class InputTracking {
-    static enabled: boolean = false;
-    static outBuffer: Packet | null = null;
-    static oldBuffer: Packet | null = null;
+    static active: boolean = false;
+    static old: Packet | null = null;
+    static out: Packet | null = null;
     static lastTime: number = 0;
     static trackedCount: number = 0;
     static lastMoveTime: number = 0;
     static lastX: number = 0;
     static lastY: number = 0;
 
-    static setEnabled(): void {
-        this.outBuffer = Packet.alloc(1);
-        this.oldBuffer = null;
+    static activate(): void {
+        this.old = Packet.alloc(1);
+        this.out = null;
         this.lastTime = performance.now();
-        this.enabled = true;
+        this.active = true;
     }
 
-    static setDisabled(): void {
-        this.enabled = false;
-        this.outBuffer = null;
-        this.oldBuffer = null;
+    static deactivate(): void {
+        this.active = false;
+        this.old = null;
+        this.out = null;
     }
 
     static flush(): Packet | null {
         let buffer: Packet | null = null;
 
-        if (this.oldBuffer && this.enabled) {
-            buffer = this.oldBuffer;
+        if (this.out && this.active) {
+            buffer = this.out;
         }
 
-        this.oldBuffer = null;
+        this.out = null;
         return buffer;
     }
 
     static stop(): Packet | null {
         let buffer: Packet | null = null;
 
-        if (this.outBuffer && this.outBuffer.pos > 0 && this.enabled) {
-            buffer = this.outBuffer;
+        if (this.old && this.old.pos > 0 && this.active) {
+            buffer = this.old;
         }
 
-        this.setDisabled();
+        this.deactivate();
         return buffer;
     }
 
     private static ensureCapacity(n: number): void {
-        if (!this.outBuffer) {
+        if (!this.old) {
             return;
         }
 
-        if (this.outBuffer.pos + n >= 500) {
-            const buffer: Packet = this.outBuffer;
-            this.outBuffer = Packet.alloc(1);
-            this.oldBuffer = buffer;
+        if (this.old.pos + n >= 500) {
+            const buffer: Packet = this.old;
+            this.old = Packet.alloc(1);
+            this.out = buffer;
         }
     }
 
     static mousePressed(x: number, y: number, button: number, _pointerType: string): void {
-        if (!this.outBuffer) {
+        if (!this.old) {
             return;
         }
 
-        if (!this.enabled && (x >= 0 && x < 789 && y >= 0 && y < 532)) {
+        if (!this.active && (x >= 0 && x < 789 && y >= 0 && y < 532)) {
             return;
         }
 
@@ -78,21 +78,21 @@ export default class InputTracking {
         this.ensureCapacity(5);
 
         if (button === 2) {
-            this.outBuffer.p1(1);
+            this.old.p1(1);
         } else {
-            this.outBuffer.p1(2);
+            this.old.p1(2);
         }
 
-        this.outBuffer.p1(delta);
-        this.outBuffer.p3(x + (y << 10));
+        this.old.p1(delta);
+        this.old.p3(x + (y << 10));
     }
 
     static mouseReleased(button: number, _pointerType: string): void {
-        if (!this.outBuffer) {
+        if (!this.old) {
             return;
         }
 
-        if (!this.enabled) {
+        if (!this.active) {
             return;
         }
 
@@ -108,20 +108,20 @@ export default class InputTracking {
         this.ensureCapacity(2);
 
         if (button === 2) {
-            this.outBuffer.p1(3);
+            this.old.p1(3);
         } else {
-            this.outBuffer.p1(4);
+            this.old.p1(4);
         }
 
-        this.outBuffer.p1(delta);
+        this.old.p1(delta);
     }
 
     static mouseMoved(x: number, y: number, _pointerType: string): void {
-        if (!this.outBuffer) {
+        if (!this.old) {
             return;
         }
 
-        if (!this.enabled && (x >= 0 && x < 789 && y >= 0 && y < 532)) {
+        if (!this.active && (x >= 0 && x < 789 && y >= 0 && y < 532)) {
             return;
         }
 
@@ -142,20 +142,20 @@ export default class InputTracking {
 
         if (x - this.lastX < 8 && x - this.lastX >= -8 && y - this.lastY < 8 && y - this.lastY >= -8) {
             this.ensureCapacity(3);
-            this.outBuffer.p1(5);
-            this.outBuffer.p1(delta);
-            this.outBuffer.p1(x + ((y - this.lastY + 8) << 4) + 8 - this.lastX);
+            this.old.p1(5);
+            this.old.p1(delta);
+            this.old.p1(x + ((y - this.lastY + 8) << 4) + 8 - this.lastX);
         } else if (x - this.lastX < 128 && x - this.lastX >= -128 && y - this.lastY < 128 && y - this.lastY >= -128) {
             this.ensureCapacity(4);
-            this.outBuffer.p1(6);
-            this.outBuffer.p1(delta);
-            this.outBuffer.p1(x + 128 - this.lastX);
-            this.outBuffer.p1(y + 128 - this.lastY);
+            this.old.p1(6);
+            this.old.p1(delta);
+            this.old.p1(x + 128 - this.lastX);
+            this.old.p1(y + 128 - this.lastY);
         } else {
             this.ensureCapacity(5);
-            this.outBuffer.p1(7);
-            this.outBuffer.p1(delta);
-            this.outBuffer.p3(x + (y << 10));
+            this.old.p1(7);
+            this.old.p1(delta);
+            this.old.p3(x + (y << 10));
         }
 
         this.lastX = x;
@@ -163,11 +163,11 @@ export default class InputTracking {
     }
 
     static keyPressed(key: number): void {
-        if (!this.outBuffer) {
+        if (!this.old) {
             return;
         }
 
-        if (!this.enabled) {
+        if (!this.active) {
             return;
         }
 
@@ -194,17 +194,17 @@ export default class InputTracking {
         }
 
         this.ensureCapacity(3);
-        this.outBuffer.p1(8);
-        this.outBuffer.p1(delta);
-        this.outBuffer.p1(key);
+        this.old.p1(8);
+        this.old.p1(delta);
+        this.old.p1(key);
     }
 
     static keyReleased(key: number): void {
-        if (!this.outBuffer) {
+        if (!this.old) {
             return;
         }
 
-        if (!this.enabled) {
+        if (!this.active) {
             return;
         }
 
@@ -231,17 +231,17 @@ export default class InputTracking {
         }
 
         this.ensureCapacity(3);
-        this.outBuffer.p1(9);
-        this.outBuffer.p1(delta);
-        this.outBuffer.p1(key);
+        this.old.p1(9);
+        this.old.p1(delta);
+        this.old.p1(key);
     }
 
     static focusGained(): void {
-        if (!this.outBuffer) {
+        if (!this.old) {
             return;
         }
 
-        if (!this.enabled) {
+        if (!this.active) {
             return;
         }
 
@@ -256,16 +256,16 @@ export default class InputTracking {
         this.lastTime = now;
 
         this.ensureCapacity(2);
-        this.outBuffer.p1(10);
-        this.outBuffer.p1(delta);
+        this.old.p1(10);
+        this.old.p1(delta);
     }
 
     static focusLost(): void {
-        if (!this.outBuffer) {
+        if (!this.old) {
             return;
         }
 
-        if (!this.enabled) {
+        if (!this.active) {
             return;
         }
 
@@ -280,16 +280,16 @@ export default class InputTracking {
         this.lastTime = now;
 
         this.ensureCapacity(2);
-        this.outBuffer.p1(11);
-        this.outBuffer.p1(delta);
+        this.old.p1(11);
+        this.old.p1(delta);
     }
 
     static mouseEntered(): void {
-        if (!this.outBuffer) {
+        if (!this.old) {
             return;
         }
 
-        if (!this.enabled) {
+        if (!this.active) {
             return;
         }
 
@@ -304,16 +304,16 @@ export default class InputTracking {
         this.lastTime = now;
 
         this.ensureCapacity(2);
-        this.outBuffer.p1(12);
-        this.outBuffer.p1(delta);
+        this.old.p1(12);
+        this.old.p1(delta);
     }
 
     static mouseExited(): void {
-        if (!this.outBuffer) {
+        if (!this.old) {
             return;
         }
 
-        if (!this.enabled) {
+        if (!this.active) {
             return;
         }
 
@@ -328,7 +328,7 @@ export default class InputTracking {
         this.lastTime = now;
 
         this.ensureCapacity(2);
-        this.outBuffer.p1(13);
-        this.outBuffer.p1(delta);
+        this.old.p1(13);
+        this.old.p1(delta);
     }
 }

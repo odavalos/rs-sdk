@@ -1,3 +1,3 @@
-export default class OnDemandProvider {
-    requestModel(id: number) {}
+export default abstract class OnDemandProvider {
+    abstract requestModel(id: number): void;
 }

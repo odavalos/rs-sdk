@@ -44,6 +44,7 @@ womanwear=model_363_obj_wear,0
 manhead=model_29_obj_wear
 womanhead=model_87_obj_wear
 weight=2oz
+param=party_clean_exempt,^true
 
 [yellow_partyhat]
 name=Yellow partyhat
@@ -63,6 +64,7 @@ womanwear=model_363_obj_wear,0
 manhead=model_29_obj_wear
 womanhead=model_87_obj_wear
 weight=2oz
+param=party_clean_exempt,^true
 
 [blue_partyhat]
 name=Blue partyhat
@@ -82,6 +84,7 @@ womanwear=model_363_obj_wear,0
 manhead=model_29_obj_wear
 womanhead=model_87_obj_wear
 weight=2oz
+param=party_clean_exempt,^true
 
 [green_partyhat]
 name=Green partyhat
@@ -101,6 +104,7 @@ womanwear=model_363_obj_wear,0
 manhead=model_29_obj_wear
 womanhead=model_87_obj_wear
 weight=2oz
+param=party_clean_exempt,^true
 
 [purple_partyhat]
 name=Purple partyhat
@@ -120,6 +124,7 @@ womanwear=model_363_obj_wear,0
 manhead=model_29_obj_wear
 womanhead=model_87_obj_wear
 weight=2oz
+param=party_clean_exempt,^true
 
 [white_partyhat]
 name=White partyhat
@@ -139,6 +144,7 @@ womanwear=model_363_obj_wear,0
 manhead=model_29_obj_wear
 womanhead=model_87_obj_wear
 weight=2oz
+param=party_clean_exempt,^true
 
 [santa_hat]
 name=Santa hat
@@ -156,6 +162,7 @@ manhead=model_69_obj_wear
 womanhead=model_127_obj_wear
 iop2=Wear
 weight=4oz
+param=party_clean_exempt,^true
 
 [halloweenmask_green]
 name=Halloween mask
@@ -176,6 +183,7 @@ womanhead=model_3187_obj_wear
 2dzoom=730
 2dxan=516
 iop2=Wear
+param=party_clean_exempt,^true
 
 [halloweenmask_blue]
 name=Halloween mask
@@ -196,6 +204,7 @@ womanhead=model_3187_obj_wear
 2dzoom=730
 2dxan=516
 iop2=Wear
+param=party_clean_exempt,^true
 
 [halloweenmask_red]
 name=Halloween mask
@@ -214,3 +223,4 @@ womanhead=model_3187_obj_wear
 2dzoom=730
 2dxan=516
 iop2=Wear
+param=party_clean_exempt,^true
