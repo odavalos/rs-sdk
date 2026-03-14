@@ -171,7 +171,7 @@ class TinyMidiPCM {
 
     await tinyMidiPCM.init();
 
-    const soundfontRes = await fetch(new URL('SCC1_Florestan.sf2', import.meta.url));
+    const soundfontRes = await fetch('/client/SCC1_Florestan.sf2');
     const soundfontBuffer = new Uint8Array(await soundfontRes.arrayBuffer());
     tinyMidiPCM.setSoundfont(soundfontBuffer);
 

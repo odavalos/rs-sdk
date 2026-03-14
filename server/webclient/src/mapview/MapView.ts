@@ -440,10 +440,10 @@ export class MapView extends GameShell {
 
             Pix2D.cls();
 
-            const left: number = this.focusX - ((this.sWid / this.zoom) | 0);
-            const top: number = this.focusZ - ((this.sHei / this.zoom) | 0);
-            const right: number = this.focusX + ((this.sWid / this.zoom) | 0);
-            const bottom: number = this.focusZ + ((this.sHei / this.zoom) | 0);
+            const left: number = Math.max(0, this.focusX - ((this.sWid / this.zoom) | 0));
+            const top: number = Math.max(0, this.focusZ - ((this.sHei / this.zoom) | 0));
+            const right: number = Math.min(this.mapWidth, this.focusX + ((this.sWid / this.zoom) | 0));
+            const bottom: number = Math.min(this.mapHeight, this.focusZ + ((this.sHei / this.zoom) | 0));
             this.renderWorldMap(left, top, right, bottom, 0, 0, this.sWid, this.sHei);
 
             // custom: draw player positions
