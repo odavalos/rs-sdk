@@ -72,7 +72,7 @@ export function formatWorldState(state: BotWorldState, stateAgeMs?: number): str
         }
     }
 
-    if (state.dialog.isOpen) {
+    if (state.dialog?.isOpen) {
         lines.push('');
         lines.push('## Dialog');
         if (state.dialog.isWaiting) {
@@ -127,18 +127,18 @@ export function formatWorldState(state: BotWorldState, stateAgeMs?: number): str
     // Skills
     lines.push('');
     lines.push('## Skills');
-    for (const skill of state.skills) {
+    for (const skill of state.skills || []) {
         const boosted = skill.level !== skill.baseLevel ? `${skill.level}/` : '';
         lines.push(`${skill.name}: ${boosted}${skill.baseLevel} (${skill.experience.toLocaleString()} xp)`);
     }
 
     // Inventory
     lines.push('');
-    const usedSlots = state.inventory.length;
+    const usedSlots = (state.inventory || []).length;
     const maxSlots = 28;
     const emptySlots = maxSlots - usedSlots;
     lines.push(`## Inventory (${emptySlots} empty slots)`);
-    if (state.inventory.length === 0) {
+    if ((state.inventory || []).length === 0) {
         lines.push('(Empty)');
     } else {
         const itemCounts = new Map<string, { count: number; options: string[] }>();
@@ -160,7 +160,7 @@ export function formatWorldState(state: BotWorldState, stateAgeMs?: number): str
     }
 
     // Equipment
-    if (state.equipment.length > 0) {
+    if ((state.equipment || []).length > 0) {
         lines.push('');
         lines.push('## Equipment');
         for (const item of state.equipment) {
@@ -193,7 +193,7 @@ export function formatWorldState(state: BotWorldState, stateAgeMs?: number): str
     }
 
     // Nearby NPCs
-    if (state.nearbyNpcs.length > 0) {
+    if ((state.nearbyNpcs || []).length > 0) {
         lines.push('');
         lines.push('## Nearby NPCs');
         for (const npc of state.nearbyNpcs.slice(0, 10)) {
@@ -209,7 +209,7 @@ export function formatWorldState(state: BotWorldState, stateAgeMs?: number): str
     }
 
     // Nearby Players
-    if (state.nearbyPlayers.length > 0) {
+    if ((state.nearbyPlayers || []).length > 0) {
         lines.push('');
         lines.push('## Nearby Players');
         for (const pl of state.nearbyPlayers.slice(0, 5)) {
@@ -221,7 +221,7 @@ export function formatWorldState(state: BotWorldState, stateAgeMs?: number): str
     }
 
     // Nearby Locs
-    if (state.nearbyLocs.length > 0) {
+    if ((state.nearbyLocs || []).length > 0) {
         lines.push('');
         lines.push('## Nearby Objects');
         for (const loc of state.nearbyLocs.slice(0, 10)) {
@@ -234,7 +234,7 @@ export function formatWorldState(state: BotWorldState, stateAgeMs?: number): str
     }
 
     // Ground Items
-    if (state.groundItems.length > 0) {
+    if ((state.groundItems || []).length > 0) {
         lines.push('');
         lines.push('## Ground Items');
         for (const item of state.groundItems.slice(0, 10)) {

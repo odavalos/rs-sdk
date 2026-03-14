@@ -1069,7 +1069,7 @@ export class BotSDK {
             const state = await this.waitForCondition(s => {
                 const validPosition = !!(s.player && s.player.worldX !== 0 && s.player.worldZ !== 0);
                 const inGame = s.inGame;
-                const hasEntities = s.nearbyNpcs.length > 0 || s.nearbyLocs.length > 0 || s.groundItems.length > 0;
+                const hasEntities = (s.nearbyNpcs?.length ?? 0) > 0 || (s.nearbyLocs?.length ?? 0) > 0 || (s.groundItems?.length ?? 0) > 0;
 
                 // Log progress for debugging
                 if (!validPosition) {

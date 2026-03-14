@@ -57,62 +57,7 @@ async function applyTerser(script: BunOutput): Promise<boolean> {
             ecma: 2020
         },
         mangle: {
-            nth_identifier: nth_identifier,
-            properties: {
-                reserved: [
-                    // stdlib
-                    'willReadFrequently',
-                    'usedJSHeapSize',
-
-                    // wasm
-                    // must be callable:
-                    '_abort_js',
-                    'emscripten_resize_heap',
-                    'fd_close',
-                    'fd_seek',
-                    'fd_write',
-                    // must be an object:
-                    'env',
-                    'wasi_snapshot_preview1',
-                    // is not an object:
-                    'instance',
-                    // is not a function:
-                    'emscripten_stack_init',
-                    'emscripten_stack_get_end',
-                    '__wasm_call_ctors',
-                    // imports:
-                    'HEAPU8',
-                    // exports:
-                    '_emscripten_stack_restore',
-                    '_emscripten_stack_alloc',
-                    'emscripten_stack_get_current',
-                    'memory',
-                    '_malloc',
-                    'malloc',
-                    '_free',
-                    'free',
-                    '_realloc',
-                    'realloc',
-                    '__indirect_function_table',
-                    '_tsf_load_memory',
-                    'tsf_load_memory',
-                    '_tsf_close',
-                    'tsf_close',
-                    '_tsf_reset',
-                    'tsf_reset',
-                    '_tsf_set_output',
-                    'tsf_set_output',
-                    '_tsf_channel_set_bank_preset',
-                    'tsf_channel_set_bank_preset',
-                    '_tml_load_memory',
-                    'tml_load_memory',
-                    '_midi_render',
-                    'midi_render',
-                    'setValue',
-                    'getValue',
-                    'calledRun'
-                ]
-            }
+            nth_identifier: nth_identifier
         }
     });
 
