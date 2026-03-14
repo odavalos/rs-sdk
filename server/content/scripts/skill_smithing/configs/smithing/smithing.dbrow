@@ -1350,3 +1350,70 @@ data=end_message,two nails
 data=levelfailmessage,Nails
 data=bar,steel_bar
 data=bar_amount,1
+
+[bronze_claws]
+table=smithing
+data=ifproduct,bronze_claws
+data=product,bronze_claws
+data=product_amount,1
+data=levelrequired,13
+data=end_message,some claws
+data=levelfailmessage,some bronze claws
+data=bar,bronze_bar
+data=bar_amount,2
+
+[iron_claws]
+table=smithing
+data=ifproduct,iron_claws
+data=product,iron_claws
+data=product_amount,1
+data=levelrequired,28
+data=end_message,some claws
+data=levelfailmessage,some iron claws
+data=bar,iron_bar
+data=bar_amount,2
+
+[steel_claws]
+table=smithing
+data=ifproduct,steel_claws
+data=product,steel_claws
+data=product_amount,1
+data=levelrequired,43
+data=end_message,some claws
+data=levelfailmessage,some steel claws
+data=bar,steel_bar
+data=bar_amount,2
+
+[mithril_claws]
+table=smithing
+data=ifproduct,mithril_claws
+data=product,mithril_claws
+data=product_amount,1
+data=levelrequired,63
+data=end_message,some claws
+data=levelfailmessage,some mithril claws
+data=bar,mithril_bar
+data=bar_amount,2
+
+[adamant_claws]
+table=smithing
+data=ifproduct,adamant_claws
+data=product,adamant_claws
+data=product_amount,1
+data=levelrequired,83
+data=end_message,some claws
+data=levelfailmessage,some adamant claws
+data=bar,adamantite_bar
+data=bar_amount,2
+
+[rune_claws]
+table=smithing
+data=ifproduct,rune_claws
+data=product,rune_claws
+data=product_amount,1
+data=levelrequired,98
+data=end_message,some claws
+data=levelfailmessage,some rune claws
+data=bar,runite_bar
+data=bar_amount,2
+

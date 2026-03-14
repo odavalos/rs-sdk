@@ -131,10 +131,13 @@ if (.finduid(%duel2accept) = true & ~enough_duel_space = true) { // https://yout
         if_settext(duel_confirm:status, "");
         .if_settext(duel_confirm:status, "");
 
+        ~update_duel_confirm_rules;
+        ~.update_duel_confirm_rules;
+
         %duelstatus = ^duelstatus_accept;
         .%duelstatus = ^duelstatus_accept;
     } else {
-        .if_settext(duel_select_type:status, "Other player has accepted...");
+        .if_settext(duel_select_type:status, "Other player has accepted.");
         if_settext(duel_select_type:status, "Waiting for other player...");
     }
 }
@@ -203,7 +206,7 @@ if (.finduid(%duel2accept) = true) {
         .queue(duel_arena_prepare_start, 0, 0);
     } else {
         .if_settext(duel_confirm:status, "Other player has accepted."); // https://youtu.be/HFp6hOkiCns?t=481
-        if_settext(duel_confirm:status, "Waiting for other player."); 
+        if_settext(duel_confirm:status, "Waiting for other player..."); 
     }
 }
 
@@ -271,7 +274,6 @@ if (.finduid(%duel2accept) = true) {
     .if_settext(duel_select_type:status, "");
 }
 
-// ---
 
 [proc,duel_arena_checks]()(boolean)
 if (~inzone_coord_pair_table(duel_arena_zones, coord) = true & ~in_duel_arena(coord) = false) {
@@ -324,3 +326,475 @@ if (.finduid(%duel2accept) = true) {
 ~moveallinv(dueloffer, inv);
 ~duel_reset_all;
 mes("Your opponent timed out, there was no winner!"); // https://storage.googleapis.com/tannerdino/images/00timeout.jpg
+
+[proc,in_duel_arena_challenge_area]()(boolean)
+if (~inzone_coord_pair_table(duel_arena_zones, coord) = true & ~in_duel_arena(coord) = false) {
+    return(true);
+}
+return(false);
+
+[queue,check_duel_arena_challenge_area]
+if( ~in_duel_arena_challenge_area = true) {
+    ~toggle_duel_challenge_on;
+} else {
+    ~toggle_duel_challenge_off;
+}
+
+[proc,toggle_duel_challenge_on]
+if_openoverlay(overlay_duel);
+set_player_op("Challenge", 1, ^false);
+set_player_op(null, 2, ^false);
+
+[proc,toggle_duel_challenge_off]
+if_openoverlay(null);
+set_player_op(null, 1, ^false);
+
+// Messages are taken from a variety of old sources and are always in the same order
+// https://imgur.com/ETH1z4L
+// https://youtu.be/1H3z0Qj7rKE?si=_CGn8vmULeJdKQ3B&t=102
+[proc,update_duel_confirm_rules]
+// defaults
+if_settext(duel_confirm:before_rule_line1, "Nothing will be changed.");
+if_settext(duel_confirm:before_rule_line2, "");
+if_settext(duel_confirm:before_rule_line3, "");
+if_settext(duel_confirm:before_rule_line4, "");
+if_settext(duel_confirm:before_rule_line5, "");
+
+if_settext(duel_confirm:during_rule_line1, "You will fight using normal combat.");
+if_settext(duel_confirm:during_rule_line2, "");
+if_settext(duel_confirm:during_rule_line3, "");
+if_settext(duel_confirm:during_rule_line4, "");
+if_settext(duel_confirm:during_rule_line5, "");
+if_settext(duel_confirm:during_rule_line6, "");
+if_settext(duel_confirm:during_rule_line7, "");
+if_settext(duel_confirm:during_rule_line8, "");
+if_settext(duel_confirm:during_rule_line9, "");
+if_settext(duel_confirm:during_rule_line10, "");
+if_settext(duel_confirm:during_rule_line11, "");
+
+def_int $i = 0;
+def_int $current_before_rule_line = 0;
+def_int $current_during_rule_line = 0;
+def_int $dueloptions_bit_count = 13;
+def_string $text = "";
+
+if (testbit(%dueloptions, ^no_weapons) = ^true | testbit(%dueloptions, ^no_armour) = ^true | testbit(%dueloptions, ^no_jewelry) = ^true) {
+    $text = "Some worn items will be taken off.";
+    if_settext(~get_before_duel_rule_com($current_before_rule_line), $text);
+    $current_before_rule_line = add($current_before_rule_line, 1);
+}
+
+while ($i <=  $dueloptions_bit_count) {
+        //Spec message shows up after no magic mes in all the old sources
+    if ($i = 7 & testbit(%dueloptions, ^no_specs) = ^true) {
+        $text = "You can not use special attacks."; 
+        if_settext(~get_during_duel_rule_com($current_during_rule_line), $text);
+        $current_during_rule_line = add($current_during_rule_line, 1);
+    }
+    if (testbit(%dueloptions, $i) = ^true) {
+        $text = ~is_before_duel_rule($i);
+        if (string_length($text) > 0) {
+            if_settext(~get_before_duel_rule_com($current_before_rule_line), $text);
+            $current_before_rule_line = add($current_before_rule_line, 1);
+        }
+
+        $text = ~is_during_duel_rule($i);
+        if (string_length($text) > 0) {
+            if_settext(~get_during_duel_rule_com($current_during_rule_line), $text);
+            $current_during_rule_line = add($current_during_rule_line, 1);
+        }
+    }
+    $i = add($i, 1);
+}
+
+[proc,.update_duel_confirm_rules]
+// defaults
+.if_settext(duel_confirm:before_rule_line1, "Nothing will be changed.");
+.if_settext(duel_confirm:before_rule_line2, "");
+.if_settext(duel_confirm:before_rule_line3, "");
+.if_settext(duel_confirm:before_rule_line4, "");
+.if_settext(duel_confirm:before_rule_line5, "");
+
+.if_settext(duel_confirm:during_rule_line1, "You will fight using normal combat.");
+.if_settext(duel_confirm:during_rule_line2, "");
+.if_settext(duel_confirm:during_rule_line3, "");
+.if_settext(duel_confirm:during_rule_line4, "");
+.if_settext(duel_confirm:during_rule_line5, "");
+.if_settext(duel_confirm:during_rule_line6, "");
+.if_settext(duel_confirm:during_rule_line7, "");
+.if_settext(duel_confirm:during_rule_line8, "");
+.if_settext(duel_confirm:during_rule_line9, "");
+.if_settext(duel_confirm:during_rule_line10, "");
+.if_settext(duel_confirm:during_rule_line11, "");
+
+def_int $i = 0;
+def_int $current_before_rule_line = 0;
+def_int $current_during_rule_line = 0;
+def_int $dueloptions_bit_count = 13;
+def_string $text = "";
+
+if (testbit(%dueloptions, ^no_weapons) = ^true | testbit(%dueloptions, ^no_armour) = ^true | testbit(%dueloptions, ^no_jewelry) = ^true) {
+    $text = "Some worn items will be taken off.";
+    .if_settext(~get_before_duel_rule_com($current_before_rule_line), $text);
+    $current_before_rule_line = add($current_before_rule_line, 1);
+}
+
+while ($i <=  $dueloptions_bit_count) {
+    //Spec message shows up after no magic mes in all the old sources
+    if ($i = 7 & testbit(%dueloptions, ^no_specs) = ^true) {
+        $text = "You can not use special attacks."; 
+        .if_settext(~get_during_duel_rule_com($current_during_rule_line), $text);
+        $current_during_rule_line = add($current_during_rule_line, 1);
+    }
+
+    if (testbit(%dueloptions, $i) = ^true) {
+        $text = ~is_before_duel_rule($i);
+        if (string_length($text) > 0) {
+            .if_settext(~get_before_duel_rule_com($current_before_rule_line), $text);
+            $current_before_rule_line = add($current_before_rule_line, 1);
+        }
+
+        $text = ~is_during_duel_rule($i);
+        if (string_length($text) > 0) {
+            .if_settext(~get_during_duel_rule_com($current_during_rule_line), $text);
+            $current_during_rule_line = add($current_during_rule_line, 1);
+        }
+    }
+    $i = add($i, 1);
+}
+
+[proc,is_before_duel_rule](int $value)(string)
+switch_int($value) {
+    case ^no_potions : return("Boosted stats will be restored.");
+    case ^no_prayer : return("Existing prayers will be stopped.");
+    case default : return("");
+}
+
+[proc,is_during_duel_rule](int $value)(string)
+switch_int($value) {
+    case ^no_forfeit : return("You can not forfeit the duel.");
+    case ^no_movement : return("You can not move.");
+    case ^no_ranged : return("You can not use ranged attacks.");
+    case ^no_melee : return("You can not use melee attacks.");
+    case ^no_magic : return("You can not use magic attacks.");
+    case ^no_potions : return("You can not use drinks.");
+    case ^no_food : return("You can not use food.");
+    case ^no_prayer : return("You can not use prayer.");
+    case ^flower_power : return("You can only use flowers."); //Guess. Changed to fun weapons later.
+    case ^obstacles : return("There will be obstacles in the arena.");
+    case default : return("");
+}
+
+[proc,get_before_duel_rule_com](int $value)(component)
+switch_int($value) {
+    case 0 : return(duel_confirm:before_rule_line1);
+    case 1 : return(duel_confirm:before_rule_line2);
+    case 2 : return(duel_confirm:before_rule_line3);
+    case 3 : return(duel_confirm:before_rule_line4);
+    case 4 : return(duel_confirm:before_rule_line5);
+}
+
+[proc,get_during_duel_rule_com](int $value)(component)
+switch_int($value) {
+    case 0 : return(duel_confirm:during_rule_line1);
+    case 1 : return(duel_confirm:during_rule_line2);
+    case 2 : return(duel_confirm:during_rule_line3);
+    case 3 : return(duel_confirm:during_rule_line4);
+    case 4 : return(duel_confirm:during_rule_line5);
+    case 5 : return(duel_confirm:during_rule_line6);
+    case 6 : return(duel_confirm:during_rule_line7);
+    case 7 : return(duel_confirm:during_rule_line8);
+    case 8 : return(duel_confirm:during_rule_line9);
+    case 9 : return(duel_confirm:during_rule_line10);
+    case 10 : return(duel_confirm:during_rule_line11);
+}
+
+[zone,0_52_51_0_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_0_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_0_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_0_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_0_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_0_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_0_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_0_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_8_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_8_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_8_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_8_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_8_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_8_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_8_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_8_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_16_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_16_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_16_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_16_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_16_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_16_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_16_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_16_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_24_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_24_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_24_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_24_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_24_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_24_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_24_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_24_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_32_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_32_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_32_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_32_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_32_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_32_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_32_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_32_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_40_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_40_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_40_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_40_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_40_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_40_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_40_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_40_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_48_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_48_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_48_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_48_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_48_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_48_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_48_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_48_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_56_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_56_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_56_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_56_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_56_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_56_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_56_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_51_56_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_0_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_0_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_0_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_0_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_0_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_0_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_0_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_0_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_8_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_8_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_8_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_8_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_8_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_8_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_8_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_8_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_16_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_16_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_16_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_16_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_16_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_16_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_16_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_16_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_24_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_24_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_24_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_24_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_24_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_24_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_24_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_24_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_32_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_32_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_32_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_32_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_32_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_32_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_32_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_32_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_40_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_40_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_40_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_40_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_40_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_40_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_40_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_40_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_48_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_48_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_48_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_48_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_48_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_48_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_48_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_48_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_56_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_56_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_56_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_56_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_56_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_56_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_56_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_52_50_56_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_53_50_0_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_53_50_0_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_53_50_0_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_53_50_0_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_53_50_0_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_53_50_0_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_53_50_0_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_53_50_0_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_53_51_0_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_53_51_0_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_53_51_0_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_53_51_0_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_53_51_0_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_53_51_0_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_53_51_0_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zone,0_53_51_0_56] queue(check_duel_arena_challenge_area, 0, 0);
+
+[zoneexit,0_52_51_0_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_0_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_0_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_0_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_0_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_0_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_0_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_0_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_8_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_8_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_8_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_8_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_8_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_8_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_8_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_8_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_16_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_16_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_16_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_16_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_16_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_16_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_16_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_16_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_24_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_24_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_24_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_24_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_24_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_24_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_24_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_24_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_32_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_32_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_32_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_32_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_32_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_32_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_32_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_32_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_40_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_40_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_40_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_40_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_40_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_40_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_40_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_40_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_48_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_48_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_48_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_48_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_48_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_48_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_48_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_48_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_56_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_56_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_56_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_56_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_56_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_56_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_56_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_51_56_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_0_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_0_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_0_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_0_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_0_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_0_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_0_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_0_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_8_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_8_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_8_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_8_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_8_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_8_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_8_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_8_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_16_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_16_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_16_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_16_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_16_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_16_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_16_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_16_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_24_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_24_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_24_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_24_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_24_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_24_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_24_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_24_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_32_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_32_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_32_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_32_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_32_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_32_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_32_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_32_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_40_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_40_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_40_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_40_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_40_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_40_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_40_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_40_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_48_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_48_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_48_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_48_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_48_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_48_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_48_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_48_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_56_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_56_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_56_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_56_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_56_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_56_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_56_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_52_50_56_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_53_50_0_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_53_50_0_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_53_50_0_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_53_50_0_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_53_50_0_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_53_50_0_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_53_50_0_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_53_50_0_56] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_53_51_0_0] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_53_51_0_8] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_53_51_0_16] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_53_51_0_24] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_53_51_0_32] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_53_51_0_40] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_53_51_0_48] queue(check_duel_arena_challenge_area, 0, 0);
+[zoneexit,0_53_51_0_56] queue(check_duel_arena_challenge_area, 0, 0);

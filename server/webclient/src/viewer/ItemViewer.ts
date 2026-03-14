@@ -17,7 +17,7 @@
  */
 
 import Pix2D from '#/graphics/Pix2D.js';
-import Pix3D from '#/graphics/Pix3D.js';
+import Pix3D from '#/dash3d/Pix3D.js';
 import Pix32 from '#/graphics/Pix32.js';
 import PixMap from '#/graphics/PixMap.js';
 
@@ -27,7 +27,7 @@ import ObjType from '#/config/ObjType.js';
 import IdkType from '#/config/IdkType.js';
 import NpcType from '#/config/NpcType.js';
 import SeqType from '#/config/SeqType.js';
-import SpotAnimType from '#/config/SpotAnimType.js';
+import SpotType from '#/config/SpotType.js';
 import FloType from '#/config/FloType.js';
 import LocType from '#/config/LocType.js';
 
@@ -41,7 +41,7 @@ import { canvas } from '#/graphics/Canvas.js';
 
 import { downloadUrl } from '#/util/JsUtil.js';
 
-import { gunzipSync, unzipSync } from '#3rdparty/deps.js';
+import { gunzipSync, unzipSync } from 'fflate';
 
 /**
  * A no-op OnDemandProvider that never fetches — all models must be pre-loaded.
@@ -101,7 +101,7 @@ export class ItemViewer {
 
         // Set up canvas drawing area
         this.drawArea = new PixMap(canvas.width, canvas.height);
-        Pix3D.init2D();
+        Pix3D.setRenderClipping();
 
         // Unpack textures (needed for textured model faces)
         Pix3D.unpackTextures(jagTextures);
@@ -110,13 +110,13 @@ export class ItemViewer {
         Pix3D.initColourTable(0.8);
 
         // Unpack config data
-        SeqType.unpack(jagConfig);
-        LocType.unpack(jagConfig);
-        FloType.unpack(jagConfig);
-        ObjType.unpack(jagConfig, true);
-        NpcType.unpack(jagConfig);
-        IdkType.unpack(jagConfig);
-        SpotAnimType.unpack(jagConfig);
+        SeqType.init(jagConfig);
+        LocType.init(jagConfig);
+        FloType.init(jagConfig);
+        ObjType.init(jagConfig, true);
+        NpcType.init(jagConfig);
+        IdkType.init(jagConfig);
+        SpotType.init(jagConfig);
 
         // Pre-load model data from ondemand.zip
         await this.preloadModels(serverBase);
@@ -149,7 +149,8 @@ export class ItemViewer {
             const archive = archivePlusOne - 1;
 
             // Strip 2-byte version trailer and decompress
-            const decompressed = gunzipSync(entryData.slice(0, entryData.length - 2));
+            const entry = entryData as Uint8Array;
+            const decompressed = gunzipSync(entry.slice(0, entry.length - 2));
 
             if (archive === 0) {
                 Model.unpack(file, decompressed);
@@ -172,7 +173,7 @@ export class ItemViewer {
             throw new Error('ItemViewer not initialized. Call init() first.');
         }
 
-        return ObjType.getIcon(itemId, count, outlineRgb);
+        return ObjType.getSprite(itemId, count, outlineRgb);
     }
 
     /**
@@ -193,15 +194,15 @@ export class ItemViewer {
             throw new Error('ItemViewer not initialized. Call init() first.');
         }
 
-        this.drawArea.bind();
-        Pix2D.clear();
+        this.drawArea.setPixels();
+        Pix2D.cls();
 
         const rows = Math.ceil(itemIds.length / columns);
         for (let i = 0; i < itemIds.length; i++) {
             const col = i % columns;
             const row = (i / columns) | 0;
 
-            const icon = ObjType.getIcon(itemIds[i], 1, 0);
+            const icon = ObjType.getSprite(itemIds[i], 1, 0);
             if (icon) {
                 // Draw icon to current Pix2D buffer at grid position
                 const x = col * iconSize;
@@ -209,12 +210,12 @@ export class ItemViewer {
 
                 for (let py = 0; py < 32; py++) {
                     for (let px = 0; px < 32; px++) {
-                        const pixel = icon.pixels[px + py * 32];
+                        const pixel = icon.data[px + py * 32];
                         if (pixel !== 0) {
                             const destX = x + px;
                             const destY = y + py;
-                            if (destX >= 0 && destX < Pix2D.width2d && destY >= 0 && destY < Pix2D.height2d) {
-                                Pix2D.pixels[destX + destY * Pix2D.width2d] = pixel;
+                            if (destX >= 0 && destX < Pix2D.width && destY >= 0 && destY < Pix2D.height) {
+                                Pix2D.pixels[destX + destY * Pix2D.width] = pixel;
                             }
                         }
                     }
@@ -229,21 +230,21 @@ export class ItemViewer {
      * Get item name by ID.
      */
     getItemName(itemId: number): string | null {
-        return ObjType.get(itemId).name;
+        return ObjType.list(itemId).name;
     }
 
     /**
      * Check if an item is a noted (certificate) variant.
      */
     isNoted(itemId: number): boolean {
-        return ObjType.get(itemId).certtemplate !== -1;
+        return ObjType.list(itemId).certtemplate !== -1;
     }
 
     /**
      * Get total number of items.
      */
     getItemCount(): number {
-        return ObjType.count;
+        return ObjType.numDefinitions;
     }
 
     /**
@@ -252,8 +253,8 @@ export class ItemViewer {
     private pix32ToImageData(pix: Pix32): ImageData {
         const imageData = new ImageData(32, 32);
         const data = new Uint32Array(imageData.data.buffer);
-        for (let i = 0; i < pix.pixels.length; i++) {
-            const pixel = pix.pixels[i];
+        for (let i = 0; i < pix.data.length; i++) {
+            const pixel = pix.data[i];
             if (pixel === 0) {
                 data[i] = 0; // transparent
             } else {

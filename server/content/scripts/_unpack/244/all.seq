@@ -581,7 +581,8 @@ frame30=anim_6249
 frame31=anim_6251
 frame32=anim_6253
 
-[seq_1067]
+// guessed name, osrs is d_claws_punch
+[claws_punch]
 stretches=true
 frame1=anim_4921
 frame2=anim_4923

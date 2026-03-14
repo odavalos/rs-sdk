@@ -531,9 +531,9 @@ export default abstract class PathingEntity extends Entity {
         this.focus(CoordGrid.fine(target.x, target.width), CoordGrid.fine(target.z, target.length), target instanceof NonPathingEntity && interaction === Interaction.ENGINE);
 
         if (target instanceof Player) {
-            const pid: number = target.pid + 32768;
-            if (this.faceEntity !== pid) {
-                this.faceEntity = pid;
+            const playerSlot: number = target.slot + 32768;
+            if (this.faceEntity !== playerSlot) {
+                this.faceEntity = playerSlot;
                 this.masks |= this.entitymask;
             }
         } else if (target instanceof Npc) {
@@ -654,7 +654,7 @@ export default abstract class PathingEntity extends Entity {
             if (canTravel(this.level, srcX, srcZ, 0, CoordGrid.deltaZ(tryDirZ), this.width, extraFlag, collisionStrategy)) {
                 return tryDirZ;
             }
-            return -1;
+            return null;
         }
 
         const dir: number = CoordGrid.face(srcX, srcZ, x, z);

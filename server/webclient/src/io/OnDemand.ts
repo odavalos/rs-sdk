@@ -1,14 +1,18 @@
+import type { Unzipped } from 'fflate';
+import { gunzipSync, unzipSync } from 'fflate';
+
 import type { Client } from '#/client/Client.js';
-import DoublyLinkList from '#/datastruct/DoublyLinkList.js';
+
+import LinkList2 from '#/datastruct/LinkList2.js';
 import LinkList from '#/datastruct/LinkList.js';
+
 import ClientStream from '#/io/ClientStream.js';
 import type Jagfile from '#/io/Jagfile.js';
 import OnDemandProvider from '#/io/OnDemandProvider.js';
 import OnDemandRequest from '#/io/OnDemandRequest.js';
 import Packet from '#/io/Packet.js';
-import { downloadUrl, sleep } from '#/util/JsUtil';
-import { gunzipSync, unzipSync } from '#3rdparty/deps.js';
-import type { Unzipped } from 'fflate';
+
+import { downloadUrl, sleep } from '#/util/JsUtil.js';
 
 export default class OnDemand extends OnDemandProvider {
     modernized: boolean = true;
@@ -18,24 +22,24 @@ export default class OnDemand extends OnDemandProvider {
     crcs: number[][] = [];
     priorities: number[][] = [];
     topPriority: number = 0;
-    models: number[] = [];
+    modelUse: number[] = [];
     mapIndex: number[] = [];
     mapLand: number[] = [];
     mapLoc: number[] = [];
     mapMembers: number[] = [];
-    animIndex: number[] = [];
-    midiIndex: number[] = [];
+    animFrameIndex: number[] = [];
+    midiJingle: number[] = [];
     running: boolean = true;
     app: Client;
     active: boolean = false;
     importantCount: number = 0;
     requestCount: number = 0;
-    requests: DoublyLinkList = new DoublyLinkList();
-    queue: LinkList = new LinkList();
-    missing: LinkList = new LinkList();
-    pending: LinkList = new LinkList();
-    completed: LinkList = new LinkList();
-    prefetches: LinkList = new LinkList();
+    requests: LinkList2<OnDemandRequest> = new LinkList2();
+    queue: LinkList<OnDemandRequest> = new LinkList();
+    missing: LinkList<OnDemandRequest> = new LinkList();
+    pending: LinkList<OnDemandRequest> = new LinkList();
+    completed: LinkList<OnDemandRequest> = new LinkList();
+    prefetches: LinkList<OnDemandRequest> = new LinkList();
     message: string = '';
     buf: Uint8Array = new Uint8Array(500);
     data: Uint8Array = new Uint8Array(65000);
@@ -43,8 +47,8 @@ export default class OnDemand extends OnDemandProvider {
     totalPrefetchFiles: number = 0;
     partOffset: number = 0;
     partAvailable: number = 0;
-    waitCycles: number = 0;
-    heartbeatCycle: number = 0;
+    packetCycle: number = 0;
+    noTimeoutCycle: number = 0;
     cycle: number = 0;
     socketOpenTime: number = 0;
     current: OnDemandRequest | null = null;
@@ -91,13 +95,13 @@ export default class OnDemand extends OnDemandProvider {
         let data = versionlist.read('model_index');
         if (data) {
             const count = this.versions[0].length;
-            this.models = new Array(count);
+            this.modelUse = new Array(count);
 
             for (let i = 0; i < count; i++) {
                 if (i < data.length) {
-                    this.models[i] = data[i];
+                    this.modelUse[i] = data[i];
                 } else {
-                    this.models[i] = 0;
+                    this.modelUse[i] = 0;
                 }
             }
         }
@@ -125,9 +129,9 @@ export default class OnDemand extends OnDemandProvider {
             const count = data.length / 2;
             const buf = new Packet(data);
 
-            this.animIndex = new Array(count);
+            this.animFrameIndex = new Array(count);
             for (let i = 0; i < count; i++) {
-                this.animIndex[i] = buf.g2();
+                this.animFrameIndex[i] = buf.g2();
             }
         }
 
@@ -136,9 +140,9 @@ export default class OnDemand extends OnDemandProvider {
             const count = data.length;
             const buf = new Packet(data);
 
-            this.midiIndex = new Array(count);
+            this.midiJingle = new Array(count);
             for (let i = 0; i < count; i++) {
-                this.midiIndex[i] = buf.g1();
+                this.midiJingle[i] = buf.g1();
             }
         }
 
@@ -154,8 +158,8 @@ export default class OnDemand extends OnDemandProvider {
         return this.versions[archive].length;
     }
 
-    getAnimCount() {
-        return this.animIndex.length;
+    getAnimFrameCount() {
+        return this.animFrameIndex.length;
     }
 
     getMapFile(x: number, z: number, type: number) {
@@ -177,7 +181,7 @@ export default class OnDemand extends OnDemandProvider {
     async prefetchMaps(members: boolean) {
         const count = this.mapIndex.length;
         for (let i = 0; i < count; i++) {
-            if (members || this.mapMembers[i] != 0) {
+            if (members || this.mapMembers[i] !== 0) {
                 await this.prefetchPriority(3, this.mapLoc[i], 2);
                 await this.prefetchPriority(3, this.mapLand[i], 2);
             }
@@ -194,12 +198,12 @@ export default class OnDemand extends OnDemandProvider {
         return false;
     }
 
-    getModelFlags(id: number) {
-        return this.models[id] & 0xFF;
+    getModelUse(id: number) {
+        return this.modelUse[id] & 0xFF;
     }
 
-    shouldPrefetchMidi(id: number) {
-        return this.midiIndex[id] === 1;
+    isMidiJingle(id: number) {
+        return this.midiJingle[id] === 1;
     }
 
     requestModel(id: number) {
@@ -207,12 +211,12 @@ export default class OnDemand extends OnDemandProvider {
     }
 
     request(archive: number, file: number) {
-        if (archive < 0 || archive > this.versions.length || file < 0 || file > this.versions[archive].length || this.versions[archive][file] == 0) {
+        if (archive < 0 || archive > this.versions.length || file < 0 || file > this.versions[archive].length || this.versions[archive][file] === 0) {
             return;
         }
 
-        for (let req = this.requests.head() as OnDemandRequest | null; req !== null; req = this.requests.next() as OnDemandRequest | null) {
-            if (req.archive == archive && req.file == file) {
+        for (let req = this.requests.head(); req !== null; req = this.requests.next()) {
+            if (req.archive === archive && req.file === file) {
                 return;
             }
         }
@@ -231,7 +235,7 @@ export default class OnDemand extends OnDemandProvider {
     }
 
     loop(): OnDemandRequest | null {
-        const req = this.completed.pop() as OnDemandRequest | null;
+        const req = this.completed.popFront();
         if (req === null) {
             return null;
         }
@@ -243,7 +247,6 @@ export default class OnDemand extends OnDemandProvider {
         }
 
         req.data = gunzipSync(req.data.slice(0, req.data.length - 2));
-
         return req;
     }
 
@@ -307,34 +310,34 @@ export default class OnDemand extends OnDemandProvider {
 
         let loading = false;
 
-        for (let req = this.pending.head() as OnDemandRequest | null; req !== null; req = this.pending.next() as OnDemandRequest | null) {
+        for (let req = this.pending.head(); req !== null; req = this.pending.next()) {
             if (req.urgent) {
                 loading = true;
                 req.cycle++;
 
                 if (req.cycle > 50) {
                     req.cycle = 0;
-                    this.send(req);
+                    await this.send(req);
                 }
             }
         }
 
         if (!loading) {
-            for (let req = this.pending.head() as OnDemandRequest | null; req !== null; req = this.pending.next() as OnDemandRequest | null) {
+            for (let req = this.pending.head(); req !== null; req = this.pending.next()) {
                 loading = true;
                 req.cycle++;
 
                 if (req.cycle > 50) {
                     req.cycle = 0;
-                    this.send(req);
+                    await this.send(req);
                 }
             }
         }
 
         if (loading) {
-            this.waitCycles++;
+            this.packetCycle++;
 
-            if (this.waitCycles > 750) {
+            if (this.packetCycle > 750) {
                 if (this.stream) {
                     this.stream.close();
                     this.stream = null;
@@ -343,15 +346,15 @@ export default class OnDemand extends OnDemandProvider {
                 this.partAvailable = 0;
             }
         } else {
-            this.waitCycles = 0;
+            this.packetCycle = 0;
             this.message = '';
         }
 
         if (this.app.ingame && this.stream && (this.topPriority > 0 || !this.app.db)) {
-            this.heartbeatCycle++;
+            this.noTimeoutCycle++;
 
-            if (this.heartbeatCycle > 500) {
-                this.heartbeatCycle = 0;
+            if (this.noTimeoutCycle > 500) {
+                this.noTimeoutCycle = 0;
 
                 this.buf[0] = 0;
                 this.buf[1] = 0;
@@ -364,7 +367,7 @@ export default class OnDemand extends OnDemandProvider {
     }
 
     async handleQueue() {
-        let req = this.queue.pop() as OnDemandRequest | null;
+        let req = this.queue.popFront();
 
         while (req !== null) {
             this.active = true;
@@ -385,7 +388,7 @@ export default class OnDemand extends OnDemandProvider {
                 this.completed.push(req);
             }
 
-            req = this.queue.pop() as OnDemandRequest | null;
+            req = this.queue.popFront();
         }
     }
 
@@ -393,7 +396,7 @@ export default class OnDemand extends OnDemandProvider {
         this.importantCount = 0;
         this.requestCount = 0;
 
-        for (let req = this.pending.head() as OnDemandRequest | null; req !== null; req = this.pending.next() as OnDemandRequest | null) {
+        for (let req = this.pending.head(); req !== null; req = this.pending.next()) {
             if (req.urgent) {
                 this.importantCount++;
             } else {
@@ -402,7 +405,7 @@ export default class OnDemand extends OnDemandProvider {
         }
 
         while (this.importantCount < 10) {
-            const req = this.missing.pop() as OnDemandRequest | null;
+            const req = this.missing.popFront();
             if (req === null) {
                 break;
             }
@@ -425,9 +428,9 @@ export default class OnDemand extends OnDemandProvider {
                 return;
             }
 
-            let extra = this.prefetches.pop() as OnDemandRequest | null;
+            let extra = this.prefetches.popFront();
             while (extra !== null) {
-                if (this.priorities[extra.archive][extra.file] != 0) {
+                if (this.priorities[extra.archive][extra.file] !== 0) {
                     this.priorities[extra.archive][extra.file] = 0;
                     this.pending.push(extra);
                     await this.send(extra);
@@ -440,12 +443,12 @@ export default class OnDemand extends OnDemandProvider {
                     this.message = 'Loading extra files - ' + ((this.loadedPrefetchFiles * 100 / this.totalPrefetchFiles) | 0) + '%';
                     this.requestCount++;
 
-                    if (this.requestCount == 10) {
+                    if (this.requestCount === 10) {
                         return;
                     }
                 }
 
-                extra = this.prefetches.pop() as OnDemandRequest | null;
+                extra = this.prefetches.popFront();
             }
 
             for (let archive = 0; archive < 4; archive++) {
@@ -453,7 +456,7 @@ export default class OnDemand extends OnDemandProvider {
                 const count = priorities.length;
 
                 for (let i = 0; i < count; i++) {
-                    if (priorities[i] == this.topPriority) {
+                    if (priorities[i] === this.topPriority) {
                         priorities[i] = 0;
 
                         const req = new OnDemandRequest();
@@ -471,7 +474,7 @@ export default class OnDemand extends OnDemandProvider {
                         this.message = 'Loading extra files - ' + ((this.loadedPrefetchFiles * 100 / this.totalPrefetchFiles) | 0) + '%';
                         this.requestCount++;
 
-                        if (this.requestCount == 10) {
+                        if (this.requestCount === 10) {
                             return;
                         }
                     }
@@ -484,7 +487,7 @@ export default class OnDemand extends OnDemandProvider {
 
     async read() {
         if (this.modernized) {
-            for (let req = this.pending.head() as OnDemandRequest | null; req !== null; req = this.pending.next() as OnDemandRequest | null) {
+            for (let req = this.pending.head(); req !== null; req = this.pending.next()) {
                 this.current = req;
                 break;
             }
@@ -540,18 +543,18 @@ export default class OnDemand extends OnDemandProvider {
 
                     this.current = null;
 
-                    for (let req = this.pending.head() as OnDemandRequest | null; req !== null; req = this.pending.next() as OnDemandRequest | null) {
-                        if (req.archive == archive && req.file == file) {
+                    for (let req = this.pending.head(); req !== null; req = this.pending.next()) {
+                        if (req.archive === archive && req.file === file) {
                             this.current = req;
                         }
 
-                        if (this.current != null) {
+                        if (this.current !== null) {
                             req.cycle = 0;
                         }
                     }
 
                     if (this.current) {
-                        this.waitCycles = 0;
+                        this.packetCycle = 0;
 
                         if (size === 0) {
                             console.error('rej: ' + archive + ',' + file);
@@ -570,7 +573,7 @@ export default class OnDemand extends OnDemandProvider {
                                 this.current.data = new Uint8Array(size);
                             }
 
-                            if (this.current.data === null && part != 0) {
+                            if (this.current.data === null && part !== 0) {
                                 console.error('missing start of file');
                                 throw new Error();
                             }
@@ -600,7 +603,7 @@ export default class OnDemand extends OnDemandProvider {
 
                     if (this.partAvailable + this.partOffset >= dst.length && this.current) {
                         if (this.app.db) {
-                            this.app.db.write(this.current.archive + 1, this.current.file, dst);
+                            await this.app.db.write(this.current.archive + 1, this.current.file, dst);
                         }
 
                         if (!this.current.urgent && this.current.archive === 3) {
@@ -617,8 +620,8 @@ export default class OnDemand extends OnDemandProvider {
 
                     this.partAvailable = 0;
                 }
-            } catch (err) {
-                console.error(err);
+            } catch (e) {
+                console.error(e);
 
                 if (this.stream) {
                     this.stream.close();
@@ -666,7 +669,7 @@ export default class OnDemand extends OnDemandProvider {
                     await this.stream.read();
                 }
 
-                this.waitCycles = 0;
+                this.packetCycle = 0;
             }
 
             this.buf[0] = req.archive;
@@ -682,9 +685,9 @@ export default class OnDemand extends OnDemandProvider {
             }
 
             this.stream.write(this.buf, 4);
-            this.heartbeatCycle = 0;
-        } catch (err) {
-            console.error(err);
+            this.noTimeoutCycle = 0;
+        } catch (e) {
+            console.error(e);
 
             this.stream = null;
             this.partAvailable = 0;
@@ -745,8 +748,8 @@ export default class OnDemand extends OnDemandProvider {
                 }
 
                 success = true;
-            } catch (err) {
-                console.error(err);
+            } catch (e) {
+                console.error(e);
             }
         }
     }

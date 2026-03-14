@@ -72,6 +72,9 @@ while ($i < db_getfieldcount($effect_data, consume_table:stat_heal)) {
     stat_heal(db_getfield($effect_data, consume_table:stat_heal, $i));
     $i = calc($i + 1);
 }
+if (db_getfieldcount($effect_data, consume_table:healenergy) > 0) {
+    healenergy(db_getfield($effect_data, consume_table:healenergy, 0));
+}
 
 // start sound
 ~consume_effect_sound(db_getfield($effect_data, consume_table:consume_sound, 0));

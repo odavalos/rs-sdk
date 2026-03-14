@@ -32,7 +32,7 @@
 31=rotten_splash
 32=dwarf_stone_throw_travel
 33=dwarf_stone_throw_launch
-34=spotanim_34
+34=black_dart_travel
 35=iron_taxe_travel
 36=bronze_taxe_travel
 37=steel_taxe_travel
@@ -268,3 +268,15 @@
 267=mortmyre_swampstench
 268=druid_shooting_star
 269=druidpouch_impact
+270=bullettime_dart
+271=agilityarena_roofcollapse
+272=priestperil_coffin_spell
+273=black_dart_launch
+274=sp_attack_impale_spotanim
+275=troll_rock_launch
+276=troll_rock_travel
+277=troll_zeds
+278=kalphite_glow
+279=kalphite_queen_glow
+280=kalphite_glow_travel
+281=kalphite_glow_impact

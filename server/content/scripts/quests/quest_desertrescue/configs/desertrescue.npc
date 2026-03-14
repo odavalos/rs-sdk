@@ -123,7 +123,7 @@ walkanim=human_walk_f,human_walk_b,human_walk_l,human_walk_r
 readyanim=human_ready
 op1=Talk-to
 op2=Attack
-vislevel=15
+vislevel=10
 recol1s=2340
 recol1d=14724
 recol2s=6144
@@ -166,7 +166,7 @@ walkanim=human_walk_f,human_walk_b,human_walk_l,human_walk_r
 readyanim=human_ready
 op1=Talk-to
 op2=Attack
-vislevel=40
+vislevel=45
 recol1s=2340
 recol1d=25313
 recol2s=14724
@@ -207,8 +207,11 @@ param=damagetype,^slash_style
 param=attack_anim,human_sword_slash
 param=defend_anim,human_sword_def
 param=attack_sound,hacksword_slash
+// param=defend_sound, TODO
+// osrs defend_sound blade2_mail
 // Stats match osrs version but our version Vislvl is different.
 // desertminingcamp guards,mercenarys,mercenary captain,rowdy guards share same seqs + param stats.
+// https://raw.githubusercontent.com/Joshua-F/osrs-dumps/refs/heads/master/config/dump.npc npc_4665
 
 [desertminingmercenary2]
 name=Mercenary
@@ -217,7 +220,7 @@ walkanim=human_walk_f,human_walk_b,human_walk_l,human_walk_r
 readyanim=human_ready
 op1=Talk-to
 op2=Attack
-vislevel=40
+vislevel=45
 recol1s=2340
 recol1d=25313
 recol2s=14724
@@ -258,8 +261,11 @@ param=damagetype,^slash_style
 param=attack_anim,human_sword_slash
 param=defend_anim,human_sword_def
 param=attack_sound,hacksword_slash
+// param=defend_sound, TODO
+// osrs defend_sound blade2_mail
 // Stats match osrs version but our version Vislvl is different.
 // desertminingcamp guards,mercenarys,mercenary captain,rowdy guards share same seqs + param stats.
+// https://raw.githubusercontent.com/Joshua-F/osrs-dumps/refs/heads/master/config/dump.npc npc_4669
 
 [desertminingcaptain]
 name=Mercenary Captain
@@ -269,7 +275,7 @@ readyanim=human_ready
 op1=Talk-to
 op2=Attack
 op3=Watch
-vislevel=53
+vislevel=47
 recol1s=2340
 recol1d=25313
 recol2s=14724
@@ -314,6 +320,8 @@ param=damagetype,^slash_style
 param=attack_anim,human_sword_slash
 param=defend_anim,human_sword_def
 param=attack_sound,hacksword_slash
+// param=defend_sound, TODO
+// osrs defend_sound blade2_mail
 // Stats match osrs version but our version Vislvl is different.
 // desertminingcamp guards,mercenarys,mercenary captain,rowdy guards share same seqs + param stats.
 // https://raw.githubusercontent.com/Joshua-F/osrs-dumps/refs/heads/master/config/dump.npc npc_4635
@@ -383,7 +391,7 @@ walkanim=human_walk_f,human_walk_b,human_walk_l,human_walk_r
 readyanim=human_ready
 op1=Talk-to
 op2=Attack
-vislevel=40
+vislevel=43
 recol1s=2340
 recol1d=25313
 recol2s=14724
@@ -420,6 +428,8 @@ param=damagetype,^slash_style
 param=attack_anim,human_sword_slash
 param=defend_anim,human_sword_def
 param=attack_sound,hacksword_slash
+// param=defend_sound, TODO
+// osrs defend_sound blade2_mail
 huntmode=cowardly
 // https://oldschool.runescape.wiki/w/Guard_(Desert_Mining_Camp)#Brown_hair
 // desertminingcamp guards,mercenarys,mercenary captain,rowdy guards share same seqs + param stats.

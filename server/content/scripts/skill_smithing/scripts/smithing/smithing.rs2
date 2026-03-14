@@ -28,6 +28,12 @@
 @attempt_smithing(last_item, 5);
 [inv_button3,smithing:column5]
 @attempt_smithing(last_item, 10);
+[inv_button1,smithing:column_claws]
+@attempt_smithing(last_item, 1);
+[inv_button2,smithing:column_claws]
+@attempt_smithing(last_item, 5);
+[inv_button3,smithing:column_claws]
+@attempt_smithing(last_item, 10);
 
 
 [oplocu,anvil]
@@ -55,6 +61,7 @@ inv_stoptransmit(smithing:column2);
 inv_stoptransmit(smithing:column3);
 inv_stoptransmit(smithing:column4);
 inv_stoptransmit(smithing:column5);
+inv_stoptransmit(smithing:column_claws);
 
 [label,smithing_anvil_interface](obj $last_item)
 def_struct $struct = oc_param($last_item, smithing_anvil_struct);
@@ -109,6 +116,12 @@ if ($last_item ! steel_bar) {
 } else {
     if_sethide (smithing:stud_layer, false);
 }
+// hide claws button if death plateau is not complete
+if(%death_equiproom < ^death_complete) {
+    if_sethide(smithing:claws_layer, true);
+} else {
+    if_sethide(smithing:claws_layer, false);
+}
 // each bar needs to be shifted down, since only bronze level req is in the interface
 switch_obj ($last_item)
 {
@@ -123,6 +136,8 @@ switch_obj ($last_item)
         inv_transmit(smithing_bronze3, smithing:column3);
         inv_transmit(smithing_bronze4, smithing:column4);
         inv_transmit(smithing_bronze5, smithing:column5);
+        inv_transmit(smithing_bronze5, smithing:column5);
+        inv_transmit(smithing_bronze_claws, smithing:column_claws);
     case iron_bar :
         %modified_smith = calc($player_level - 14);
         inv_transmit(smithing_iron1, smithing:column1);
@@ -130,6 +145,7 @@ switch_obj ($last_item)
         inv_transmit(smithing_iron3, smithing:column3);
         inv_transmit(smithing_iron4, smithing:column4);
         inv_transmit(smithing_iron5, smithing:column5);
+        inv_transmit(smithing_iron_claws, smithing:column_claws);
     case steel_bar :
         %modified_smith = calc($player_level - 29);
         inv_transmit(smithing_steel1, smithing:column1);
@@ -137,6 +153,7 @@ switch_obj ($last_item)
         inv_transmit(smithing_steel3, smithing:column3);
         inv_transmit(smithing_steel4, smithing:column4);
         inv_transmit(smithing_steel5, smithing:column5);
+        inv_transmit(smithing_steel_claws, smithing:column_claws);
     case mithril_bar :
         %modified_smith = calc($player_level - 49);
         inv_transmit(smithing_mithril1, smithing:column1);
@@ -144,6 +161,7 @@ switch_obj ($last_item)
         inv_transmit(smithing_mithril3, smithing:column3);
         inv_transmit(smithing_mithril4, smithing:column4);
         inv_transmit(smithing_mithril5, smithing:column5);
+        inv_transmit(smithing_mithril_claws, smithing:column_claws);
     case adamantite_bar :
         %modified_smith = calc($player_level - 69);
         inv_transmit(smithing_adamant1, smithing:column1);
@@ -151,6 +169,7 @@ switch_obj ($last_item)
         inv_transmit(smithing_adamant3, smithing:column3);
         inv_transmit(smithing_adamant4, smithing:column4);
         inv_transmit(smithing_adamant5, smithing:column5);
+        inv_transmit(smithing_adamant_claws, smithing:column_claws);
     case runite_bar :
         // rune platebody, legs, and skirt go past 99 smithing
         if ($player_level > 98) {
@@ -163,6 +182,7 @@ switch_obj ($last_item)
         inv_transmit(smithing_rune3, smithing:column3);
         inv_transmit(smithing_rune4, smithing:column4);
         inv_transmit(smithing_rune5, smithing:column5);
+        inv_transmit(smithing_rune_claws, smithing:column_claws);
     case default :
         ~displaymessage(^dm_default);
         return;

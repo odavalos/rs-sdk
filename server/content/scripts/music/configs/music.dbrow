@@ -106,6 +106,12 @@ data=name,Autumn Voyage
 data=playbutton,music:autumn_voyage
 data=unlock,1,17
 
+[music_Aztec]
+table=music
+data=name,Aztec
+data=playbutton,music:aztec
+data=unlock,7,9
+
 [music_Background2]
 table=music
 data=name,Background2
@@ -183,6 +189,12 @@ table=music
 data=name,Close Quarters
 data=playbutton,music:close_quarters
 data=unlock,6,15
+
+[music_Contest]
+table=music
+data=name,Contest
+data=playbutton,music:contest
+data=unlock,7,16
 
 [music_Crystal_Cave]
 table=music
@@ -430,6 +442,12 @@ data=name,Heart and Mind
 data=playbutton,music:heart_and_mind
 data=unlock,6,14
 
+[music_Hermit]
+table=music
+data=name,Hermit
+data=playbutton,music:hermit
+data=unlock,6,31
+
 [music_High_Seas]
 table=music
 data=name,High Seas
@@ -459,6 +477,12 @@ table=music
 data=name,In The Manor
 data=playbutton,music:in_the_manor
 data=unlock,2,30
+
+[music_Insect_Queen]
+table=music
+data=name,Insect Queen
+data=playbutton,music:insect_queen
+data=unlock,7,20
 
 [music_Inspiration]
 table=music
@@ -501,6 +525,12 @@ table=music
 data=name,Jungly3
 data=playbutton,music:jungly3
 data=unlock,3,5
+
+[music_Kingdom]
+table=music
+data=name,Kingdom
+data=playbutton,music:kingdom
+data=unlock,6,30
 
 [music_Knightly]
 table=music
@@ -562,6 +592,12 @@ data=name,Lullaby
 data=playbutton,music:lullaby
 data=unlock,3,13
 
+[music_Mad_Eadgar]
+table=music
+data=name,Mad Eadgar
+data=playbutton,music:mad_eadgar
+data=unlock,7,21
+
 [music_Mage_Arena]
 table=music
 data=name,Mage Arena
@@ -585,6 +621,12 @@ table=music
 data=name,March2
 data=playbutton,music:march2
 data=unlock,3,17
+
+[music_Marzipan]
+table=music
+data=name,Marzipan
+data=playbutton,music:marzipan
+data=unlock,7,19
 
 [music_Mausoleum]
 table=music
@@ -681,6 +723,12 @@ data=name,Parade
 data=playbutton,music:parade
 data=unlock,3,29
 
+[music_Principality]
+table=music
+data=name,Principality
+data=playbutton,music:principality
+data=unlock,6,28
+
 [music_Quest]
 table=music
 data=name,Quest
@@ -704,6 +752,12 @@ table=music
 data=name,Reggae2
 data=playbutton,music:reggae2
 data=unlock,4,1
+
+[music_Righteousness]
+table=music
+data=name,Righteousness
+data=playbutton,music:righteousness
+data=unlock,7,31
 
 [music_Riverside]
 table=music
@@ -794,6 +848,12 @@ data=name,Shining
 data=playbutton,music:shining
 data=unlock,6,0
 
+[music_Sojourn]
+table=music
+data=name,Sojourn
+data=playbutton,music:sojourn
+data=unlock,7,17
+
 [music_Soundscape]
 table=music
 data=name,Soundscape
@@ -878,6 +938,12 @@ data=name,Theme
 data=playbutton,music:theme
 data=unlock,4,27
 
+[music_Time_Out]
+table=music
+data=name,Time Out
+data=playbutton,music:time_out
+data=unlock,7,4
+
 [music_Tomorrow]
 table=music
 data=name,Tomorrow
@@ -901,6 +967,12 @@ table=music
 data=name,Tree Spirits
 data=playbutton,music:tree_spirits
 data=unlock,4,30
+
+[music_Tremble]
+table=music
+data=name,Tremble
+data=playbutton,music:tremble
+data=unlock,6,29
 
 [music_Tribal]
 table=music

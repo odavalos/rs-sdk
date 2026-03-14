@@ -49,6 +49,12 @@
 [opheld1,unidentified_rogues_purse]
 ~attempt_identify_herb(rogues_purse, last_slot());
 
+[opheld1,unidentified_toadflax]
+~attempt_identify_herb(toadflax, last_slot());
+
+[opheld1,unidentified_snapdragon]
+~attempt_identify_herb(snapdragon, last_slot());
+
 /** Attempt to identify herb and identify if able. **/
 [proc,attempt_identify_herb](namedobj $identified_herb, int $slot)
 if (map_members = ^false) {

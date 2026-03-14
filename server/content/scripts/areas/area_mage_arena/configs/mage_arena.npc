@@ -239,9 +239,9 @@ name=Kolodion
 desc=He's a shape shifter.
 walkanim=giantspider_walk
 readyanim=giantspider_ready
-resizeh=352
-resizev=352
-size=4
+resizeh=322
+resizev=322
+size=3
 op2=Attack
 recol1s=31393
 recol1d=12690
@@ -261,13 +261,12 @@ param=defend_anim,giantspider_block
 param=death_anim,giantspider_death
 param=magicattack_anim,giantspider_casting
 param=spawn_anim,giantspider_teleport_reverse
-param=attack_sound,insect_attack
-param=defend_sound,insect_hit
-param=death_sound,insect_death
+param=attack_sound,kilrag_attack
+param=defend_sound,kilrag_hit
+param=death_sound,kilrag_death
 param=death_drop,null
 category=kolodion
 // osrs stats match 1:1
-// osrs sounds kilrag_hit
 // https://raw.githubusercontent.com/Joshua-F/osrs-dumps/refs/heads/master/config/dump.npc npc_1607
 
 [kolethereal]
@@ -276,7 +275,6 @@ name=Kolodion
 desc=He's a shape shifter.
 walkanim=human_transwalk_f
 readyanim=human_transready
-hasalpha=yes
 resizeh=192
 resizev=224
 op2=Attack
@@ -330,8 +328,7 @@ readyanim=demon_ready
 name=Kolodion
 desc=He's a shape shifter.
 op2=Attack
-hasalpha=yes
-vislevel=113
+vislevel=112
 recol1s=11264
 recol1d=1057
 recol2s=15393

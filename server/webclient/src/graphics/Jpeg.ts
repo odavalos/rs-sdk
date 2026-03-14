@@ -1,4 +1,8 @@
-import { jpeg2d, jpegCanvas, jpegImg } from '#/graphics/Canvas.js';
+const jpegCanvas: HTMLCanvasElement = document.createElement('canvas');
+const jpegImg: HTMLImageElement = document.createElement('img');
+const jpeg2d: CanvasRenderingContext2D = jpegCanvas.getContext('2d', {
+    willReadFrequently: true
+})!;
 
 export async function decodeJpeg(data: Uint8Array): Promise<ImageData> {
     if (data[0] !== 0xff) {
@@ -7,7 +11,7 @@ export async function decodeJpeg(data: Uint8Array): Promise<ImageData> {
     }
 
     URL.revokeObjectURL(jpegImg.src); // Remove previous decoded jpeg.
-    jpegImg.src = URL.createObjectURL(new Blob([data.slice()], { type: 'image/jpeg' }));
+    jpegImg.src = URL.createObjectURL(new Blob([data as BlobPart], { type: 'image/jpeg' }));
 
     // wait for img to load
     await new Promise<void>((resolve): (() => void) => (jpegImg.onload = (): void => resolve()));

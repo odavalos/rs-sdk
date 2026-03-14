@@ -101,7 +101,8 @@ param=defend_sound,chompy_bird_hit
 param=death_sound,chompy_bird_death
 // Hunt range is a guess
 // If removed, chompy won't hunt for toads during quest
-huntrange=2
+huntrange=7
+timer=3
 // osrs stats and Vislvl match 1:1
 // https://raw.githubusercontent.com/Joshua-F/osrs-dumps/refs/heads/master/config/dump.npc npc_1475
 

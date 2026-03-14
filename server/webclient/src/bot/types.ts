@@ -20,7 +20,7 @@ export const SHOP_TEMPLATE_ID = 3824; // Main shop interface
 export const SHOP_TEMPLATE_INV_ID = 3900; // Shop inventory component
 
 // Bank interface IDs
-export const BANK_MAIN_ID = 5292; // Main bank interface (viewportInterfaceId)
+export const BANK_MAIN_ID = 5292; // Main bank interface (mainModalId)
 export const BANK_MAIN_INV_ID = 5382; // Bank inventory component (bank_main:inv)
 export const BANK_SIDE_INV_ID = 2006; // Side panel inventory for depositing
 

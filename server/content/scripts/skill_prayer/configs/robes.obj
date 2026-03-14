@@ -52,7 +52,7 @@ wearpos=legs
 manwear=model_265_obj_wear,0
 womanwear=model_428_idk,0
 weight=2lb
-param=prayerbonus,6
+param=prayerbonus,5
 
 [monkrobetop]
 model=model_2786_obj
@@ -72,7 +72,7 @@ womanwear=model_348_idk,0
 manwear2=model_292_idk
 womanwear2=model_456_idk
 weight=2lb
-param=prayerbonus,5
+param=prayerbonus,6
 
 [blackrobetop]
 model=model_2786_obj
@@ -82,7 +82,7 @@ recol1d=0
 2dzoom=1370
 2dxan=536
 cost=40
-name=Black robe
+name=Shade robe
 desc=I feel closer to the Gods when I am wearing this.
 iop2=Wear
 wearpos=torso
@@ -102,7 +102,7 @@ recol1d=0
 2dzoom=1940
 2dxan=572
 cost=30
-name=Black robe
+name=Shade robe
 desc=Keeps a monk's knees nice and warm.
 iop2=Wear
 wearpos=legs

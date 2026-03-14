@@ -263,7 +263,6 @@ name=Fire Wall
 desc=A wall of magic fire.
 model=model_loc_715
 anim=firewall
-hasalpha=yes
 ambient=100
 contrast=100
 op1=Touch
@@ -276,7 +275,6 @@ name=Fire Wall
 desc=A wall of magic fire.
 model=model_loc_716
 anim=firewall
-hasalpha=yes
 ambient=100
 contrast=100
 op1=Touch
@@ -496,7 +494,6 @@ recol1d=15459
 [skullcavebarrel_breaking]
 model=model_loc_672
 anim=barrel
-hasalpha=yes
 blockwalk=no
 active=no
 

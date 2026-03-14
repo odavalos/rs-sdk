@@ -5,7 +5,7 @@ import type { Client } from '#/client/Client.js';
 import type ClientNpc from '#/dash3d/ClientNpc.js';
 import type ClientPlayer from '#/dash3d/ClientPlayer.js';
 import type ClientObj from '#/dash3d/ClientObj.js';
-import Component from '#/config/Component.js';
+import IfType from '#/config/IfType.js';
 import ObjType from '#/config/ObjType.js';
 import NpcType from '#/config/NpcType.js';
 import LocType from '#/config/LocType.js';
@@ -112,14 +112,14 @@ export class BotStateCollector implements ScanProvider {
             combatEvents: [...this.combatEvents], // Return copy of events
             dialog: this.collectDialogState(),
             interface: this.collectInterfaceState(),
-            modalOpen: (c.viewportInterfaceId ?? -1) !== -1,
-            modalInterface: c.viewportInterfaceId ?? -1,
+            modalOpen: (c.mainModalId ?? -1) !== -1,
+            modalInterface: c.mainModalId ?? -1,
             prayers: this.collectPrayerState()
         };
     }
 
     /**
-     * Discover prayer components by scanning Component.types for toggle buttons
+     * Discover prayer components by scanning IfType.list for toggle buttons
      * that check a varp == 1. Groups by parent layer to find the prayer interface
      * (the one with exactly 15 toggle buttons).
      */
@@ -130,8 +130,8 @@ export class BotStateCollector implements ScanProvider {
         // and whose comparator checks == 1 (scriptComparator[0] === 1 means "equals", scriptOperand[0] === 1)
         const togglesByParent = new Map<number, Array<{ id: number; varpId: number }>>();
 
-        for (let i = 0; i < Component.types.length; i++) {
-            const com = Component.types[i];
+        for (let i = 0; i < IfType.list.length; i++) {
+            const com = IfType.list[i];
             if (!com || com.buttonType !== 4) continue; // Not a toggle button
             if (!com.scripts || !com.scripts[0]) continue;
             if (!com.scriptComparator || !com.scriptOperand) continue;
@@ -144,7 +144,7 @@ export class BotStateCollector implements ScanProvider {
             if (com.scriptComparator[0] !== 1 || com.scriptOperand[0] !== 1) continue;
 
             const varpId = script[1];
-            const parent = com.layer;
+            const parent = com.layerId;
 
             if (!togglesByParent.has(parent)) {
                 togglesByParent.set(parent, []);
@@ -188,8 +188,8 @@ export class BotStateCollector implements ScanProvider {
             // Get prayer skill info (Prayer is skill index 5)
             const prayerSkillIndex = SKILL_NAMES.indexOf('Prayer');
             if (prayerSkillIndex >= 0) {
-                const skillLevel = c.skillLevel || [];
-                const skillBaseLevel = c.skillBaseLevel || [];
+                const skillLevel = c.statEffectiveLevel || [];
+                const skillBaseLevel = c.statBaseLevel || [];
                 defaultState.prayerPoints = skillLevel[prayerSkillIndex] || 0;
                 defaultState.prayerLevel = skillBaseLevel[prayerSkillIndex] || 0;
             }
@@ -198,7 +198,7 @@ export class BotStateCollector implements ScanProvider {
             const map = this.buildPrayerComponentMap();
             if (!map) return defaultState;
 
-            const varps = c.varps || [];
+            const varps = c.var || [];
             for (let i = 0; i < map.varpIds.length; i++) {
                 defaultState.activePrayers[i] = varps[map.varpIds[i]] === 1;
             }
@@ -209,8 +209,8 @@ export class BotStateCollector implements ScanProvider {
 
     private collectDialogState(): DialogState {
         const c = this.client as any;
-        const isOpen = c.chatInterfaceId !== -1;
-        const isWaiting = c.pressedContinueOption || false;
+        const isOpen = c.chatComId !== -1;
+        const isWaiting = c.resumedPauseButton || false;
 
         // Capture dialog to history when open
         if (isOpen && typeof this.client.captureDialogToHistory === 'function') {
@@ -236,7 +236,7 @@ export class BotStateCollector implements ScanProvider {
 
     private collectInterfaceState(): InterfaceState {
         const c = this.client as any;
-        const interfaceId = c.viewportInterfaceId ?? -1;
+        const interfaceId = c.mainModalId ?? -1;
         const isOpen = interfaceId !== -1;
 
         // Get interface options using client's method if available
@@ -283,7 +283,7 @@ export class BotStateCollector implements ScanProvider {
         }
 
         // Detect NPC damage (when player deals damage to NPCs)
-        const npcArray = c.npcs || [];
+        const npcArray = c.npc || [];
         const npcIds = c.npcIds || [];
         const npcCount = c.npcCount || 0;
 
@@ -366,8 +366,8 @@ export class BotStateCollector implements ScanProvider {
         }
 
         // Hitpoints is skill index 3
-        const skillLevel = c.skillLevel || [];
-        const skillBaseLevel = c.skillBaseLevel || [];
+        const skillLevel = c.statEffectiveLevel || [];
+        const skillBaseLevel = c.statBaseLevel || [];
 
         return {
             name: player.name || 'Unknown',
@@ -376,9 +376,9 @@ export class BotStateCollector implements ScanProvider {
             maxHp: skillBaseLevel[3] || 0,
             x: player.x || 0,
             z: player.z || 0,
-            worldX: (c.sceneBaseTileX || 0) + ((player.x || 0) >> 7),
-            worldZ: (c.sceneBaseTileZ || 0) + ((player.z || 0) >> 7),
-            level: c.currentLevel || 0,
+            worldX: (c.mapBuildBaseX || 0) + ((player.x || 0) >> 7),
+            worldZ: (c.mapBuildBaseZ || 0) + ((player.z || 0) >> 7),
+            level: c.minusedlevel || 0,
             runEnergy: c.runenergy || 0,
             runWeight: c.runweight || 0,
             animId: player.primarySeqId ?? -1,
@@ -395,9 +395,9 @@ export class BotStateCollector implements ScanProvider {
         const c = this.client as any;
         const skills: SkillState[] = [];
 
-        const skillLevel = c.skillLevel || [];
-        const skillBaseLevel = c.skillBaseLevel || [];
-        const skillExperience = c.skillExperience || [];
+        const skillLevel = c.statEffectiveLevel || [];
+        const skillBaseLevel = c.statBaseLevel || [];
+        const skillExperience = c.statXP || [];
 
         for (let i = 0; i < SKILL_NAMES.length; i++) {
             skills.push({
@@ -429,7 +429,7 @@ export class BotStateCollector implements ScanProvider {
             // Get current combat style from varp
             // Try to find the varp by checking what's a reasonable value (0-3)
             let currentStyle = 0;
-            const varps = c.varps || [];
+            const varps = c.var || [];
 
             // Try common varp indices for com_mode
             // Check indices that could contain 0-3 values
@@ -529,21 +529,21 @@ export class BotStateCollector implements ScanProvider {
         const items: InventoryItem[] = [];
 
         try {
-            const component = Component.types[interfaceId];
-            if (!component || !component.invSlotObjId || !component.invSlotObjCount) {
+            const component = IfType.list[interfaceId];
+            if (!component || !component.linkObjType || !component.linkObjNumber) {
                 return items;
             }
 
-            for (let slot = 0; slot < component.invSlotObjId.length; slot++) {
-                const objId = component.invSlotObjId[slot];
-                const count = component.invSlotObjCount[slot];
+            for (let slot = 0; slot < component.linkObjType.length; slot++) {
+                const objId = component.linkObjType[slot];
+                const count = component.linkObjNumber[slot];
 
                 if (objId > 0) {
                     let name = 'Unknown';
                     const optionsWithIndex: InventoryItemOption[] = [];
 
                     try {
-                        const obj = ObjType.get(objId - 1);
+                        const obj = ObjType.list(objId - 1);
                         name = obj.name || 'Unknown';
 
                         // Get inventory options (iop) from the object type
@@ -578,12 +578,12 @@ export class BotStateCollector implements ScanProvider {
 
         if (!player) return npcs;
 
-        const npcArray = c.npcs || [];
+        const npcArray = c.npc || [];
         const npcIds = c.npcIds || [];
         const npcCount = c.npcCount || 0;
         // Scene base coordinates for converting local coords to world coords
-        const baseX = c.sceneBaseTileX || 0;
-        const baseZ = c.sceneBaseTileZ || 0;
+        const baseX = c.mapBuildBaseX || 0;
+        const baseZ = c.mapBuildBaseZ || 0;
 
         for (let i = 0; i < npcCount; i++) {
             const npcIndex = npcIds[i];
@@ -619,7 +619,7 @@ export class BotStateCollector implements ScanProvider {
             const maxHp = npc.totalHealth || 0;
             // healthPercent is null until NPC takes damage (server only sends health on hit)
             const healthPercent = maxHp > 0 ? Math.round((hp / maxHp) * 100) : null;
-            const targetId = npc.targetId ?? -1;
+            const targetId = npc.faceEntity ?? -1;
             // combatCycle is set to loopCycle + 400 when NPC takes damage
             const combatCycle = npc.combatCycle ?? -1000;
             const loopCycle = c.loopCycle || 0;
@@ -643,7 +643,7 @@ export class BotStateCollector implements ScanProvider {
                 targetIndex: targetId,
                 inCombat,
                 combatCycle,
-                animId: npc.primarySeqId ?? -1,
+                animId: npc.primaryAnim ?? -1,
                 spotanimId: npc.spotanimId ?? -1,
                 optionsWithIndex,
                 options: optionsWithIndex.map(o => o.text)
@@ -666,8 +666,8 @@ export class BotStateCollector implements ScanProvider {
         const playerIds = c.playerIds || [];
         const playerCount = c.playerCount || 0;
         // Scene base coordinates for converting local coords to world coords
-        const baseX = c.sceneBaseTileX || 0;
-        const baseZ = c.sceneBaseTileZ || 0;
+        const baseX = c.mapBuildBaseX || 0;
+        const baseZ = c.mapBuildBaseZ || 0;
 
         for (let i = 0; i < playerCount; i++) {
             const playerIndex = playerIds[i];
@@ -703,15 +703,15 @@ export class BotStateCollector implements ScanProvider {
         const c = this.client as any;
         const locs: NearbyLoc[] = [];
         const player = c.localPlayer;
-        const scene = c.scene;
+        const world = c.world;
 
-        if (!player || !scene) return locs;
+        if (!player || !world) return locs;
 
-        const currentLevel = c.currentLevel || 0;
+        const currentLevel = c.minusedlevel || 0;
         const playerTileX = (player.x || 0) >> 7;
         const playerTileZ = (player.z || 0) >> 7;
-        const baseX = c.sceneBaseTileX || 0;
-        const baseZ = c.sceneBaseTileZ || 0;
+        const baseX = c.mapBuildBaseX || 0;
+        const baseZ = c.mapBuildBaseZ || 0;
 
         // Track seen locations to avoid duplicates (key = `${id}_${x}_${z}`)
         const seen = new Set<string>();
@@ -728,14 +728,14 @@ export class BotStateCollector implements ScanProvider {
                 const distance = Math.max(Math.abs(dx), Math.abs(dz));
 
                 // Check for regular locations (trees, rocks, etc.)
-                const locTypecode = scene.getLocTypecode(currentLevel, tileX, tileZ);
+                const locTypecode = world.sceneType(currentLevel, tileX, tileZ);
                 if (locTypecode !== 0) {
                     const locId = (locTypecode >> 14) & 0x7fff;
                     const key = `${locId}_${tileX}_${tileZ}`;
                     if (!seen.has(key)) {
                         seen.add(key);
                         try {
-                            const locType = LocType.get(locId);
+                            const locType = LocType.list(locId);
                             // Include locations that have a name (skip unnamed scenery)
                             if (locType.name) {
                                 const optionsWithIndex: LocOption[] = [];
@@ -764,14 +764,14 @@ export class BotStateCollector implements ScanProvider {
                 }
 
                 // Check for wall objects (doors, gates, etc.)
-                const wallTypecode = scene.getWallTypecode(currentLevel, tileX, tileZ);
+                const wallTypecode = world.wallType(currentLevel, tileX, tileZ);
                 if (wallTypecode !== 0) {
                     const wallId = (wallTypecode >> 14) & 0x7fff;
                     const key = `wall_${wallId}_${tileX}_${tileZ}`;
                     if (!seen.has(key)) {
                         seen.add(key);
                         try {
-                            const locType = LocType.get(wallId);
+                            const locType = LocType.list(wallId);
                             if (locType.name) {
                                 const optionsWithIndex: LocOption[] = [];
                                 if (locType.op) {
@@ -797,14 +797,14 @@ export class BotStateCollector implements ScanProvider {
                 }
 
                 // Check for wall decorations (furnaces, ranges, etc.)
-                const decorTypecode = scene.getDecorTypecode(currentLevel, tileZ, tileX);
+                const decorTypecode = world.decorType(currentLevel, tileZ, tileX);
                 if (decorTypecode !== 0) {
                     const decorId = (decorTypecode >> 14) & 0x7fff;
                     const key = `decor_${decorId}_${tileX}_${tileZ}`;
                     if (!seen.has(key)) {
                         seen.add(key);
                         try {
-                            const locType = LocType.get(decorId);
+                            const locType = LocType.list(decorId);
                             if (locType.name) {
                                 const optionsWithIndex: LocOption[] = [];
                                 if (locType.op) {
@@ -830,14 +830,14 @@ export class BotStateCollector implements ScanProvider {
                 }
 
                 // Check for ground decorations
-                const groundDecorTypecode = scene.getGroundDecorTypecode(currentLevel, tileX, tileZ);
+                const groundDecorTypecode = world.gdType(currentLevel, tileX, tileZ);
                 if (groundDecorTypecode !== 0) {
                     const groundDecorId = (groundDecorTypecode >> 14) & 0x7fff;
                     const key = `gdecor_${groundDecorId}_${tileX}_${tileZ}`;
                     if (!seen.has(key)) {
                         seen.add(key);
                         try {
-                            const locType = LocType.get(groundDecorId);
+                            const locType = LocType.list(groundDecorId);
                             if (locType.name) {
                                 const optionsWithIndex: LocOption[] = [];
                                 if (locType.op) {
@@ -877,14 +877,14 @@ export class BotStateCollector implements ScanProvider {
 
         if (!player) return items;
 
-        const objStacks = c.objStacks;
+        const objStacks = c.groundObj;
         if (!objStacks) return items;
 
-        const currentLevel = c.currentLevel || 0;
+        const currentLevel = c.minusedlevel || 0;
         const playerTileX = (player.x || 0) >> 7;
         const playerTileZ = (player.z || 0) >> 7;
-        const baseX = c.sceneBaseTileX || 0;
-        const baseZ = c.sceneBaseTileZ || 0;
+        const baseX = c.mapBuildBaseX || 0;
+        const baseZ = c.mapBuildBaseZ || 0;
 
         // Scan nearby tiles (default 15 tile radius)
         const scanRadius = radius ?? 15;
@@ -895,23 +895,23 @@ export class BotStateCollector implements ScanProvider {
 
                 if (tileX < 0 || tileX >= 104 || tileZ < 0 || tileZ >= 104) continue;
 
-                const stack = objStacks[currentLevel]?.[tileX]?.[tileZ] as LinkList | null;
+                const stack = objStacks[currentLevel]?.[tileX]?.[tileZ] as LinkList<ClientObj> | null;
                 if (!stack) continue;
 
                 // Iterate through the link list
                 let obj = stack.head();
                 while (obj) {
                     const clientObj = obj as ClientObj;
-                    if (clientObj.index !== undefined) {
+                    if (clientObj.id !== undefined) {
                         let name = 'Unknown';
                         try {
-                            const objType = ObjType.get(clientObj.index);
+                            const objType = ObjType.list(clientObj.id);
                             name = objType.name || 'Unknown';
                         } catch { /* ignore */ }
 
                         const distance = Math.max(Math.abs(dx), Math.abs(dz));
                         items.push({
-                            id: clientObj.index,
+                            id: clientObj.id,
                             name,
                             count: clientObj.count || 1,
                             x: baseX + tileX,
@@ -933,9 +933,9 @@ export class BotStateCollector implements ScanProvider {
         const c = this.client as any;
         const messages: GameMessage[] = [];
 
-        const messageText = c.messageText || [];
-        const messageSender = c.messageSender || [];
-        const messageType = c.messageType || [];
+        const messageText = c.chatText || [];
+        const messageSender = c.chatUsername || [];
+        const messageType = c.chatType || [];
         const messageTick = c.messageTick || [];
 
         // Get recent messages (up to 5)
@@ -967,7 +967,7 @@ export class BotStateCollector implements ScanProvider {
         const menuParamA = c.menuParamA || [];
         const menuParamB = c.menuParamB || [];
         const menuParamC = c.menuParamC || [];
-        const menuSize = c.menuSize || 0;
+        const menuSize = c.menuNumEntries || 0;
 
         for (let i = 0; i < menuSize; i++) {
             actions.push({
@@ -999,14 +999,14 @@ export class BotStateCollector implements ScanProvider {
 
             // Get shop title from component 3901 (com_76 in shop_template)
             try {
-                const titleComponent = Component.types[3901];
+                const titleComponent = IfType.list[3901];
                 if (titleComponent && titleComponent.text) {
                     shopState.title = titleComponent.text;
                 }
             } catch { /* ignore */ }
 
             // Read shop configuration from varps (127=shop_buy, 128=shop_sell, 129=shop_haggle)
-            const varps = c.varps || [];
+            const varps = c.var || [];
             const shopConfig: ShopConfig = {
                 buyMultiplier: varps[127] || 60,    // Default from shopkeeper.param
                 sellMultiplier: varps[128] || 100,  // Default from shopkeeper.param
@@ -1066,20 +1066,20 @@ export class BotStateCollector implements ScanProvider {
         const items: ShopItem[] = [];
 
         try {
-            const component = Component.types[interfaceId];
-            if (!component || !component.invSlotObjId || !component.invSlotObjCount) {
+            const component = IfType.list[interfaceId];
+            if (!component || !component.linkObjType || !component.linkObjNumber) {
                 return items;
             }
 
-            for (let slot = 0; slot < component.invSlotObjId.length; slot++) {
-                const objId = component.invSlotObjId[slot];
-                const count = component.invSlotObjCount[slot];
+            for (let slot = 0; slot < component.linkObjType.length; slot++) {
+                const objId = component.linkObjType[slot];
+                const count = component.linkObjNumber[slot];
 
                 if (objId > 0) {
                     let name = 'Unknown';
                     let baseCost = 1;
                     try {
-                        const obj = ObjType.get(objId - 1);
+                        const obj = ObjType.list(objId - 1);
                         name = obj.name || 'Unknown';
                         baseCost = obj.cost || 1;
                     } catch { /* ignore */ }

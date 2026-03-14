@@ -59,7 +59,6 @@ name=Leak
 desc=Water is pouring in through the hole.
 model=model_loc_2167
 width=2
-hasalpha=yes
 anim=shiphull_leaking
 op1=Fill
 blockwalk=no

@@ -1,5 +1,5 @@
 <div align="center">
-    <h1>Lost City - July 13, 2004</h1>
+    <h1>Lost City - September 7, 2004</h1>
 </div>
 
 > [!NOTE]

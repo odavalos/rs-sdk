@@ -1,6 +1,7 @@
 [desertdoor_inactive]
 model=model_loc_3
 active=no
+raiseobject=no
 retex1s=wall
 retex1d=door
 recol2s=6342
@@ -9,6 +10,7 @@ recol2d=11458
 [poordoor]
 model=model_loc_3
 active=no
+raiseobject=no
 retex1s=wall
 retex1d=door2
 recol2s=6342
@@ -17,6 +19,7 @@ recol2d=11458
 [poordoor_crossopen]
 model=model_loc_3
 active=no
+raiseobject=no
 retex1s=wall
 retex1d=elfdoor
 recol2s=6342
@@ -26,9 +29,11 @@ recol2d=11458
 model=model_loc_37
 blockrange=no
 active=no
+raiseobject=no
 
 [prisondoor]
 model=model_loc_37
 mirror=yes
 active=no
 blockrange=no
+raiseobject=no

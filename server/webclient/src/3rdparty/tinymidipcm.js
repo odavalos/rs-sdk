@@ -34,16 +34,6 @@ class TinyMidiPCM {
             return;
         }
 
-        // check if node
-        // http://philiplassen.com/2021/08/11/node-es6-emscripten.html
-        // if (typeof process !== 'undefined') {
-        //     const { dirname } = await import(/* webpackIgnore: true */ 'path');
-        //     const { createRequire } = await import(/* webpackIgnore: true */ 'module');
-
-        //     globalThis.__dirname = dirname(import.meta.url);
-        //     globalThis.require = createRequire(import.meta.url);
-        // }
-
         this.wasmModule = await loadTinyMidiPCM();
 
         this.pcmBufferPtr = this.wasmModule._malloc(this.bufferSize);
@@ -144,7 +134,7 @@ class TinyMidiPCM {
 // controlling tinymidipcm:
 (async () => {
     const channels = 2;
-    const sampleRate = 44100;
+    const sampleRate = 22050;
     const flushTime = 250;
     const renderInterval = 30;
     const fadeseconds = 2;
@@ -175,7 +165,8 @@ class TinyMidiPCM {
         onRenderEnd: ms => {
             // renderEndSeconds = Math.floor(startTime + Math.floor(ms / 1000));
         },
-        bufferSize: 1024 * 100
+        bufferSize: 1024 * 100,
+        sampleRate
     });
 
     await tinyMidiPCM.init();
@@ -304,15 +295,15 @@ class TinyMidiPCM {
     };
 })();
 
-export function playMidi(data, vol, fade) {
+export function playMidi(data, dB, fade) {
     if (window._tinyMidiPlay) {
-        window._tinyMidiPlay(data, vol / 128, fade);
+        window._tinyMidiPlay(data, Math.pow(10, dB / 20), fade);
     }
 }
 
-export function setMidiVolume(vol) {
+export function setMidiVolume(dB) {
     if (window._tinyMidiVolume) {
-        window._tinyMidiVolume(vol / 128);
+        window._tinyMidiVolume(Math.pow(10, dB / 20));
     }
 }
 

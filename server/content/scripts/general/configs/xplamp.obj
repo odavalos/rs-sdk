@@ -10,3 +10,4 @@ model=model_3348_obj
 weight=100g
 iop1=Rub
 tradeable=no
+param=unbankable,^true

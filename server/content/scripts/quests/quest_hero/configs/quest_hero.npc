@@ -82,7 +82,7 @@ wanderrange=15
 maxrange=17
 respawnrate=70
 hitpoints=5
-param=attackbonus,-26
+param=attackbonus,-31
 param=strengthbonus,-26
 param=stabdefence,-26
 param=slashdefence,-26
@@ -136,7 +136,7 @@ walkanim=human_walk_f,human_walk_b,human_walk_l,human_walk_r
 readyanim=human_ready
 op1=Talk-to
 op2=Attack
-vislevel=26
+vislevel=22
 recol1s=21279
 recol1d=15855
 recol2s=3168
@@ -166,7 +166,7 @@ param=attack_anim,human_axe_hack
 param=defend_anim,human_axe_def
 param=attack_sound,baxe_slash
 // param=defend_sound, TODO
-// osrs defend_sound ?????
+// osrs defend_sound blade3_mail
 param=death_drop,grip_keys
 // Stats match osrs version but our version Vislvl is different.
 // https://raw.githubusercontent.com/Joshua-F/osrs-dumps/refs/heads/master/config/dump.npc npc_4919

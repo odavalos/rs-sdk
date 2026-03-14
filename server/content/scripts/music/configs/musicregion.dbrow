@@ -38,6 +38,11 @@ table=musicregion
 data=mapsquare,0_34_75_0_0
 data=musicdata,music_Quest
 
+[musicregion_35_74]
+table=musicregion
+data=mapsquare,0_35_74_0_0
+data=musicdata,music_Hermit
+
 [musicregion_36_52]
 table=musicregion
 data=mapsquare,0_36_52_0_0
@@ -157,6 +162,11 @@ data=musicdata,music_Gnome_King
 table=musicregion
 data=mapsquare,0_38_55_0_0
 data=musicdata,music_Gnome_King
+
+[musicregion_38_75]
+table=musicregion
+data=mapsquare,0_38_75_0_0
+data=musicdata,music_Righteousness
 
 [musicregion_38_150]
 table=musicregion
@@ -533,6 +543,12 @@ table=musicregion
 data=mapsquare,0_43_146_0_0
 data=musicdata,music_Jungly1
 
+[musicregion_43_149]
+table=musicregion
+data=mapsquare,0_43_149_0_0
+data=name,Aztec
+data=musicdata,music_Aztec
+
 [musicregion_43_153]
 table=musicregion
 data=mapsquare,0_43_153_0_0
@@ -591,7 +607,17 @@ data=musicdata,music_Ice_Melody
 [musicregion_44_55]
 table=musicregion
 data=mapsquare,0_44_55_0_0
-data=musicdata,music_Ice_Melody
+data=musicdata,music_Kingdom
+
+[musicregion_44_56]
+table=musicregion
+data=mapsquare,0_44_56_0_0
+data=musicdata,music_Tremble
+
+[musicregion_44_57]
+table=musicregion
+data=mapsquare,0_44_57_0_0
+data=musicdata,music_Sojourn
 
 [musicregion_44_75]
 table=musicregion
@@ -632,6 +658,11 @@ data=musicdata,music_Beyond
 table=musicregion
 data=mapsquare,0_44_155_0_0
 data=musicdata,music_Beyond
+
+[musicregion_44_157]
+table=musicregion
+data=mapsquare,0_44_157_0_0
+data=musicdata,music_Marzipan
 
 [musicregion_45_45]
 table=musicregion
@@ -686,7 +717,23 @@ data=musicdata,music_Splendour
 [musicregion_45_55]
 table=musicregion
 data=mapsquare,0_45_55_0_0
-data=musicdata,music_Splendour
+data=musicdata,music_Principality
+
+[musicregion_45_56]
+table=musicregion
+data=mapsquare,0_45_56_0_0
+data=name,Contest
+data=musicdata,music_Contest
+
+[musicregion_45_57]
+table=musicregion
+data=mapsquare,0_45_57_0_0
+data=musicdata,music_Sojourn
+
+[musicregion_45_71]
+table=musicregion
+data=mapsquare,0_45_71_0_0
+data=musicdata,music_Time_Out
 
 [musicregion_45_73]
 table=musicregion
@@ -732,6 +779,16 @@ data=musicdata,music_Arabique
 table=musicregion
 data=mapsquare,0_45_154_0_0
 data=musicdata,music_Arabique
+
+[musicregion_45_156]
+table=musicregion
+data=mapsquare,0_45_156_0_0
+data=musicdata,music_Expedition
+
+[musicregion_45_157]
+table=musicregion
+data=mapsquare,0_45_157_0_0
+data=musicdata,music_Mad_Eadgar
 
 [musicregion_46_45]
 table=musicregion
@@ -1447,3 +1504,8 @@ data=musicdata,music_Waterlogged
 table=musicregion
 data=mapsquare,0_54_54_0_0
 data=musicdata,music_Village
+
+[musicregion_54_148]
+table=musicregion
+data=mapsquare,0_54_148_0_0
+data=musicdata,music_Insect_Queen

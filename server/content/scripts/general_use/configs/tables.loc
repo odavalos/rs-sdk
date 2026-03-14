@@ -222,7 +222,6 @@ name=Counter
 desc=Items are for sale here.
 model=model_loc_617
 width=2
-hasalpha=yes
 blockrange=no
 category=usable_table
 

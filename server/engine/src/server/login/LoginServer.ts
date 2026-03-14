@@ -13,16 +13,19 @@ import Packet from '#/io/Packet.js';
 import Environment from '#/util/Environment.js';
 import { toSafeName } from '#/util/JString.js';
 import { printInfo } from '#/util/Logger.js';
-import { getUnreadMessageCount } from '#/server/login/Messages.js';
 import { startManagementWeb } from '#/web.js';
 import InvType from '#/cache/config/InvType.js';
 import ObjType from '#/cache/config/ObjType.js';
 
-async function updateHiscores(account: { id: number, staffmodlevel: number } | undefined, player: Player, profile: string) {
+async function updateHiscores(account: { id: number, staffmodlevel: number, banned_until: string | Date | null } | undefined, player: Player, profile: string) {
     if (!account)
         return;
 
     if (account.staffmodlevel > 1) {
+        return;
+    }
+
+    if (account.banned_until !== null && new Date(account.banned_until) >= new Date()) {
         return;
     }
 
@@ -349,55 +352,6 @@ export default class LoginServer {
                                     .executeTakeFirst();
                             }
 
-                            if (account) {
-                                const recent = await db
-                                    .selectFrom('login')
-                                    .selectAll()
-                                    .where('account_id', '=', account.id)
-                                    .where('ip', '=', remoteAddress)
-                                    .where('timestamp', '>=', toDbDate(new Date(Date.now() - 5000)))
-                                    .limit(3)
-                                    .execute();
-
-                                if (recent.length === 3) {
-                                    // rate limited
-                                    s.send(
-                                        JSON.stringify({
-                                            replyTo,
-                                            response: 8
-                                        })
-                                    );
-                                    return;
-                                }
-
-                                // Concurrent logins per IP limit (staff exempt)
-                                // if (account.staffmodlevel < 2 && Environment.NODE_MAX_LOGINS_PER_IP > 0) {
-                                //     const currentCount = this.getLoginCountForIp(remoteAddress);
-                                //     if (currentCount >= Environment.NODE_MAX_LOGINS_PER_IP) {
-                                //         console.log(`[LOGIN] IP ${remoteAddress} rejected: ${currentCount} concurrent logins (limit ${Environment.NODE_MAX_LOGINS_PER_IP})`);
-                                //         s.send(
-                                //             JSON.stringify({
-                                //                 replyTo,
-                                //                 response: 8
-                                //             })
-                                //         );
-                                //         return;
-                                //     }
-                                // }
-
-                                await db
-                                    .insertInto('login')
-                                    .values({
-                                        uuid: socket,
-                                        account_id: account.id,
-                                        world: nodeId,
-                                        timestamp: toDbDate(nodeTime),
-                                        uid,
-                                        ip: remoteAddress
-                                    })
-                                    .execute();
-                            }
-
                             const passwordMatch = account ? await bcrypt.compare(password, account.password) : false;
 
                             if (!account || !passwordMatch) {
@@ -455,8 +409,6 @@ export default class LoginServer {
                                 // Re-establish in-memory tracking on reconnect
                                 this.trackLogin(remoteAddress, account.id);
 
-                                const messageCount = await getUnreadMessageCount(account.id);
-
                                 if (!hasSave) {
                                     const save = await fsp.readFile(`data/players/${profile}/${username}.sav`);
                                     if (!save || !PlayerLoading.verify(new Packet(save))) {
@@ -473,7 +425,7 @@ export default class LoginServer {
                                             muted_until: account.muted_until,
                                             save: save.toString('base64'),
                                             members: account.members,
-                                            messageCount
+                                            messageCount: 0
                                         })
                                     );
                                 } else {
@@ -485,7 +437,7 @@ export default class LoginServer {
                                             staffmodlevel: account.staffmodlevel,
                                             muted_until: account.muted_until,
                                             members: account.members,
-                                            messageCount
+                                            messageCount: 0
                                         })
                                     );
                                 }
@@ -507,20 +459,24 @@ export default class LoginServer {
                                 // Continue with normal login - don't return
                             }
 
-                            if (account.staffmodlevel < 2 
-                                && account.logged_out !== null 
-                                && account.logged_out !== 0 
-                                && account.logged_out !== nodeId 
-                                && account.logout_time !== null 
-                                && new Date(account.logout_time) >= new Date(Date.now() - 45000)) {
-                                // rate limited (hop timer)
-                                s.send(
-                                    JSON.stringify({
-                                        replyTo,
-                                        response: 6
-                                    })
-                                );
-                                return;
+                            if (account.staffmodlevel < 2
+                                && account.logged_out !== null
+                                && account.logged_out !== 0
+                                && account.logged_out !== nodeId
+                                && account.logout_time !== null
+                            ) {
+                                const remaining = new Date(account.logout_time).getTime() - new Date(Date.now() - Environment.NODE_HOP_TIME).getTime();
+                                if (remaining > 0) {
+                                    // rate limited (hop timer)
+                                    s.send(
+                                        JSON.stringify({
+                                            replyTo,
+                                            response: 10,
+                                            remaining
+                                        })
+                                    );
+                                    return;
+                                }
                             }
 
                             await db
@@ -535,8 +491,6 @@ export default class LoginServer {
                                     ip: remoteAddress
                                 })
                                 .execute();
-
-                            const messageCount = await getUnreadMessageCount(account.id);
 
                             if (!fs.existsSync(`data/players/${profile}/${username}.sav`)) {
                                 // not an error - never logged in before
@@ -553,7 +507,7 @@ export default class LoginServer {
                                             account_id: account.id,
                                             staffmodlevel: account.staffmodlevel,
                                             muted_until: account.muted_until,
-                                            messageCount
+                                            messageCount: 0
                                         })
                                     );
                                 }
@@ -574,7 +528,7 @@ export default class LoginServer {
                                         save: save.toString('base64'),
                                         muted_until: account.muted_until,
                                         members: account.members,
-                                        messageCount
+                                        messageCount: 0
                                     })
                                 );
                             }

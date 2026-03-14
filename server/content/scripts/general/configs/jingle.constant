@@ -118,10 +118,10 @@
 ^death_jingle_2_millis = 8000
 
 ^dice_lose_jingle = dice lose
-^dice_lose_jingle_millis = 6000
+^dice_lose_jingle_millis = 5334
 
 ^dice_win_jingle = dice win
-^dice_win_jingle_millis = 4200
+^dice_win_jingle_millis = 4211
 
 ^duel_win_2_jingle = duel win2
 ^duel_win_2_jingle_millis = 4300
@@ -143,3 +143,6 @@
 
 ^treasure_hunt_win_jingle = treasure hunt win
 ^treasure_hunt_win_jingle_millis = 8730
+
+^agility_complete_jingle = agility complete
+^agility_complete_millis = 6066

@@ -85,7 +85,7 @@ export class BotOverlay implements GatewayMessageHandler {
         this.currentActionId = actionId;
         this.lastActionTime = Date.now();
         // Reset idle timer - SDK actions count as activity
-        this.client.idleCycles = performance.now();
+        this.client.idleTimer = performance.now();
         this.ui.logAction(action.type, formatAction(action));
     }
 
@@ -194,7 +194,7 @@ export class BotOverlay implements GatewayMessageHandler {
         // Get dialog state - include componentId for direct clicking
         const dialogOptions: Array<{ index: number; text: string; componentId?: number; buttonType?: number }> = [];
         const allDialogComponents: Array<{ id: number; type: number; buttonType: number; option: string; text: string }> = [];
-        if (c.chatInterfaceId !== -1) {
+        if (c.chatComId !== -1) {
             const options = this.client.getDialogOptions();
             for (const opt of options) {
                 dialogOptions.push({

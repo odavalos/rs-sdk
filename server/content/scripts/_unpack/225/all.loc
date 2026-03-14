@@ -262,6 +262,8 @@ recol2d=11458
 
 [inviswall]
 model=model_loc_83
+shadow=no
+mapscene=22
 
 [00]
 model=model_loc_83
@@ -571,13 +573,11 @@ hillskew=yes
 model=model_loc_196
 anim=torch
 ambient=20
-hasalpha=yes
 
 [torch_grubby]
 model=model_loc_196
 anim=torch
 ambient=20
-hasalpha=yes
 recol1s=8456
 recol1d=8387
 
@@ -585,12 +585,10 @@ recol1d=8387
 model=model_loc_198
 width=2
 anim=torch
-hasalpha=yes
 
 [cave_facetorch]
 model=model_loc_199
 anim=torch
-hasalpha=yes
 
 [gnome_lamp]
 name=Lamp
@@ -602,7 +600,6 @@ name=Lamp
 desc=These insects love this light.
 model=model_loc_201
 anim=glamp
-hasalpha=yes
 
 [candles]
 name=Candles
@@ -630,12 +627,10 @@ ambient=50
 [skulltorch]
 model=model_loc_206
 anim=torch
-hasalpha=yes
 
 [skulltorch_grubby]
 model=model_loc_206
 anim=torch
-hasalpha=yes
 recol1s=32767
 recol1d=20048
 recol2s=23254
@@ -1084,21 +1079,18 @@ op1=Climb-down
 [wake]
 model=model_loc_288
 anim=wake
-hasalpha=yes
 length=3
 active=no
 
 [wake2]
 model=model_loc_289
 anim=wake2
-hasalpha=yes
 length=3
 active=no
 
 [wake2_left]
 model=model_loc_290
 anim=wake2
-hasalpha=yes
 length=3
 active=no
 
@@ -1733,32 +1725,38 @@ recol4d=1058
 name=Small gravestone
 desc=A small simple gravestone.
 model=model_loc_400
+blockrange=no
 
 [poorgravestone]
 name=Grave marker
 desc=A simple marker for a forgotten person.
 model=model_loc_401
+blockrange=no
 
 [tombgravestone]
 name=Tombstone
 desc=The remiains of someone lie inside.
 model=model_loc_402
 width=2
+blockrange=no
 
 [biggravestone]
 name=Large grave stone
 desc=A monument to a special person.
 model=model_loc_403
+blockrange=no
 
 [gravestone1]
 name=Gravestone
 desc=The inscription is worn away and unreadable.
 model=model_loc_404
+blockrange=no
 
 [gravestone2]
 name=Gravestone
 desc='Here lies...' is all I can read.
 model=model_loc_405
+blockrange=no
 
 [largegrave]
 name=Large grave
@@ -1773,6 +1771,7 @@ desc=Looks like a stone doorway to me.
 model=model_loc_407
 length=2
 mapscene=14
+blockrange=no
 
 [henge_diagonal]
 name=Henge
@@ -1781,6 +1780,7 @@ model=model_loc_408
 width=2
 length=2
 mapscene=14
+blockrange=no
 
 [dolmen]
 name=Dolmen
@@ -1788,6 +1788,7 @@ desc=Looks suspiciously like a big stone table.
 model=model_loc_410
 width=2
 length=2
+blockrange=no
 
 [egyptcoffin1]
 name=Coffin
@@ -2607,7 +2608,6 @@ length=7
 ambient=100
 contrast=100
 anim=greatrunestone
-hasalpha=yes
 
 [loc_516]
 name=Ice Column
@@ -3446,45 +3446,36 @@ model=model_loc_670
 model=model_loc_671
 width=2
 length=3
-hasalpha=yes
 
 [barrel_breaking]
 model=model_loc_672
 anim=barrel
-hasalpha=yes
 
 [gas]
 model=model_loc_673
 anim=gas
-hasalpha=yes
 
 [gas_chest]
 model=model_loc_674
 anim=smokepuff
-hasalpha=yes
 
 [gas_rocks1]
 model=macro_plainrock1
 anim=gas
-hasalpha=yes
 
 [gas_rocks2]
 model=macro_plainrock2
 anim=gas
-hasalpha=yes
 
 [gas_rocks3]
 model=macro_plainrock3
 anim=gas
-hasalpha=yes
 
 [fishingspot]
 model=model_loc_678
-hasalpha=yes
 
 [fishingspot2]
 model=model_loc_679
-hasalpha=yes
 
 [piano_a]
 name=Piano
@@ -3661,12 +3652,10 @@ name=Fire remains
 desc=A recently extinguished fire.
 model=model_loc_714
 anim=fire
-hasalpha=yes
 
 [firewall_straight]
 model=model_loc_715
 anim=firewall
-hasalpha=yes
 ambient=100
 contrast=100
 shadow=no
@@ -3674,7 +3663,6 @@ shadow=no
 [firewall_diagonal]
 model=model_loc_716
 anim=firewall
-hasalpha=yes
 ambient=100
 contrast=100
 shadow=no
@@ -3738,13 +3726,11 @@ name=Standing torch
 desc=A crude torch stuck in the ground.
 model=model_loc_724
 anim=wiztorch
-hasalpha=yes
 
 [fire_graphic]
 desc=Fire !
 model=model_loc_725
 anim=wiztorch
-hasalpha=yes
 ambient=100
 contrast=100
 shadow=no
@@ -3791,7 +3777,6 @@ recol3d=25295
 [lavabubbles]
 model=model_loc_731
 anim=lavabubbles
-hasalpha=yes
 shadow=no
 active=no
 ambient=50
@@ -3801,7 +3786,6 @@ blockwalk=no
 [lavafire]
 model=model_loc_732
 anim=lavafire
-hasalpha=yes
 shadow=no
 active=no
 ambient=50
@@ -3852,7 +3836,6 @@ model=model_loc_740
 anim=glowingcircle
 ambient=100
 contrast=100
-hasalpha=yes
 
 [ladder_old_base]
 name=Broken Ladder
@@ -8424,6 +8407,7 @@ desc=The door is open.
 model=model_loc_1504
 sharelight=yes
 active=yes
+raiseobject=no
 
 [loc_1505]
 name=Door
@@ -8432,42 +8416,51 @@ model=model_loc_1505
 sharelight=yes
 occlude=yes
 active=yes
+raiseobject=no
 
 [archeddooropen]
 model=model_loc_1506
 mirror=yes
 active=no
+raiseobject=no
 
 [archeddoorclosed]
 model=model_loc_1506
 active=no
+raiseobject=no
 
 [thickpoordoor]
 model=model_loc_1518
 sharelight=yes
+raiseobject=no
 
 [castledoubledoorl]
 model=model_loc_1518
 sharelight=yes
 mirror=yes
+raiseobject=no
 
 [opencastledoubledoorl]
 model=model_loc_71
 active=no
+raiseobject=no
 
 [doubledoorhingel]
 model=model_loc_71
 mirror=yes
 active=no
+raiseobject=no
 
 [castledoubledoorr]
 model=model_loc_71
 active=no
+raiseobject=no
 
 [opencastledoubledoorr]
 model=model_loc_71
 mirror=yes
 active=no
+raiseobject=no
 
 [doubledoorhinger]
 name=Curtain
@@ -8475,10 +8468,12 @@ desc=The curtain is closed.
 model=model_loc_1526
 active=yes
 op1=Open
+raiseobject=no
 
 [inaccastledoubledoorl]
 model=model_loc_1527
 active=no
+raiseobject=no
 
 [inaccastledoubledoorr]
 name=Curtain
@@ -8486,6 +8481,7 @@ desc=The curtain is closed.
 model=model_loc_1526
 active=yes
 op1=Open
+raiseobject=no
 
 [inaccastledoubledoorlopen]
 name=Curtain
@@ -8495,55 +8491,66 @@ active=yes
 op1=Close
 blockwalk=no
 blockrange=no
+raiseobject=no
 
 [prisondooropen]
 model=model_loc_1547
 blockrange=no
+raiseobject=no
 
 [inactiveprisondoor]
 model=model_loc_1547
 mirror=yes
 blockrange=no
+raiseobject=no
 
 [prisondoor_r]
 model=model_loc_1549
 blockrange=no
+raiseobject=no
 
 [prisondooropen_r]
 model=model_loc_1549
 mirror=yes
 blockrange=no
+raiseobject=no
 
 [loc_1554]
 model=model_loc_47
 mirror=yes
 active=no
 blockrange=no
+raiseobject=no
 
 [loc_1555]
 model=model_loc_47
 active=no
 blockrange=no
+raiseobject=no
 
 [openfencegate_l]
 name=Gate
 model=model_loc_1559
 length=2
+raiseobject=no
 
 [loc_1562]
 model=model_loc_52
 active=no
+raiseobject=no
 
 [loc_1563]
 model=model_loc_52
 mirror=yes
 active=no
+raiseobject=no
 
 [loc_1564]
 model=model_loc_1564
 sharelight=yes
 occlude=yes
 blockrange=no
+raiseobject=no
 
 [loc_1565]
 model=model_loc_1564
@@ -8551,15 +8558,18 @@ sharelight=yes
 occlude=yes
 mirror=yes
 blockrange=no
+raiseobject=no
 
 [towered_gateway_roof]
 model=model_loc_1566
 length=3
 sharelight=yes
 blockrange=no
+raiseobject=no
 
 [trapdoor_nonactive]
 model=model_loc_100
+raiseobject=no
 
 [trapdoor]
 name=Trapdoor
@@ -8567,6 +8577,7 @@ desc=I wonder what's under it?
 model=model_loc_100
 active=yes
 op1=Open
+raiseobject=no
 
 [trapdoor_level1]
 name=Trapdoor
@@ -8574,6 +8585,7 @@ desc=I wonder what's under it?
 model=model_loc_100
 active=yes
 op1=Open
+raiseobject=no
 
 [trapdoor_open]
 name=Trapdoor
@@ -8582,6 +8594,7 @@ model=model_loc_1570
 active=yes
 op1=Climb-down
 op2=Close
+raiseobject=no
 
 [trapdoor_open_level1]
 name=Trapdoor
@@ -8590,12 +8603,14 @@ model=model_loc_1570
 active=yes
 op1=Climb-down
 op2=Close
+raiseobject=no
 
 [boardedupdoor]
 name=Boarded-up door
 desc=This door has been boarded up.
 model=model_loc_1572
 active=yes
+raiseobject=no
 
 [palacedoor_r]
 name=Doors
@@ -8603,6 +8618,7 @@ desc=A door to a grand place.
 model=model_loc_1573
 active=yes
 mirror=yes
+raiseobject=no
 
 [openpalacedoor_r]
 name=Doors
@@ -8611,6 +8627,7 @@ model=model_loc_1573
 active=yes
 op1=Close
 mirror=yes
+raiseobject=no
 
 [palacedoor_l]
 name=Doors
@@ -8618,6 +8635,7 @@ desc=A door to a grand place.
 model=model_loc_1573
 active=yes
 op1=Open
+raiseobject=no
 
 [openpalacedoor_l]
 name=Doors
@@ -8625,6 +8643,7 @@ desc=A door to a grand place.
 model=model_loc_1573
 active=yes
 op1=Close
+raiseobject=no
 
 [stone_arched_doortop]
 name=Doorway
@@ -8633,6 +8652,7 @@ model=model_loc_1577
 length=3
 blockwalk=no
 sharelight=yes
+raiseobject=no
 
 [stone_arched_doortop_b_l]
 name=Doorway
@@ -8641,6 +8661,7 @@ model=model_loc_1578
 length=2
 blockwalk=no
 sharelight=yes
+raiseobject=no
 
 [stone_arched_doortop_b_r]
 name=Doorway
@@ -8650,12 +8671,14 @@ length=2
 blockwalk=no
 sharelight=yes
 mirror=yes
+raiseobject=no
 
 [stone_arched_doorbase_r]
 name=Doorway
 desc=The base of the archway.
 model=model_loc_1580
 sharelight=yes
+raiseobject=no
 
 [stone_arched_doorbase_l]
 name=Doorway
@@ -8663,11 +8686,13 @@ desc=The base of the archway.
 model=model_loc_1580
 mirror=yes
 sharelight=yes
+raiseobject=no
 
 [bamboo_doorway]
 model=model_loc_1582
 blockwalk=no
 blockrange=no
+raiseobject=no
 
 [secretdoor]
 name=Wall
@@ -8675,6 +8700,7 @@ desc=There is something strange about this wall...
 model=model_loc_3
 active=yes
 op1=Push
+raiseobject=no
 
 [secretdooropen]
 name=Wall
@@ -8682,10 +8708,12 @@ desc=There is something strange about this wall...
 model=model_loc_3
 active=yes
 op1=Push
+raiseobject=no
 
 [inactivesecretdoor]
 model=model_loc_3
 active=no
+raiseobject=no
 
 [secretdoor2]
 name=Wall
@@ -8693,6 +8721,7 @@ desc=There is something strange about this wall...
 model=model_loc_3
 active=yes
 op1=Push
+raiseobject=no
 retex1s=wall
 retex1d=mossybricks
 
@@ -8702,6 +8731,7 @@ desc=There is something strange about this wall...
 model=model_loc_3
 active=yes
 op1=Push
+raiseobject=no
 retex1s=wall
 retex1d=mossybricks
 
@@ -8709,6 +8739,7 @@ retex1d=mossybricks
 model=model_loc_3
 active=yes
 active=no
+raiseobject=no
 retex1s=wall
 retex1d=mossybricks
 
@@ -8719,6 +8750,7 @@ model=model_loc_52
 op1=Open
 active=yes
 blockrange=no
+raiseobject=no
 category=locked_gate
 
 [lockedmetalgater]
@@ -8729,6 +8761,7 @@ op1=Open
 mirror=yes
 active=yes
 blockrange=no
+raiseobject=no
 category=locked_gate
 
 [loc_1591]
@@ -8737,6 +8770,7 @@ desc=The door is closed.
 model=model_loc_3
 active=yes
 op1=Open
+raiseobject=no
 retex1s=wall
 retex1d=door
 recol2s=6342
@@ -8750,6 +8784,7 @@ width=2
 length=2
 op1=Push
 active=yes
+raiseobject=no
 retex1s=wall
 retex1d=mossybricks
 recol2s=6342
@@ -8762,6 +8797,7 @@ model=model_loc_1593
 active=no
 width=2
 length=2
+raiseobject=no
 retex1s=wall
 retex1d=mossybricks
 recol2s=6342
@@ -8775,6 +8811,7 @@ desc=An entranceway into the dungeon.
 model=model_loc_3
 active=yes
 op1=Open
+raiseobject=no
 retex1s=wall
 retex1d=door
 recol2s=6342
@@ -8785,6 +8822,7 @@ name=Door
 model=model_loc_3
 active=yes
 op1=Open
+raiseobject=no
 retex1s=wall
 retex1d=door
 recol2s=6342
@@ -9163,6 +9201,7 @@ retex2d=mossybricks
 [oldstone_arched_doorbase_r]
 model=model_loc_1580
 sharelight=yes
+active=no
 recol1s=15855
 recol1d=7329
 retex2s=wall
@@ -9172,6 +9211,7 @@ retex2d=mossybricks
 model=model_loc_1580
 mirror=yes
 sharelight=yes
+active=no
 recol1s=15855
 recol1d=7329
 retex2s=wall
@@ -10367,11 +10407,13 @@ active=no
 model=model_loc_1862
 hillskew=yes
 sharelight=yes
+forcedecor=yes
 
 [skewsteps1_lbrown]
 model=model_loc_1862
 hillskew=yes
 sharelight=yes
+forcedecor=yes
 recol1s=15855
 recol1d=15717
 
@@ -10485,7 +10527,6 @@ model=model_loc_1887
 width=3
 length=3
 anim=rune_altar
-hasalpha=yes
 
 [runetemple_altar_old]
 model=model_loc_1888
@@ -10498,6 +10539,7 @@ sharelight=yes
 hillskew=yes
 blockwalk=no
 blockrange=no
+forcedecor=yes
 
 [collapsed_floor_r]
 model=model_loc_1889
@@ -10506,6 +10548,7 @@ mirror=yes
 hillskew=yes
 blockwalk=no
 blockrange=no
+forcedecor=yes
 
 [collapsed_floor2_l]
 model=model_loc_1891
@@ -10513,6 +10556,7 @@ sharelight=yes
 hillskew=yes
 blockwalk=no
 blockrange=no
+forcedecor=yes
 
 [collapsed_floor2_r]
 model=model_loc_1891
@@ -10521,21 +10565,25 @@ sharelight=yes
 hillskew=yes
 blockwalk=no
 blockrange=no
+forcedecor=yes
 
 [skewsteps2]
 model=model_loc_1862
 hillskew=yes
 sharelight=yes
+forcedecor=yes
 
 [skewsteps2_side_left]
 model=model_loc_1894
 hillskew=yes
 sharelight=yes
+forcedecor=yes
 
 [skewsteps2_side_right]
 model=model_loc_1895
 hillskew=yes
 sharelight=yes
+forcedecor=yes
 
 [oldthrone]
 name=Throne
@@ -10646,7 +10694,6 @@ blockrange=no
 [castlebattlements_wiztorch]
 model=model_loc_1914
 anim=wiztorch
-hasalpha=yes
 active=no
 
 [castleedgewall]
@@ -11125,7 +11172,6 @@ ambient=80
 contrast=80
 shadow=no
 anim=water_foam
-hasalpha=yes
 active=no
 
 [waterfall_foam_big]
@@ -11139,7 +11185,6 @@ ambient=80
 contrast=80
 shadow=no
 anim=water_foam
-hasalpha=yes
 active=no
 
 [waterfall_foam_small]
@@ -11151,7 +11196,6 @@ ambient=80
 contrast=80
 shadow=no
 anim=water_foam
-hasalpha=yes
 active=no
 
 [whirlpool]
@@ -11160,7 +11204,6 @@ model=model_loc_2019
 width=3
 length=3
 anim=whirlpool
-hasalpha=yes
 resizey=1
 
 [overhanging_tree1_waterfall_quest]
@@ -11352,7 +11395,6 @@ recol2d=5248
 name=Whirlpool
 model=model_loc_2019
 anim=whirlpool
-hasalpha=yes
 resizex=32
 resizey=32
 resizez=32
@@ -11364,7 +11406,6 @@ desc=An open chest.
 model=model_loc_674
 forceapproach=north
 anim=smokepuff
-hasalpha=yes
 blockrange=no
 recol1s=15855
 recol1d=17030
@@ -11486,7 +11527,6 @@ desc=It's a war machine.
 model=model_loc_671
 width=3
 length=3
-hasalpha=yes
 active=yes
 
 [treegnomelooserailing]
@@ -11709,7 +11749,6 @@ desc=A branch protrudes here.
 model=model_loc_2326
 length=6
 blockwalk=no
-hasalpha=yes
 
 [loc_2327]
 name=Long branched tree
@@ -12289,6 +12328,7 @@ width=3
 
 [loc_2496]
 model=model_loc_2496
+forcedecor=yes
 
 [loc_2497]
 name=Mysterious stone
@@ -12301,7 +12341,6 @@ desc=Unusual energy is gathered here.
 model=model_loc_2498
 ambient=100
 anim=stoneglow
-hasalpha=yes
 
 [loc_2499]
 name=Mysterious glow
@@ -12309,7 +12348,6 @@ desc=Unusual energy is gathered here.
 model=model_loc_2498
 ambient=100
 anim=stoneglow
-hasalpha=yes
 
 [loc_2500]
 name=Mysterious glow
@@ -12317,7 +12355,6 @@ desc=Unusual energy is gathered here.
 model=model_loc_2498
 anim=stoneglow
 ambient=60
-hasalpha=yes
 recol1s=28538
 recol1d=15871
 
@@ -12327,7 +12364,6 @@ desc=Unusual energy is gathered here.
 model=model_loc_2498
 anim=stoneglow
 ambient=60
-hasalpha=yes
 recol1s=28538
 recol1d=18465
 
@@ -12337,7 +12373,6 @@ desc=Unusual energy is gathered here.
 model=model_loc_2498
 anim=stoneglow
 ambient=60
-hasalpha=yes
 recol1s=28538
 recol1d=12488
 
@@ -12693,10 +12728,9 @@ op1=Open
 
 [loc_2630]
 name=Fishing spot
-desc=I can see eels swimming in the water.
+desc=I can see eels swimming in the lava.
 model=model_loc_2630
 anim=lava_ripples
-hasalpha=yes
 ambient=100
 contrast=100
 shadow=no
@@ -13359,7 +13393,6 @@ recol1d=32767
 name=Magical shield
 model=model_loc_2842
 anim=magicwall
-hasalpha=yes
 length=2
 
 [questdrain]
@@ -13460,7 +13493,6 @@ name=Mouse hole
 desc=The mouse equivalent of a door.
 model=model_loc_1874_q
 active=yes
-op1=Examine
 
 [magearena_ladder_to_cellar]
 name=Ladder
@@ -13507,7 +13539,7 @@ forceapproach=south
 [magearena_statue_guthix]
 name=Statue of Guthix
 desc=I wonder how accurate a representation this is.
-model=model_loc_2875
+model=model_3662
 op1=Pray at
 forceapproach=south
 
@@ -13767,7 +13799,6 @@ name=Fire
 desc=Hot!
 model=model_loc_2732
 anim=fire
-hasalpha=yes
 blockwalk=no
 blockrange=no
 ambient=75
@@ -14928,14 +14959,11 @@ model=model_loc_3207
 active=no
 
 [loc_3208]
-name=Vine
-desc=It's covered in thorns!
-model=model_loc_3208
-hillskew=yes
-active=yes
-blockwalk=no
-blockrange=no
-anim=seq_927
+model=loc_3208
+recol1s=22126
+recol1d=21071
+sharelight=yes
+active=no
 
 [oddwall_r]
 name=Odd looking wall
@@ -14943,6 +14971,7 @@ desc=A strange crack cuts into the wall.
 model=model_loc_3209
 active=yes
 op1=push
+raiseobject=no
 retex1s=wall
 retex1d=mossybricks
 recol2s=6342
@@ -14957,6 +14986,7 @@ name=Odd looking wall
 desc=A strange crack cuts into the wall.
 model=model_loc_3210
 active=yes
+raiseobject=no
 retex1s=wall
 retex1d=mossybricks
 recol2s=6342
@@ -14970,6 +15000,7 @@ desc=A strange crack cuts into the wall.
 model=model_loc_3211
 active=yes
 op1=push
+raiseobject=no
 retex1s=wall
 retex1d=mossybricks
 recol2s=6342
@@ -14984,6 +15015,7 @@ name=Odd looking wall
 desc=A strange crack cuts into the wall.
 model=model_loc_3212
 active=yes
+raiseobject=no
 retex1s=wall
 retex1d=mossybricks
 recol2s=6342
@@ -15033,7 +15065,6 @@ desc=Useful for ogre dinners.
 model=model_ogre_spitroast_with_chompy
 width=2
 anim=roast
-hasalpha=yes
 blockrange=no
 recol1s=26156
 recol1d=19014
@@ -15044,7 +15075,6 @@ desc=Useful for ogre dinners.
 model=model_ogre_spitroast_with_chompy
 width=2
 anim=roast
-hasalpha=yes
 blockrange=no
 recol1s=26156
 recol1d=14690
@@ -15055,7 +15085,6 @@ desc=Useful for ogre dinners.
 model=model_ogre_spitroast_with_chompy
 width=2
 anim=roast
-hasalpha=yes
 blockrange=no
 recol1s=26156
 recol1d=6273
@@ -15066,7 +15095,6 @@ desc=Useful for ogre dinners.
 model=model_ogre_spitroast
 width=2
 anim=spit_fire
-hasalpha=yes
 blockrange=no
 
 [chompybird_rockbench]
@@ -15101,7 +15129,6 @@ desc=Useful for ogre dinners.
 model=model_ogre_spitroast_with_chompy
 width=2
 anim=roast
-hasalpha=yes
 blockrange=no
 
 [chompybird_spitroast_chicken_c]
@@ -15110,7 +15137,6 @@ desc=Useful for ogre dinners.
 model=model_ogre_spitroast_with_chompy
 width=2
 anim=roast
-hasalpha=yes
 blockrange=no
 
 [cavewall_top_mudtogrey]

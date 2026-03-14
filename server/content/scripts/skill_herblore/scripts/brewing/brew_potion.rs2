@@ -57,6 +57,12 @@ if(last_useitem = ground_bat_bones) {
 [opheldu,torstolvial]
 ~attempt_brew_potion(last_useslot, last_slot);
 
+[opheldu,toadflaxvial]
+~attempt_brew_potion(last_useslot, last_slot);
+
+[opheldu,snapdragonvial]
+~attempt_brew_potion(last_useslot, last_slot);
+
 [opheldu,eye_of_newt]
 ~attempt_brew_potion(last_useslot, last_slot);
 

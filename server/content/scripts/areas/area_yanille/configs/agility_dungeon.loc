@@ -4,6 +4,7 @@ desc=Shrine to the glory of Zamorak.
 model=model_loc_61
 width=2
 op1=Pray-at
+blockrange=no
 
 [loc_2290]
 name=Obstacle pipe

@@ -85,7 +85,7 @@ head3=model_83_idk_head
 
 [herder_plaguesheep_1]
 vislevel=hide
-name=Diseased sheep
+name=Diseased sheep 1
 desc=Even from here you can see this sheep's not well.
 walkanim=sheep_walk
 readyanim=sheep_ready
@@ -94,7 +94,9 @@ recol1s=15853
 recol1d=18894
 recol2s=29594
 recol2d=28563
-model1=model_2929_npc
+model1=model_3786
+model2=model_3784
+model3=npc_1093i3
 wanderrange=3
 param=death_anim,sheep_death
 timer=25
@@ -104,7 +106,7 @@ category=diseased_sheep
 
 [herder_plaguesheep_2]
 vislevel=hide
-name=Diseased sheep
+name=Diseased sheep 2
 desc=Even from here you can see this sheep's not well.
 walkanim=sheep_walk
 readyanim=sheep_ready
@@ -113,7 +115,9 @@ recol1s=15853
 recol1d=16015
 recol2s=29594
 recol2d=28563
-model1=model_2929_npc
+model1=model_3786
+model2=model_3784
+model3=npc_1093i3
 wanderrange=3
 param=death_anim,sheep_death
 timer=25
@@ -123,7 +127,7 @@ category=diseased_sheep
 
 [herder_plaguesheep_3]
 vislevel=hide
-name=Diseased sheep
+name=Diseased sheep 3
 desc=Even from here you can see this sheep's not well.
 walkanim=sheep_walk
 readyanim=sheep_ready
@@ -132,7 +136,9 @@ recol1s=15853
 recol1d=14800
 recol2s=29594
 recol2d=28563
-model1=model_2929_npc
+model1=model_3786
+model2=model_3784
+model3=npc_1093i3
 wanderrange=3
 param=death_anim,sheep_death
 timer=25
@@ -142,7 +148,7 @@ category=diseased_sheep
 
 [herder_plaguesheep_4]
 vislevel=hide
-name=Diseased sheep
+name=Diseased sheep 4
 desc=Even from here you can see this sheep's not well.
 walkanim=sheep_walk
 readyanim=sheep_ready
@@ -151,7 +157,9 @@ recol1s=15853
 recol1d=21089
 recol2s=29594
 recol2d=28563
-model1=model_2929_npc
+model1=model_3786
+model2=model_3784
+model3=npc_1093i3
 wanderrange=3
 param=death_anim,sheep_death
 timer=25

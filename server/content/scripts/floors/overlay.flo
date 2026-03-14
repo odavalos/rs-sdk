@@ -233,7 +233,7 @@ colour=0x2D0000
 
 [grey_blue]
 overlay=yes
-colour=0x484757
+colour=0x423F73
 
 [viking_town_overlay]
 overlay=yes

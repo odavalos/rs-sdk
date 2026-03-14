@@ -1,44 +1,44 @@
-import DoublyLinkable from '#/datastruct/DoublyLinkable.js';
+import Linkable2 from '#/datastruct/Linkable2.js';
 import HashTable from '#/datastruct/HashTable.js';
-import DoublyLinkList from '#/datastruct/DoublyLinkList.js';
+import LinkList2 from '#/datastruct/LinkList2.js';
 
-export default class LruCache {
+export default class LruCache<T extends Linkable2> {
     readonly capacity: number;
-    readonly hashtable: HashTable = new HashTable(1024);
-    readonly cacheHistory: DoublyLinkList = new DoublyLinkList();
-    cacheAvailable: number;
+    readonly table: HashTable<T> = new HashTable(1024);
+    readonly history: LinkList2<T> = new LinkList2();
+    available: number;
 
     constructor(size: number) {
         this.capacity = size;
-        this.cacheAvailable = size;
+        this.available = size;
     }
 
-    get(key: bigint): DoublyLinkable | null {
-        const node: DoublyLinkable | null = this.hashtable.get(key) as DoublyLinkable | null;
+    find(key: bigint): T | null {
+        const node = this.table.find(key);
         if (node) {
-            this.cacheHistory.push(node);
+            this.history.push(node);
         }
         return node;
     }
 
-    put(key: bigint, value: DoublyLinkable): void {
-        if (this.cacheAvailable === 0) {
-            const node: DoublyLinkable | null = this.cacheHistory.pop();
-            node?.unlink();
-            node?.unlink2();
+    put(node: T, key: bigint): void {
+        if (this.available === 0) {
+            const first = this.history.popFront();
+            first?.unlink();
+            first?.unlink2();
         } else {
-            this.cacheAvailable--;
+            this.available--;
         }
-        this.hashtable.put(key, value);
-        this.cacheHistory.push(value);
+
+        this.table.put(node, key);
+        this.history.push(node);
     }
 
     clear(): void {
-        // eslint-disable-next-line no-constant-condition
         while (true) {
-            const node: DoublyLinkable | null = this.cacheHistory.pop();
+            const node: T | null = this.history.popFront();
             if (!node) {
-                this.cacheAvailable = this.capacity;
+                this.available = this.capacity;
                 return;
             }
             node.unlink();

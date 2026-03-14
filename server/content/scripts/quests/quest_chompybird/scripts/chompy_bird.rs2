@@ -1,49 +1,73 @@
 [proc,spawn_chompy_bird](coord $coord, player_uid $baiter_uid)
 {
-    // def_coord $spawn_coord = map_findsquare($coord, 3, 10, 1);
-    def_coord $spawn_coord = map_findsquare($coord, 4, 4, 1);
+    def_coord $spawn_coord = map_findsquare($coord, 3, 10, ^map_findsquare_lineofsight);
     
     npc_add($spawn_coord, chompy_bird, 100); // no seq for flying away at end, prob just despawned?
     %quest_chompybird_baiter = $baiter_uid;
     npc_anim(chompy_landing, 0);
     npc_say("Sqwirk!");
     if(finduid(%quest_chompybird_baiter) = true) {
-        hint_npc(npc_uid);
+        hint_npc;
     }
 
     // todo confirm behaviour, looks like it wanders first then hunts?
     npc_sethuntmode(chompybird);
 }
 
-// triggered by the .hunt config, the Chompy has found, and arrived at, the Bloated Toad
+// triggered by the .hunt config, walks the chompy bird to a targeted toad
 [ai_queue4,chompy_bird]
-if (.npc_find(npc_coord, bloated_toad, 2, ^vis_lineofwalk) = true) {
+if (%npc_aggressive_player ! null) {
+    return;
+}
+def_int $dist;
+def_coord $dest;
+if (.npc_find(npc_coord, bloated_toad, 7, ^vis_lineofwalk) = true) {
+    %rantz_attacking_chompy = .npc_uid;
+    $dest = map_findsquare(.npc_coord, 1, 1, ^vis_lineofwalk);
+    $dist = add(distance(npc_coord, $dest), 1);
+    npc_walk($dest);
     npc_sethuntmode(null);
     npc_setmode(none);
-    npc_walk(npc_coord);
-    npc_facesquare(.npc_coord);
-    npc_queue(5, 0, 0);
-    .npc_queue(5, 0, 0);
+    npc_queue(5, 0, $dist);
 }
 
-
-// the Chompy is eating the toad
 [ai_queue5,chompy_bird]
-npc_say("Sqwark!");
-npc_anim(chompy_attack, 0);
-npc_delay(3);
-npc_say("Gobble!");
-npc_delay(2);
-npc_setmode(null);
-npc_sethuntmode(chompybird);
-
-// todo consider some check that the toad actually still exists?
-//      might not be necessary though
-
-if (p_finduid(%quest_chompybird_baiter) = true) {
-    if (%chompybird = ^chompybird_dropped_toad) {
-        %chompybird = ^chompybird_chompy_ate_toad;
+if (.npc_finduid(%rantz_attacking_chompy) = true & distance(npc_coord, .npc_coord) = 1 & %npc_aggressive_player = null) {
+    %npc_int = ^true;
+    npc_walk(npc_coord);
+    npc_facesquare(.npc_coord);
+    npc_say("Sqwark!");
+    ~sound_area(chompy_bird_squak, 0, npc_coord, 5);
+    npc_delay(1);
+    npc_anim(chompy_attack, 0);
+    npc_delay(1);
+    ~sound_area(toad_croak, 0, npc_coord, 5);
+    .npc_say("!!Croak!!");
+    npc_say("Gobble!");
+    .npc_delay(1);
+    .npc_del;
+    npc_setmode(null);
+    if (p_finduid(%quest_chompybird_baiter) = true) {
+        if (%chompybird = ^chompybird_dropped_toad) {
+            %chompybird = ^chompybird_chompy_ate_toad;
+        }
     }
+} else {
+    npc_setmode(null);
+    npc_sethuntmode(chompybird);
+}
+
+[ai_timer,chompy_bird]
+if(%npc_int = ^true) {
+    if(npc_getmode = playerescape) npc_setmode(null);
+    return;
+}
+huntall(npc_coord, 2, ^vis_lineofsight);
+if (huntnext = true) {
+    %npc_int = ^true;
+    npc_say("Screech!");
+    sound_synth(chompy_bird_screech, 0, 0);
+    npc_setmode(playerescape);
 }
 
 [opnpc4,chompybird_dead]
@@ -141,7 +165,7 @@ if (~player_npc_hit_roll(%damagetype) = true) {
     ~give_combat_experience(%damagestyle, $damage_capped, %npc_combat_xp_multiplier);
     npc_heropoints($damage_capped);
 }
-
+%npc_aggressive_player = uid;
 def_int $delay = add(~player_use_ogre_bow($ammo), 30); // osrs it seems to be delayed an extra tick
 anim(%com_attackanim, 0);
 sound_synth(%com_attacksound, 0, 0);
@@ -154,12 +178,6 @@ if (npc_param(defend_sound) ! null) {
 p_opnpc(5);
 
 ~ranged_dropammo_npc($ammo, divide($delay, 30));
-
-if (random(2) = 0) {
-    // There's some randomness here, this is a guess
-    npc_say("Screech!");
-    npc_setmode(playerescape);
-}
 
 // Ogre arrow launch spotanim is higher than other arrows by default, so we compensate for that here
 [proc,player_use_ogre_bow](obj $ammo)(int)

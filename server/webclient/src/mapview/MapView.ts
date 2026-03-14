@@ -3,20 +3,25 @@ import Pix32 from '#/graphics/Pix32.js';
 import Pix2D from '#/graphics/Pix2D.js';
 import Pix8 from '#/graphics/Pix8.js';
 import PixFont from '#/graphics/PixFont.js';
-import Database from '#/io/Database.js';
 import Jagfile from '#/io/Jagfile.js';
 import Packet from '#/io/Packet.js';
 import { TypedArray1d, TypedArray2d } from '#/util/Arrays.js';
-import { canvas } from '#/graphics/Canvas.js';
 import { downloadUrl, sleep } from '#/util/JsUtil.js';
+import { canvas, saveDataURL } from '#/graphics/Canvas.js';
+import PixMap from '#/graphics/PixMap.js';
+import WorldMapFont from '#/mapview/WorldMapFont.js';
 
 export class MapView extends GameShell {
     static shouldDrawBorders: boolean = false;
     static shouldDrawLabels: boolean = true;
+
     static shouldDrawNpcs: boolean = false;
     static shouldDrawItems: boolean = false;
+    static shouldDrawMultimap: boolean = false;
+    static shouldDrawFreemap: boolean = false;
     static shouldDrawPlayers: boolean = true;
 
+    // custom: player tracking
     playerPositions: {x: number, z: number, level: number, name: string}[] = [];
     playerTrails: Map<string, {x: number, z: number, time: number}[]> = new Map();
     lastPlayerFetch: number = 0;
@@ -27,9 +32,11 @@ export class MapView extends GameShell {
     readonly teleportThreshold: number = 30;
     teleportMarkers: {x: number, z: number, time: number}[] = [];
     readonly teleportMarkerAge: number = 8000;
+
+    // custom: wheel zoom
     wheelDelta: number = 0;
 
-    // touch state
+    // custom: touch state
     touchIds: number[] = [];
     touchStartX: number = 0;
     touchStartY: number = 0;
@@ -40,58 +47,75 @@ export class MapView extends GameShell {
     pinchMidX: number = 0;
     pinchMidY: number = 0;
 
-    // unified: overworld (mz 44-62) + misc (mz 70-76) + underground (remapped mz 78-95)
-    readonly startX: number = 3200;
-    readonly startZ: number = 3200;
-    readonly sizeX: number = 28 << 6;
-    readonly sizeZ: number = 52 << 6;
-    readonly originX: number = 28 << 6;
-    readonly originZ: number = 44 << 6;
+    // custom: unified map — overworld (mz 44-62) + underground (62-79, overlaps OW last row) + misc (80-86)
+    mapStartX: number = 50 << 6;
+    mapStartZ: number = 50 << 6;
+    mapWidth: number = 28 << 6;
+    mapHeight: number = 44 << 6;
+    mapOriginX: number = 28 << 6;
+    mapOriginZ: number = 44 << 6;
+    focusX: number = this.mapStartX - this.mapOriginX;
+    focusZ: number = this.mapOriginZ + this.mapHeight - this.mapStartZ;
 
-    db: Database | null = null;
+    shouldClearEmptyTiles: boolean = true;
 
     readonly maxLabelCount: number = 1000;
-    labelCount: number = 0;
-    labelText: string[] = [];
-    labelX: number[] = [];
-    labelY: number[] = [];
-    labelFont: number[] = [];
+    mapLabelCount: number = 0;
+    mapLabel: string[] = [];
+    mapLabelX: number[] = [];
+    mapLabelY: number[] = [];
+    mapLabelSize: number[] = [];
 
-    floorcolUnderlay: number[] = [0];
-    floorcolOverlay: number[] = [0];
+    // floorcol.dat
+    floorcol1: number[] = [0];
+    floorcol2: number[] = [0];
 
-    underlayTiles: number[][] = [];
+    // underlay.dat
+    floort1: number[][] = [];
 
-    overlayTiles: number[][] = [];
-    overlayInfo: number[][] = [];
+    // overlay.dat
+    floort2: number[][] = [];
+    floorsr: number[][] = [];
 
-    locWalls: number[][] = [];
-    locMapscenes: number[][] = [];
+    // loc.dat
+    locWall: number[][] = [];
+    locMapscene: number[][] = [];
     locMapfunction: number[][] = [];
 
-    objTiles: boolean[][] = [];
+    // custom: obj.dat
+    objPos: boolean[][] = [];
 
-    npcTiles: boolean[][] = [];
+    // custom: npc.dat
+    npcPos: boolean[][] = [];
 
-    imageMapscene: Pix8[] = [];
-    imageMapfunction: Pix32[] = [];
-    imageMapdot0: Pix32 | null = null;
-    imageMapdot1: Pix32 | null = null;
-    imageMapdot2: Pix32 | null = null;
-    imageMapdot3: Pix32 | null = null;
+    // custom: multi.dat
+    multiPos: boolean[][] = [];
+
+    // custom: free.dat
+    freePos: boolean[][] = [];
+
+    mapscene: Pix8[] = [];
+    mapfunction: Pix32[] = [];
+    mapdot0: Pix32 | null = null;
+    mapdot1: Pix32 | null = null;
 
     b12: PixFont | null = null;
+    f11: WorldMapFont | null = null;
+    f12: WorldMapFont | null = null;
+    f14: WorldMapFont | null = null;
+    f17: WorldMapFont | null = null;
+    f19: WorldMapFont | null = null;
+    f22: WorldMapFont | null = null;
+    f26: WorldMapFont | null = null;
+    f30: WorldMapFont | null = null;
 
-    floormapColors: number[][] = [];
+    blendedGroundColour: number[][] = [];
 
     redraw: boolean = true;
     redrawTimer: number = 0;
-    nextMouseClickX: number = -1;
-    nextMouseClickY: number = -1;
-    lastOffsetX: number = -1;
-    lastOffsetZ: number = -1;
+    dragFocusX: number = -1;
+    dragFocusZ: number = -1;
 
-    shouldClearEmptyTiles: boolean = true;
     keyX: number = 5;
     keyY: number = 13;
     keyWidth: number = 140;
@@ -112,28 +136,22 @@ export class MapView extends GameShell {
     activeMapFunctions: Int32Array = new Int32Array(2000);
     activeMapFunctionCount: number = 0;
 
-    imageOverview: Pix32 | null = null;
-    imageOverviewHeight: number = 200;
-    imageOverviewWidth: number = ((this.imageOverviewHeight * this.sizeX) / this.sizeZ) | 0;
-    overviewX: number = 635 - this.imageOverviewWidth - 5;
-    overviewY: number = 503 - this.imageOverviewHeight - 20;
+    overview: Pix32 | null = null;
+    overviewHeight: number = 200;
+    overviewWidth: number = ((this.overviewHeight * this.mapWidth) / this.mapHeight) | 0;
+    overviewX: number = 635 - this.overviewWidth - 5;
+    overviewY: number = 503 - this.overviewHeight - 20;
     showOverview: boolean = false;
 
-    readonly colorInactiveBorderTL: number = 0x887755;
-    readonly colorInactive: number = 0x776644;
-    readonly colorInactiveBorderBR: number = 0x665533;
-    readonly colorActiveBorderTL: number = 0xaa0000;
-    readonly colorActive: number = 0x990000;
-    readonly colorActiveBorderBR: number = 0x880000;
+    readonly INACTIVE_BORDER_TL: number = 0x887755;
+    readonly INACTIVE: number = 0x776644;
+    readonly INACTIVE_BORDER_BR: number = 0x665533;
+    readonly ACTIVE_BORDER_TL: number = 0xaa0000;
+    readonly ACTIVE: number = 0x990000;
+    readonly ACTIVE_BORDER_BR: number = 0x880000;
 
     zoom: number = 4;
     targetZoom: number = 4;
-
-    offsetX: number = this.startX - this.originX;
-    offsetZ: number = this.originZ + this.sizeZ - this.startZ;
-
-    activeTileX: number = -1;
-    activeTileZ: number = -1;
 
     readonly keyNames: string[] = [
         'General Store',
@@ -188,109 +206,150 @@ export class MapView extends GameShell {
     ];
 
     constructor() {
-        super(true);
+        super();
 
         this.run();
     }
 
-    async load(): Promise<void> {
-        this.keyHeight = this.height - this.keyY - 20;
-        this.overviewX = this.width - this.imageOverviewWidth - 5;
-        this.overviewY = this.height - this.imageOverviewHeight - 20;
-
-        this.db = new Database(await Database.openDatabase());
+    override async maininit(): Promise<void> {
+        // custom:
+        this.keyHeight = this.sHei - this.keyY - 20;
+        this.overviewX = this.sWid - this.overviewWidth - 5;
+        this.overviewY = this.sHei - this.overviewHeight - 20;
+        this.redrawScreen = true;
+        canvas.style.cursor = 'grab';
 
         const worldmap: Jagfile = await this.loadWorldmap();
 
-        await this.drawProgress(100, 'Please wait... Rendering Map');
+        await this.messageBox('Please wait... Rendering Map', 100);
 
-        const labelData: Packet = new Packet(worldmap.read('labels.dat'));
-        this.labelCount = labelData.g2();
-        for (let i: number = 0; i < this.labelCount; i++) {
-            this.labelText[i] = labelData.gjstr();
-            this.labelX[i] = labelData.g2();
-            this.labelY[i] = labelData.g2();
-            this.labelFont[i] = labelData.g1();
+        // const size: Packet = new Packet(worldmap.read('size.dat'));
+        // this.mapOriginX = size.g2();
+        // this.mapOriginZ = size.g2();
+        // this.mapWidth = size.g2();
+        // this.mapHeight = size.g2();
+        // this.focusX = this.mapStartX - this.mapOriginX;
+        // this.focusZ = this.mapOriginZ + this.mapHeight - this.mapStartZ;
+
+        const labels: Packet = new Packet(worldmap.read('labels.dat'));
+        this.mapLabelCount = labels.g2();
+        for (let i: number = 0; i < this.mapLabelCount; i++) {
+            this.mapLabel[i] = labels.gjstr();
+            this.mapLabelX[i] = labels.g2();
+            this.mapLabelY[i] = labels.g2();
+            this.mapLabelSize[i] = labels.g1();
         }
 
-        const floorcolData: Packet = new Packet(worldmap.read('floorcol.dat'));
-        const floorcolCount: number = floorcolData.g2();
+        const floorcol: Packet = new Packet(worldmap.read('floorcol.dat'));
+        const floorcolCount: number = floorcol.g2();
         for (let i: number = 0; i < floorcolCount; i++) {
-            this.floorcolUnderlay[i + 1] = floorcolData.g4();
-            this.floorcolOverlay[i + 1] = floorcolData.g4();
+            this.floorcol1[i + 1] = floorcol.g4();
+            this.floorcol2[i + 1] = floorcol.g4();
         }
 
-        const underlayData: Packet = new Packet(worldmap.read('underlay.dat'));
-        this.underlayTiles = new TypedArray2d(this.sizeX, this.sizeZ, 0);
-        this.readUnderlayData(underlayData);
+        const underlay: Packet = new Packet(worldmap.read('underlay.dat'));
+        this.floort1 = new TypedArray2d(this.mapWidth, this.mapHeight, 0);
+        this.loadUnderlay(underlay);
 
-        const overlayData: Packet = new Packet(worldmap.read('overlay.dat'));
-        this.overlayTiles = new TypedArray2d(this.sizeX, this.sizeZ, 0);
-        this.overlayInfo = new TypedArray2d(this.sizeX, this.sizeZ, 0);
-        this.readOverlayData(overlayData);
+        const overlay: Packet = new Packet(worldmap.read('overlay.dat'));
+        this.floort2 = new TypedArray2d(this.mapWidth, this.mapHeight, 0);
+        this.floorsr = new TypedArray2d(this.mapWidth, this.mapHeight, 0);
+        this.loadOverlay(overlay);
 
-        const locData: Packet = new Packet(worldmap.read('loc.dat'));
-        this.locWalls = new TypedArray2d(this.sizeX, this.sizeZ, 0);
-        this.locMapscenes = new TypedArray2d(this.sizeX, this.sizeZ, 0);
-        this.locMapfunction = new TypedArray2d(this.sizeX, this.sizeZ, 0);
-        this.readLocData(locData);
-
-        const objData: Packet = new Packet(worldmap.read('obj.dat'));
-        this.objTiles = new TypedArray2d(this.sizeX, this.sizeZ, false);
-        this.readObjData(objData);
-
-        const npcData: Packet = new Packet(worldmap.read('npc.dat'));
-        this.npcTiles = new TypedArray2d(this.sizeX, this.sizeZ, false);
-        this.readNpcData(npcData);
+        const loc: Packet = new Packet(worldmap.read('loc.dat'));
+        this.locWall = new TypedArray2d(this.mapWidth, this.mapHeight, 0);
+        this.locMapscene = new TypedArray2d(this.mapWidth, this.mapHeight, 0);
+        this.locMapfunction = new TypedArray2d(this.mapWidth, this.mapHeight, 0);
+        this.loadLoc(loc);
 
         try {
-            for (let i: number = 0; i < 50; i++) {
-                this.imageMapscene[i] = Pix8.fromArchive(worldmap, 'mapscene', i);
+            // custom:
+            const obj: Packet = new Packet(worldmap.read('obj.dat'));
+            this.objPos = new TypedArray2d(this.mapWidth, this.mapHeight, false);
+            this.loadObj(obj);
+
+            // custom:
+            const npc: Packet = new Packet(worldmap.read('npc.dat'));
+            this.npcPos = new TypedArray2d(this.mapWidth, this.mapHeight, false);
+            this.loadNpc(npc);
+
+            // custom:
+            const multi: Packet = new Packet(worldmap.read('multi.dat'));
+            this.multiPos = new TypedArray2d(this.mapWidth, this.mapHeight, false);
+            this.loadMulti(multi);
+
+            // custom:
+            const free: Packet = new Packet(worldmap.read('free.dat'));
+            this.freePos = new TypedArray2d(this.mapWidth, this.mapHeight, false);
+            this.loadFree(free);
+        } catch (_e) {
+        }
+
+        try {
+            for (let i: number = 0; i < 100; i++) {
+                this.mapscene[i] = Pix8.depack(worldmap, 'mapscene', i);
             }
-        } catch (ignore) {
+        } catch (_e) {
             // empty
         }
 
         try {
-            for (let i: number = 0; i < 50; i++) {
-                this.imageMapfunction[i] = Pix32.fromArchive(worldmap, 'mapfunction', i);
+            for (let i: number = 0; i < 100; i++) {
+                this.mapfunction[i] = Pix32.depack(worldmap, 'mapfunction', i);
             }
-        } catch (ignore) {
+        } catch (_e) {
             // empty
         }
 
-        this.imageMapdot0 = Pix32.fromArchive(worldmap, 'mapdots', 0);
-        this.imageMapdot1 = Pix32.fromArchive(worldmap, 'mapdots', 1);
-        this.imageMapdot2 = Pix32.fromArchive(worldmap, 'mapdots', 2);
-        this.imageMapdot3 = Pix32.fromArchive(worldmap, 'mapdots', 3);
+        // custom:
+        try {
+            this.mapdot0 = Pix32.depack(worldmap, 'mapdots', 0);
+            this.mapdot1 = Pix32.depack(worldmap, 'mapdots', 1);
+        } catch (_e) {
+        }
 
-        this.b12 = PixFont.fromArchive(worldmap, 'b12');
-        // this.f11 = new WorldmapFont(11, true, this);
-        // this.f12 = new WorldmapFont(12, true, this);
-        // this.f14 = new WorldmapFont(14, true, this);
-        // this.f17 = new WorldmapFont(17, true, this);
-        // this.f19 = new WorldmapFont(19, true, this);
-        // this.f22 = new WorldmapFont(22, true, this);
-        // this.f26 = new WorldmapFont(26, true, this);
-        // this.f30 = new WorldmapFont(30, true, this);
+        this.b12 = PixFont.depack(worldmap, 'b12');
 
-        this.floormapColors = new TypedArray2d(this.sizeX, this.sizeZ, 0);
-        this.averageUnderlayColors();
+        // custom:
+        try {
+            this.f11 = WorldMapFont.load(worldmap, 'f11');
+            this.f12 = WorldMapFont.load(worldmap, 'f12');
+            this.f14 = WorldMapFont.load(worldmap, 'f14');
+            this.f17 = WorldMapFont.load(worldmap, 'f17');
+            this.f19 = WorldMapFont.load(worldmap, 'f19');
+            this.f22 = WorldMapFont.load(worldmap, 'f22');
+            this.f26 = WorldMapFont.load(worldmap, 'f26');
+            this.f30 = WorldMapFont.load(worldmap, 'f30');
+        } catch (err) {
+            console.error(err);
+            this.f11 = WorldMapFont.fromSystem(11, true);
+            this.f12 = WorldMapFont.fromSystem(12, true);
+            this.f14 = WorldMapFont.fromSystem(14, true);
+            this.f17 = WorldMapFont.fromSystem(17, true);
+            this.f19 = WorldMapFont.fromSystem(19, true);
+            this.f22 = WorldMapFont.fromSystem(22, true);
+            this.f26 = WorldMapFont.fromSystem(26, true);
+            this.f30 = WorldMapFont.fromSystem(30, true);
+        }
+
+        this.blendedGroundColour = new TypedArray2d(this.mapWidth, this.mapHeight, 0);
+        this.getBlendedGroundColour();
         if (this.shouldClearEmptyTiles) this.clearEmptyTiles();
 
-        this.imageOverview = new Pix32(this.imageOverviewWidth, this.imageOverviewHeight);
-        this.imageOverview.bind();
-        this.drawMap(0, 0, this.sizeX, this.sizeZ, 0, 0, this.imageOverviewWidth, this.imageOverviewHeight);
-        Pix2D.drawRect(0, 0, this.imageOverviewWidth, this.imageOverviewHeight, 0);
-        Pix2D.drawRect(1, 1, this.imageOverviewWidth - 2, this.imageOverviewHeight - 2, this.colorInactiveBorderTL);
+        this.overview = new Pix32(this.overviewWidth, this.overviewHeight);
+        this.overview.setPixels();
+        this.renderWorldMap(0, 0, this.mapWidth, this.mapHeight, 0, 0, this.overviewWidth, this.overviewHeight);
+        Pix2D.drawRect(0, 0, this.overviewWidth, this.overviewHeight, 0);
+        Pix2D.drawRect(1, 1, this.overviewWidth - 2, this.overviewHeight - 2, this.INACTIVE_BORDER_TL);
 
+        // custom: wheel zoom
         canvas.addEventListener('wheel', (e: WheelEvent) => {
             e.preventDefault();
             const delta: number = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaY;
             this.wheelDelta += delta;
         }, { passive: false });
 
-        // Touch events for mobile panning and pinch-to-zoom
+        // custom: touch events for mobile panning and pinch-to-zoom
         canvas.style.touchAction = 'none';
         canvas.addEventListener('touchstart', (e: TouchEvent) => {
             e.preventDefault();
@@ -298,8 +357,8 @@ export class MapView extends GameShell {
                 this.touchIds = [e.touches[0].identifier];
                 this.touchStartX = e.touches[0].clientX;
                 this.touchStartY = e.touches[0].clientY;
-                this.touchStartOffsetX = this.offsetX;
-                this.touchStartOffsetZ = this.offsetZ;
+                this.touchStartOffsetX = this.focusX;
+                this.touchStartOffsetZ = this.focusZ;
             } else if (e.touches.length === 2) {
                 this.touchIds = [e.touches[0].identifier, e.touches[1].identifier];
                 const dx: number = e.touches[1].clientX - e.touches[0].clientX;
@@ -308,8 +367,8 @@ export class MapView extends GameShell {
                 this.pinchStartZoom = this.targetZoom;
                 this.pinchMidX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
                 this.pinchMidY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-                this.touchStartOffsetX = this.offsetX;
-                this.touchStartOffsetZ = this.offsetZ;
+                this.touchStartOffsetX = this.focusX;
+                this.touchStartOffsetZ = this.focusZ;
             }
         }, { passive: false });
 
@@ -318,8 +377,8 @@ export class MapView extends GameShell {
             if (e.touches.length === 1 && this.touchIds.length === 1) {
                 const dx: number = e.touches[0].clientX - this.touchStartX;
                 const dy: number = e.touches[0].clientY - this.touchStartY;
-                this.offsetX = (this.touchStartOffsetX - (dx * 2) / this.zoom) | 0;
-                this.offsetZ = (this.touchStartOffsetZ - (dy * 2) / this.zoom) | 0;
+                this.focusX = (this.touchStartOffsetX - (dx * 2) / this.zoom) | 0;
+                this.focusZ = (this.touchStartOffsetZ - (dy * 2) / this.zoom) | 0;
                 this.redraw = true;
             } else if (e.touches.length >= 2 && this.touchIds.length === 2) {
                 const dx: number = e.touches[1].clientX - e.touches[0].clientX;
@@ -328,13 +387,12 @@ export class MapView extends GameShell {
                 if (this.pinchStartDist > 0) {
                     this.targetZoom = Math.max(1.5, Math.min(16, this.pinchStartZoom * (dist / this.pinchStartDist)));
                 }
-                // Pan with midpoint movement
                 const midX: number = (e.touches[0].clientX + e.touches[1].clientX) / 2;
                 const midY: number = (e.touches[0].clientY + e.touches[1].clientY) / 2;
                 const panDx: number = midX - this.pinchMidX;
                 const panDy: number = midY - this.pinchMidY;
-                this.offsetX = (this.touchStartOffsetX - (panDx * 2) / this.zoom) | 0;
-                this.offsetZ = (this.touchStartOffsetZ - (panDy * 2) / this.zoom) | 0;
+                this.focusX = (this.touchStartOffsetX - (panDx * 2) / this.zoom) | 0;
+                this.focusZ = (this.touchStartOffsetZ - (panDy * 2) / this.zoom) | 0;
                 this.redraw = true;
             }
         }, { passive: false });
@@ -344,70 +402,79 @@ export class MapView extends GameShell {
             if (e.touches.length === 0) {
                 this.touchIds = [];
             } else if (e.touches.length === 1) {
-                // Went from pinch to single finger — reset single-finger pan origin
                 this.touchIds = [e.touches[0].identifier];
                 this.touchStartX = e.touches[0].clientX;
                 this.touchStartY = e.touches[0].clientY;
-                this.touchStartOffsetX = this.offsetX;
-                this.touchStartOffsetZ = this.offsetZ;
+                this.touchStartOffsetX = this.focusX;
+                this.touchStartOffsetZ = this.focusZ;
             }
         }, { passive: false });
 
-        // Resize on orientation change / window resize
+        // custom: resize handler
         window.addEventListener('resize', () => {
             this.resize(window.innerWidth, window.innerHeight);
-            this.overviewX = this.width - this.imageOverviewWidth - 5;
-            this.overviewY = this.height - this.imageOverviewHeight - 20;
-            this.keyHeight = this.height - this.keyY - 20;
+            this.overviewX = this.sWid - this.overviewWidth - 5;
+            this.overviewY = this.sHei - this.overviewHeight - 20;
+            this.keyHeight = this.sHei - this.keyY - 20;
             this.redraw = true;
         });
 
-        if (this.drawArea) {
-            this.drawArea.bind();
+        this.drawArea?.setPixels();
+    }
+
+    // custom: clear tiles with no data (for unified map)
+    clearEmptyTiles(): void {
+        for (let x: number = 0; x < this.mapWidth; x++) {
+            for (let z: number = 0; z < this.mapHeight; z++) {
+                if (this.floort1[x][z] == 0 && this.floort2[x][z] == 0) {
+                    this.blendedGroundColour[x][z] = 0;
+                }
+            }
         }
     }
 
-    async draw(): Promise<void> {
+    override async maindraw(): Promise<void> {
         if (this.redraw) {
             this.redraw = false;
             this.redrawTimer = 0;
 
-            Pix2D.clear();
+            Pix2D.cls();
 
-            const left: number = this.offsetX - ((this.width / this.zoom) | 0);
-            const top: number = this.offsetZ - ((this.height / this.zoom) | 0);
-            const right: number = this.offsetX + ((this.width / this.zoom) | 0);
-            const bottom: number = this.offsetZ + ((this.height / this.zoom) | 0);
-            this.drawMap(left, top, right, bottom, 0, 0, this.width, this.height);
+            const left: number = this.focusX - ((this.sWid / this.zoom) | 0);
+            const top: number = this.focusZ - ((this.sHei / this.zoom) | 0);
+            const right: number = this.focusX + ((this.sWid / this.zoom) | 0);
+            const bottom: number = this.focusZ + ((this.sHei / this.zoom) | 0);
+            this.renderWorldMap(left, top, right, bottom, 0, 0, this.sWid, this.sHei);
 
+            // custom: draw player positions
             if (MapView.shouldDrawPlayers) {
-                this.drawPlayers(left, top, right, bottom, 0, 0, this.width, this.height);
+                this.drawPlayers(left, top, right, bottom, 0, 0, this.sWid, this.sHei);
             }
 
             if (this.showOverview) {
-                this.imageOverview?.blitOpaque(this.overviewX, this.overviewY);
+                this.overview?.quickPlotSprite(this.overviewX, this.overviewY);
 
-                Pix2D.fillRectAlpha(
-                    (this.overviewX + (this.imageOverviewWidth * left) / this.sizeX) | 0,
-                    (this.overviewY + (this.imageOverviewHeight * top) / this.sizeZ) | 0,
-                    (((right - left) * this.imageOverviewWidth) / this.sizeX) | 0,
-                    (((bottom - top) * this.imageOverviewHeight) / this.sizeZ) | 0,
+                Pix2D.fillRectTrans(
+                    (this.overviewX + (this.overviewWidth * left) / this.mapWidth) | 0,
+                    (this.overviewY + (this.overviewHeight * top) / this.mapHeight) | 0,
+                    (((right - left) * this.overviewWidth) / this.mapWidth) | 0,
+                    (((bottom - top) * this.overviewHeight) / this.mapHeight) | 0,
                     0xff0000,
                     0x80
                 );
                 Pix2D.drawRect(
-                    (this.overviewX + (this.imageOverviewWidth * left) / this.sizeX) | 0,
-                    (this.overviewY + (this.imageOverviewHeight * top) / this.sizeZ) | 0,
-                    (((right - left) * this.imageOverviewWidth) / this.sizeX) | 0,
-                    (((bottom - top) * this.imageOverviewHeight) / this.sizeZ) | 0,
+                    (this.overviewX + (this.overviewWidth * left) / this.mapWidth) | 0,
+                    (this.overviewY + (this.overviewHeight * top) / this.mapHeight) | 0,
+                    (((right - left) * this.overviewWidth) / this.mapWidth) | 0,
+                    (((bottom - top) * this.overviewHeight) / this.mapHeight) | 0,
                     0xff0000
                 );
 
                 if (this.flashTimer > 0 && this.flashTimer % 10 < 5) {
                     for (let i: number = 0; i < this.activeMapFunctionCount; i++) {
                         if (this.activeMapFunctions[i] == this.currentKey) {
-                            const x: number = (this.overviewX + (this.imageOverviewWidth * this.activeMapFunctionX[i]) / this.sizeX) | 0;
-                            const y: number = (this.overviewY + (this.imageOverviewHeight * this.activeMapFunctionZ[i]) / this.sizeZ) | 0;
+                            const x: number = (this.overviewX + (this.overviewWidth * this.activeMapFunctionX[i]) / this.mapWidth) | 0;
+                            const y: number = (this.overviewY + (this.overviewHeight * this.activeMapFunctionZ[i]) / this.mapHeight) | 0;
                             Pix2D.fillCircle(x, y, 2, 0xffff00, 256);
                         }
                     }
@@ -415,21 +482,21 @@ export class MapView extends GameShell {
             }
 
             if (this.showKey) {
-                this.drawString(this.keyX, this.keyY, this.keyWidth, 18, 0x999999, 0x777777, 0x555555, 'Prev page');
-                this.drawString(this.keyX, this.keyY + 18, this.keyWidth, this.keyHeight - 36, 0x999999, 0x777777, 0x555555, '');
-                this.drawString(this.keyX, this.keyY + this.keyHeight - 18, this.keyWidth, 18, 0x999999, 0x777777, 0x555555, 'Next page');
+                this.drawStringBox(this.keyX, this.keyY, this.keyWidth, 18, 0x999999, 0x777777, 0x555555, 'Prev page');
+                this.drawStringBox(this.keyX, this.keyY + 18, this.keyWidth, this.keyHeight - 36, 0x999999, 0x777777, 0x555555, '');
+                this.drawStringBox(this.keyX, this.keyY + this.keyHeight - 18, this.keyWidth, 18, 0x999999, 0x777777, 0x555555, 'Next page');
 
-                let maxKeys: number = (this.keyHeight - 20) / 18;
+                const maxKeys: number = (this.keyHeight - 20) / 18;
                 let y: number = this.keyY + 18 + 3;
 
                 for (let row: number = 0; row < maxKeys; row++) {
-                    if (row + this.lastKeyPage < this.imageMapfunction.length && row + this.lastKeyPage < this.keyNames.length) {
+                    if (row + this.lastKeyPage < this.mapfunction.length && row + this.lastKeyPage < this.keyNames.length) {
                         if (this.keyNames[row + this.lastKeyPage] === '???') {
                             continue;
                         }
 
-                        this.imageMapfunction[row + this.lastKeyPage].draw(this.keyX + 3, y);
-                        this.b12?.drawString(this.keyX + 21, y + 14, this.keyNames[row + this.lastKeyPage], 0);
+                        this.mapfunction[row + this.lastKeyPage].plotSprite(this.keyX + 3, y);
+                        this.b12?.drawString(this.keyNames[row + this.lastKeyPage], this.keyX + 21, y + 14, 0);
 
                         let rgb: number = 0xffffff;
                         if (this.currentKeyHover == row + this.lastKeyPage) {
@@ -439,39 +506,39 @@ export class MapView extends GameShell {
                             rgb = 0xffff00;
                         }
 
-                        this.b12?.drawString(this.keyX + 20, y + 13, this.keyNames[row + this.lastKeyPage], rgb);
+                        this.b12?.drawString(this.keyNames[row + this.lastKeyPage], this.keyX + 20, y + 13, rgb);
                     }
 
                     y += 17;
                 }
             }
 
-            this.drawString(this.overviewX, this.overviewY + this.imageOverviewHeight, this.imageOverviewWidth, 18, this.colorInactiveBorderTL, this.colorInactive, this.colorInactiveBorderBR, 'Overview');
-            this.drawString(this.keyX, this.keyY + this.keyHeight, this.keyWidth, 18, this.colorInactiveBorderTL, this.colorInactive, this.colorInactiveBorderBR, 'Key');
+            this.drawStringBox(this.overviewX, this.overviewY + this.overviewHeight, this.overviewWidth, 18, this.INACTIVE_BORDER_TL, this.INACTIVE, this.INACTIVE_BORDER_BR, 'Overview');
+            this.drawStringBox(this.keyX, this.keyY + this.keyHeight, this.keyWidth, 18, this.INACTIVE_BORDER_TL, this.INACTIVE, this.INACTIVE_BORDER_BR, 'Key');
 
-            let y = this.height - this.keyY - 20 + 1;
+            const y = this.sHei - this.keyY - 20 + 1;
             if (this.targetZoom == 3.0) {
-                this.drawString(170, y, 50, 30, this.colorActiveBorderTL, this.colorActive, this.colorActiveBorderBR, '37%');
+                this.drawStringBox(170, y, 50, 30, this.ACTIVE_BORDER_TL, this.ACTIVE, this.ACTIVE_BORDER_BR, '37%');
             } else {
-                this.drawString(170, y, 50, 30, this.colorInactiveBorderTL, this.colorInactive, this.colorInactiveBorderBR, '37%');
+                this.drawStringBox(170, y, 50, 30, this.INACTIVE_BORDER_TL, this.INACTIVE, this.INACTIVE_BORDER_BR, '37%');
             }
 
             if (this.targetZoom == 4.0) {
-                this.drawString(230, y, 50, 30, this.colorActiveBorderTL, this.colorActive, this.colorActiveBorderBR, '50%');
+                this.drawStringBox(230, y, 50, 30, this.ACTIVE_BORDER_TL, this.ACTIVE, this.ACTIVE_BORDER_BR, '50%');
             } else {
-                this.drawString(230, y, 50, 30, this.colorInactiveBorderTL, this.colorInactive, this.colorInactiveBorderBR, '50%');
+                this.drawStringBox(230, y, 50, 30, this.INACTIVE_BORDER_TL, this.INACTIVE, this.INACTIVE_BORDER_BR, '50%');
             }
 
             if (this.targetZoom == 6.0) {
-                this.drawString(290, y, 50, 30, this.colorActiveBorderTL, this.colorActive, this.colorActiveBorderBR, '75%');
+                this.drawStringBox(290, y, 50, 30, this.ACTIVE_BORDER_TL, this.ACTIVE, this.ACTIVE_BORDER_BR, '75%');
             } else {
-                this.drawString(290, y, 50, 30, this.colorInactiveBorderTL, this.colorInactive, this.colorInactiveBorderBR, '75%');
+                this.drawStringBox(290, y, 50, 30, this.INACTIVE_BORDER_TL, this.INACTIVE, this.INACTIVE_BORDER_BR, '75%');
             }
 
             if (this.targetZoom == 8.0) {
-                this.drawString(350, y, 50, 30, this.colorActiveBorderTL, this.colorActive, this.colorActiveBorderBR, '100%');
+                this.drawStringBox(350, y, 50, 30, this.ACTIVE_BORDER_TL, this.ACTIVE, this.ACTIVE_BORDER_BR, '100%');
             } else {
-                this.drawString(350, y, 50, 30, this.colorInactiveBorderTL, this.colorInactive, this.colorInactiveBorderBR, '100%');
+                this.drawStringBox(350, y, 50, 30, this.INACTIVE_BORDER_TL, this.INACTIVE, this.INACTIVE_BORDER_BR, '100%');
             }
         }
 
@@ -482,25 +549,25 @@ export class MapView extends GameShell {
         }
     }
 
-    refresh() {
+    override refresh() {
         this.redrawTimer = 0;
     }
 
-    async update(): Promise<void> {
-        if (this.actionKey[1] == 1) {
-            this.offsetX = (this.offsetX - 16.0 / this.zoom) | 0;
+    override async mainloop(): Promise<void> {
+        if (this.keyHeld[1] == 1) {
+            this.focusX = (this.focusX - 16.0 / this.zoom) | 0;
             this.redraw = true;
         }
-        if (this.actionKey[2] == 1) {
-            this.offsetX = (this.offsetX + 16.0 / this.zoom) | 0;
+        if (this.keyHeld[2] == 1) {
+            this.focusX = (this.focusX + 16.0 / this.zoom) | 0;
             this.redraw = true;
         }
-        if (this.actionKey[3] == 1) {
-            this.offsetZ = (this.offsetZ - 16.0 / this.zoom) | 0;
+        if (this.keyHeld[3] == 1) {
+            this.focusZ = (this.focusZ - 16.0 / this.zoom) | 0;
             this.redraw = true;
         }
-        if (this.actionKey[4] == 1) {
-            this.offsetZ = (this.offsetZ + 16.0 / this.zoom) | 0;
+        if (this.keyHeld[4] == 1) {
+            this.focusZ = (this.focusZ + 16.0 / this.zoom) | 0;
             this.redraw = true;
         }
 
@@ -530,25 +597,58 @@ export class MapView extends GameShell {
                 this.showOverview = !this.showOverview;
                 this.redraw = true;
             } else if (key == 'e'.charCodeAt(0) || key == 'E'.charCodeAt(0)) {
-                // todo: export as png and prompt user to download file
+                const width = this.mapWidth * 2;
+                const height = this.mapHeight * 2;
+
+                const fullRender = new Pix32(width, height);
+                fullRender.setPixels();
+                this.renderWorldMap(0, 0, this.mapWidth, this.mapHeight, 0, 0, width, height);
+
+                const canvas = document.createElement('canvas') as HTMLCanvasElement;
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d')!;
+                const out = new PixMap(width, height, ctx);
+                out.setPixels();
+                fullRender.quickPlotSprite(0, 0);
+                out.draw(0, 0);
+
+                this.drawArea?.setPixels();
+
+                const map = canvas.toDataURL('image/png').replace(/^data:image\/[^;]/, 'data:application/octet-stream');
+                saveDataURL(map, 'worldmap.png');
             } else if (key == 'n'.charCodeAt(0) || key == 'N'.charCodeAt(0)) {
+                // custom:
                 MapView.shouldDrawNpcs = !MapView.shouldDrawNpcs;
                 this.redraw = true;
             } else if (key == 'i'.charCodeAt(0) || key == 'I'.charCodeAt(0)) {
+                // custom:
                 MapView.shouldDrawItems = !MapView.shouldDrawItems;
                 this.redraw = true;
             } else if (key == 'l'.charCodeAt(0) || key == 'L'.charCodeAt(0)) {
+                // custom:
                 MapView.shouldDrawLabels = !MapView.shouldDrawLabels;
                 this.redraw = true;
             } else if (key == 'b'.charCodeAt(0) || key == 'B'.charCodeAt(0)) {
+                // custom:
                 MapView.shouldDrawBorders = !MapView.shouldDrawBorders;
                 this.redraw = true;
+            } else if (key == 'm'.charCodeAt(0) || key == 'M'.charCodeAt(0)) {
+                // custom:
+                MapView.shouldDrawMultimap = !MapView.shouldDrawMultimap;
+                this.redraw = true;
+            } else if (key == 'f'.charCodeAt(0) || key == 'F'.charCodeAt(0)) {
+                // custom:
+                MapView.shouldDrawFreemap = !MapView.shouldDrawFreemap;
+                this.redraw = true;
             } else if (key == 'p'.charCodeAt(0) || key == 'P'.charCodeAt(0)) {
+                // custom:
                 MapView.shouldDrawPlayers = !MapView.shouldDrawPlayers;
                 this.redraw = true;
             }
         } while (key > 0);
 
+        // custom: wheel zoom
         if (this.wheelDelta !== 0) {
             const zoomFactor: number = Math.pow(1.001, -this.wheelDelta);
             this.targetZoom = Math.max(1.5, Math.min(16, this.targetZoom * zoomFactor));
@@ -556,7 +656,7 @@ export class MapView extends GameShell {
             this.redraw = true;
         }
 
-        // Clean up expired teleport markers
+        // custom: clean up expired teleport markers
         const markerNow: number = performance.now();
         while (this.teleportMarkers.length > 0 && markerNow - this.teleportMarkers[0].time > this.teleportMarkerAge) {
             this.teleportMarkers.shift();
@@ -565,10 +665,10 @@ export class MapView extends GameShell {
         if (this.mouseClickButton == 1) {
             this.nextMouseClickX = this.mouseClickX;
             this.nextMouseClickY = this.mouseClickY;
-            this.lastOffsetX = this.offsetX;
-            this.lastOffsetZ = this.offsetZ;
+            this.dragFocusX = this.focusX;
+            this.dragFocusZ = this.focusZ;
 
-            let zoomY: number = this.height - this.keyY - 20 + 1;
+            const zoomY: number = this.sHei - this.keyY - 20 + 1;
             if (this.mouseClickX > 170 && this.mouseClickX < 220 && this.mouseClickY > zoomY) {
                 this.targetZoom = 3.0;
                 this.nextMouseClickX = -1;
@@ -584,7 +684,7 @@ export class MapView extends GameShell {
             } else if (this.mouseClickX > this.keyX && this.mouseClickY > this.keyY + this.keyHeight && this.mouseClickX < this.keyX + this.keyWidth) {
                 this.showKey = !this.showKey;
                 this.nextMouseClickX = -1;
-            } else if (this.mouseClickX > this.overviewX && this.mouseClickY > this.overviewY + this.imageOverviewHeight && this.mouseClickX < this.overviewX + this.imageOverviewWidth) {
+            } else if (this.mouseClickX > this.overviewX && this.mouseClickY > this.overviewY + this.overviewHeight && this.mouseClickX < this.overviewX + this.overviewWidth) {
                 this.showOverview = !this.showOverview;
                 this.nextMouseClickX = -1;
             }
@@ -608,7 +708,7 @@ export class MapView extends GameShell {
             this.currentKeyHover = -1;
 
             if (this.mouseX > this.keyX && this.mouseX < this.keyX + this.keyWidth) {
-                let maxKeys: number = (this.keyHeight - 20) / 18;
+                const maxKeys: number = (this.keyHeight - 20) / 18;
                 let y: number = this.keyY + 21 + 5;
 
                 for (let row: number = 0; row < maxKeys; row++) {
@@ -641,17 +741,17 @@ export class MapView extends GameShell {
                 mouseClickY = this.mouseY;
             }
 
-            if (mouseClickX > this.overviewX && mouseClickY > this.overviewY && mouseClickX < this.overviewX + this.imageOverviewWidth && mouseClickY < this.overviewY + this.imageOverviewHeight) {
-                this.offsetX = (((mouseClickX - this.overviewX) * this.sizeX) / this.imageOverviewWidth) | 0;
-                this.offsetZ = (((mouseClickY - this.overviewY) * this.sizeZ) / this.imageOverviewHeight) | 0;
+            if (mouseClickX > this.overviewX && mouseClickY > this.overviewY && mouseClickX < this.overviewX + this.overviewWidth && mouseClickY < this.overviewY + this.overviewHeight) {
+                this.focusX = (((mouseClickX - this.overviewX) * this.mapWidth) / this.overviewWidth) | 0;
+                this.focusZ = (((mouseClickY - this.overviewY) * this.mapHeight) / this.overviewHeight) | 0;
                 this.nextMouseClickX = -1;
                 this.redraw = true;
             }
         }
 
         if (this.mouseButton == 1 && this.nextMouseClickX != -1) {
-            this.offsetX = this.lastOffsetX + ((((this.nextMouseClickX - this.mouseX) * 2.0) / this.targetZoom) | 0);
-            this.offsetZ = this.lastOffsetZ + ((((this.nextMouseClickY - this.mouseY) * 2.0) / this.targetZoom) | 0);
+            this.focusX = this.dragFocusX + ((((this.nextMouseClickX - this.mouseX) * 2.0) / this.targetZoom) | 0);
+            this.focusZ = this.dragFocusZ + ((((this.nextMouseClickY - this.mouseY) * 2.0) / this.targetZoom) | 0);
             this.redraw = true;
         }
 
@@ -686,49 +786,53 @@ export class MapView extends GameShell {
             this.flashTimer--;
         }
 
-        // Poll player positions
+        // custom: poll player positions
         const now: number = performance.now();
         if (MapView.shouldDrawPlayers && now - this.lastPlayerFetch > this.playerPollInterval) {
             this.lastPlayerFetch = now;
             this.fetchPlayerPositions();
         }
 
-        const left: number = this.offsetX - ((this.width / this.zoom) | 0);
-        const top: number = this.offsetZ - ((this.height / this.zoom) | 0);
-        const right: number = this.offsetX + ((this.width / this.zoom) | 0);
-        const bottom: number = this.offsetZ + ((this.height / this.zoom) | 0);
+        const left: number = this.focusX - ((this.sWid / this.zoom) | 0);
+        const top: number = this.focusZ - ((this.sHei / this.zoom) | 0);
+        const right: number = this.focusX + ((this.sWid / this.zoom) | 0);
+        const bottom: number = this.focusZ + ((this.sHei / this.zoom) | 0);
         if (left < 48) {
-            this.offsetX = ((this.width / this.zoom) | 0) + 48;
+            this.focusX = ((this.sWid / this.zoom) | 0) + 48;
         }
         if (top < 48) {
-            this.offsetZ = ((this.height / this.zoom) | 0) + 48;
+            this.focusZ = ((this.sHei / this.zoom) | 0) + 48;
         }
-        if (right > this.sizeX - 48) {
-            this.offsetX = this.sizeX - 48 - ((this.width / this.zoom) | 0);
+        if (right > this.mapWidth - 48) {
+            this.focusX = this.mapWidth - 48 - ((this.sWid / this.zoom) | 0);
         }
-        if (bottom > this.sizeZ - 48) {
-            this.offsetZ = this.sizeZ - 48 - ((this.height / this.zoom) | 0);
+        if (bottom > this.mapHeight - 48) {
+            this.focusZ = this.mapHeight - 48 - ((this.sHei / this.zoom) | 0);
         }
     }
 
     // ----
+
+    worldmap: Jagfile | null = null;
+
     async loadWorldmap(): Promise<Jagfile> {
-        // todo: SHA check and redownload
-        let data: Uint8Array | undefined = undefined; // await this.db?.cacheload('worldmap.dat');
-        // if (data) {
-        //     return new Jagfile(data);
-        // }
+        if (this.worldmap) {
+            return this.worldmap;
+        }
+
+        // todo: save to cache and redownload if necessary
+        let data: Uint8Array | undefined = undefined;
 
         let retry: number = 5;
         while (!data) {
-            await this.drawProgress(0, 'Requesting map');
+            await this.messageBox('Requesting map', 0);
 
             try {
                 data = await downloadUrl('/worldmap.jag');
-            } catch (e) {
+            } catch (_e) {
                 data = undefined;
                 for (let i: number = retry; i > 0; i--) {
-                    await this.drawProgress(0, `Error loading - Will retry in ${i} secs.`);
+                    await this.messageBox(`Error loading - Will retry in ${i} secs.`, 0);
                     await sleep(1000);
                 }
 
@@ -739,11 +843,11 @@ export class MapView extends GameShell {
             }
         }
 
-        // await this.db?.cachesave('worldmap.dat', data);
-        return new Jagfile(data);
+        this.worldmap = new Jagfile(data);
+        return this.worldmap;
     }
 
-    drawString(x: number, y: number, width: number, height: number, colorBorderTL: number, fillColor: number, colorBorderBR: number, str: string): void {
+    drawStringBox(x: number, y: number, width: number, height: number, borderTL: number, fill: number, borderBR: number, str: string): void {
         x = Math.trunc(x);
         y = Math.trunc(y);
         width = Math.trunc(width);
@@ -756,35 +860,29 @@ export class MapView extends GameShell {
         const widthPad: number = width - 2;
         const heightPad: number = height - 2;
 
-        Pix2D.fillRect2d(xPad, yPad, widthPad, heightPad, fillColor);
-        Pix2D.drawHorizontalLine(xPad, yPad, colorBorderTL, widthPad);
-        Pix2D.drawVerticalLine(xPad, yPad, colorBorderTL, heightPad);
-        Pix2D.drawHorizontalLine(xPad, yPad + heightPad - 1, colorBorderBR, widthPad);
-        Pix2D.drawVerticalLine(xPad + widthPad - 1, yPad, colorBorderBR, heightPad);
+        Pix2D.fillRect(xPad, yPad, widthPad, heightPad, fill);
+        Pix2D.hline(xPad, yPad, widthPad, borderTL);
+        Pix2D.vline(xPad, yPad, heightPad, borderTL);
+        Pix2D.hline(xPad, yPad + heightPad - 1, widthPad, borderBR);
+        Pix2D.vline(xPad + widthPad - 1, yPad, heightPad, borderBR);
 
-        this.b12?.drawStringCenter(xPad + widthPad / 2 + 1, yPad + heightPad / 2 + 1 + 4, str, 0);
-        this.b12?.drawStringCenter(xPad + widthPad / 2, yPad + heightPad / 2 + 4, str, 0xffffff);
+        this.b12?.centreString(str, xPad + ((widthPad / 2) | 0) + 1, yPad + ((heightPad / 2) | 0) + 1 + 4, 0);
+        this.b12?.centreString(str, xPad + ((widthPad / 2) | 0), yPad + ((heightPad / 2) | 0) + 4, 0xffffff);
     }
 
-    clearEmptyTiles(): void {
-        for (let x: number = 0; x < this.sizeX; x++) {
-            for (let z: number = 0; z < this.sizeZ; z++) {
-                if (this.underlayTiles[x][z] == 0 && this.overlayTiles[x][z] == 0) {
-                    this.floormapColors[x][z] = 0;
-                }
-            }
-        }
-    }
-
-    averageUnderlayColors(): void {
-        const maxX: number = this.sizeX;
-        const maxZ: number = this.sizeZ;
+    // jag::oldscape::rs2lib::worldmap::RenderedMapSquare::GetBlendedGroundColour
+    getBlendedGroundColour(): void {
+        const maxX: number = this.mapWidth;
+        const maxZ: number = this.mapHeight;
 
         const average: number[] = new TypedArray1d(maxZ, 0);
 
         for (let x: number = 5; x < maxX - 5; x++) {
+            const east = this.floort1[x + 5];
+            const west = this.floort1[x - 5];
+
             for (let z: number = 0; z < maxZ; z++) {
-                average[z] += this.floorcolUnderlay[this.underlayTiles[x + 5][z]] - this.floorcolUnderlay[this.underlayTiles[x - 5][z]];
+                average[z] += this.floorcol1[east[z]] - this.floorcol1[west[z]];
             }
 
             if (x > 10 && x < maxX - 10) {
@@ -793,15 +891,15 @@ export class MapView extends GameShell {
                 let b: number = 0;
 
                 for (let z: number = 5; z < maxZ - 5; z++) {
-                    const tileNorth: number = average[z + 5];
-                    const tileSouth: number = average[z - 5];
+                    const north: number = average[z + 5];
+                    const south: number = average[z - 5];
 
-                    r += (tileNorth >> 20) - (tileSouth >> 20);
-                    g += ((tileNorth >> 10) & 0x3ff) - ((tileSouth >> 10) & 0x3ff);
-                    b += (tileNorth & 0x3ff) - (tileSouth & 0x3ff);
+                    r += (north >> 20) - (south >> 20);
+                    g += ((north >> 10) & 0x3ff) - ((south >> 10) & 0x3ff);
+                    b += (north & 0x3ff) - (south & 0x3ff);
 
                     if (b > 0) {
-                        this.floormapColors[x][z] = this.convertHsl(r / 8533.0, g / 8533.0, b / 8533.0);
+                        this.blendedGroundColour[x][z] = this.getRgb(r / 8533.0, g / 8533.0, b / 8533.0);
                     }
                 }
             }
@@ -809,19 +907,21 @@ export class MapView extends GameShell {
     }
 
     // ----
-    readUnderlayData(data: Packet): void {
-        while (data.available > 0) {
-            const mx: number = data.g1() * 64 - this.originX;
-            let rawMz: number = data.g1();
-            if (rawMz >= 144) rawMz -= 66;
-            const mz: number = rawMz * 64 - this.originZ;
 
-            if (mx > 0 && mz > 0 && mx + 64 < this.sizeX && mz + 64 < this.sizeZ) {
+    loadUnderlay(data: Packet): void {
+        while (data.available > 0) {
+            const mx: number = data.g1() * 64 - this.mapOriginX;
+            let rawMz: number = data.g1();
+            if (rawMz >= 144) rawMz -= 82;
+            else if (rawMz >= 70 && rawMz <= 76) rawMz += 10;
+            const mz: number = rawMz * 64 - this.mapOriginZ;
+
+            if (mx > 0 && mz > 0 && mx + 64 < this.mapWidth && mz + 64 < this.mapHeight) {
                 for (let x: number = 0; x < 64; x++) {
-                    let zIndex: number = this.sizeZ - mz - 1;
+                    let zIndex: number = this.mapHeight - mz - 1;
 
                     for (let z: number = -64; z < 0; z++) {
-                        this.underlayTiles[mx + x][zIndex--] = data.g1();
+                        this.floort1[mx + x][zIndex--] = data.g1();
                     }
                 }
             } else {
@@ -830,24 +930,25 @@ export class MapView extends GameShell {
         }
     }
 
-    readOverlayData(data: Packet): void {
+    loadOverlay(data: Packet): void {
         while (data.available > 0) {
-            const mx: number = data.g1() * 64 - this.originX;
+            const mx: number = data.g1() * 64 - this.mapOriginX;
             let rawMz: number = data.g1();
-            if (rawMz >= 144) rawMz -= 66;
-            const mz: number = rawMz * 64 - this.originZ;
+            if (rawMz >= 144) rawMz -= 82;
+            else if (rawMz >= 70 && rawMz <= 76) rawMz += 10;
+            const mz: number = rawMz * 64 - this.mapOriginZ;
 
-            if (mx > 0 && mz > 0 && mx + 64 < this.sizeX && mz + 64 < this.sizeZ) {
+            if (mx > 0 && mz > 0 && mx + 64 < this.mapWidth && mz + 64 < this.mapHeight) {
                 for (let x: number = 0; x < 64; x++) {
-                    let zIndex: number = this.sizeZ - mz - 1;
+                    let zIndex: number = this.mapHeight - mz - 1;
 
                     for (let z: number = -64; z < 0; z++) {
                         const opcode: number = data.g1();
                         if (opcode === 0) {
-                            this.overlayTiles[x + mx][zIndex--] = 0;
+                            this.floort2[x + mx][zIndex--] = 0;
                         } else {
-                            this.overlayInfo[x + mx][zIndex] = data.g1();
-                            this.overlayTiles[x + mx][zIndex--] = this.floorcolOverlay[opcode];
+                            this.floorsr[x + mx][zIndex] = data.g1();
+                            this.floort2[x + mx][zIndex--] = this.floorcol2[opcode];
                         }
                     }
                 }
@@ -862,19 +963,19 @@ export class MapView extends GameShell {
         }
     }
 
-    readLocData(data: Packet): void {
+    loadLoc(data: Packet): void {
         while (data.available > 0) {
-            const mx: number = data.g1() * 64 - this.originX;
+            const mx: number = data.g1() * 64 - this.mapOriginX;
             let rawMz: number = data.g1();
-            if (rawMz >= 144) rawMz -= 66;
-            const mz: number = rawMz * 64 - this.originZ;
+            if (rawMz >= 144) rawMz -= 82;
+            else if (rawMz >= 70 && rawMz <= 76) rawMz += 10;
+            const mz: number = rawMz * 64 - this.mapOriginZ;
 
-            if (mx > 0 && mz > 0 && mx + 64 < this.sizeX && mz + 64 < this.sizeZ) {
+            if (mx > 0 && mz > 0 && mx + 64 < this.mapWidth && mz + 64 < this.mapHeight) {
                 for (let x: number = 0; x < 64; x++) {
-                    let zIndex: number = this.sizeZ - mz - 1;
+                    let zIndex: number = this.mapHeight - mz - 1;
 
                     for (let z: number = -64; z < 0; z++) {
-                        // eslint-disable-next-line no-constant-condition
                         while (true) {
                             const opcode: number = data.g1();
                             if (opcode === 0) {
@@ -883,9 +984,9 @@ export class MapView extends GameShell {
                             }
 
                             if (opcode < 29) {
-                                this.locWalls[x + mx][zIndex] = opcode;
+                                this.locWall[x + mx][zIndex] = opcode;
                             } else if (opcode < 160) {
-                                this.locMapscenes[x + mx][zIndex] = opcode - 28;
+                                this.locMapscene[x + mx][zIndex] = opcode - 28;
                             } else {
                                 this.locMapfunction[x + mx][zIndex] = opcode - 159;
 
@@ -910,19 +1011,21 @@ export class MapView extends GameShell {
         }
     }
 
-    readObjData(data: Packet): void {
+    // custom:
+    loadObj(data: Packet): void {
         while (data.available > 0) {
-            const mx: number = data.g1() * 64 - this.originX;
+            const mx: number = data.g1() * 64 - this.mapOriginX;
             let rawMz: number = data.g1();
-            if (rawMz >= 144) rawMz -= 66;
-            const mz: number = rawMz * 64 - this.originZ;
+            if (rawMz >= 144) rawMz -= 82;
+            else if (rawMz >= 70 && rawMz <= 76) rawMz += 10;
+            const mz: number = rawMz * 64 - this.mapOriginZ;
 
-            if (mx > 0 && mz > 0 && mx + 64 < this.sizeX && mz + 64 < this.sizeZ) {
+            if (mx > 0 && mz > 0 && mx + 64 < this.mapWidth && mz + 64 < this.mapHeight) {
                 for (let x: number = 0; x < 64; x++) {
-                    let zIndex: number = this.sizeZ - mz - 1;
+                    let zIndex: number = this.mapHeight - mz - 1;
 
                     for (let z: number = -64; z < 0; z++) {
-                        this.objTiles[x + mx][zIndex--] = data.g1() == 1;
+                        this.objPos[x + mx][zIndex--] = data.g1() == 1;
                     }
                 }
             } else {
@@ -931,19 +1034,67 @@ export class MapView extends GameShell {
         }
     }
 
-    readNpcData(data: Packet): void {
+    // custom:
+    loadNpc(data: Packet): void {
         while (data.available > 0) {
-            const mx: number = data.g1() * 64 - this.originX;
+            const mx: number = data.g1() * 64 - this.mapOriginX;
             let rawMz: number = data.g1();
-            if (rawMz >= 144) rawMz -= 66;
-            const mz: number = rawMz * 64 - this.originZ;
+            if (rawMz >= 144) rawMz -= 82;
+            else if (rawMz >= 70 && rawMz <= 76) rawMz += 10;
+            const mz: number = rawMz * 64 - this.mapOriginZ;
 
-            if (mx > 0 && mz > 0 && mx + 64 < this.sizeX && mz + 64 < this.sizeZ) {
+            if (mx > 0 && mz > 0 && mx + 64 < this.mapWidth && mz + 64 < this.mapHeight) {
                 for (let x: number = 0; x < 64; x++) {
-                    let zIndex: number = this.sizeZ - mz - 1;
+                    let zIndex: number = this.mapHeight - mz - 1;
 
                     for (let z: number = -64; z < 0; z++) {
-                        this.npcTiles[x + mx][zIndex--] = data.g1() == 1;
+                        this.npcPos[x + mx][zIndex--] = data.g1() == 1;
+                    }
+                }
+            } else {
+                data.pos += 4096;
+            }
+        }
+    }
+
+    // custom:
+    loadMulti(data: Packet): void {
+        while (data.available > 0) {
+            const mx: number = data.g1() * 64 - this.mapOriginX;
+            let rawMz: number = data.g1();
+            if (rawMz >= 144) rawMz -= 82;
+            else if (rawMz >= 70 && rawMz <= 76) rawMz += 10;
+            const mz: number = rawMz * 64 - this.mapOriginZ;
+
+            if (mx > 0 && mz > 0 && mx + 64 < this.mapWidth && mz + 64 < this.mapHeight) {
+                for (let x: number = 0; x < 64; x++) {
+                    let zIndex: number = this.mapHeight - mz - 1;
+
+                    for (let z: number = -64; z < 0; z++) {
+                        this.multiPos[x + mx][zIndex--] = data.g1() == 1;
+                    }
+                }
+            } else {
+                data.pos += 4096;
+            }
+        }
+    }
+
+    // custom:
+    loadFree(data: Packet): void {
+        while (data.available > 0) {
+            const mx: number = data.g1() * 64 - this.mapOriginX;
+            let rawMz: number = data.g1();
+            if (rawMz >= 144) rawMz -= 82;
+            else if (rawMz >= 70 && rawMz <= 76) rawMz += 10;
+            const mz: number = rawMz * 64 - this.mapOriginZ;
+
+            if (mx > 0 && mz > 0 && mx + 64 < this.mapWidth && mz + 64 < this.mapHeight) {
+                for (let x: number = 0; x < 64; x++) {
+                    let zIndex: number = this.mapHeight - mz - 1;
+
+                    for (let z: number = -64; z < 0; z++) {
+                        this.freePos[x + mx][zIndex--] = data.g1() == 1;
                     }
                 }
             } else {
@@ -953,7 +1104,9 @@ export class MapView extends GameShell {
     }
 
     // ----
-    convertHsl(hue: number, saturation: number, lightness: number): number {
+
+    // jag::oldscape::rs2lib::worldmap::HslUtils::GetRgb
+    getRgb(hue: number, saturation: number, lightness: number): number {
         let r: number = lightness;
         let g: number = lightness;
         let b: number = lightness;
@@ -1014,12 +1167,13 @@ export class MapView extends GameShell {
         return (intR << 16) + (intG << 8) + intB;
     }
 
-    drawMap(left: number, top: number, right: number, bottom: number, widthOffset: number, heightOffset: number, width: number, height: number): void {
+    // jag::oldscape::worldmap::Worldmap::RenderWorldmap
+    renderWorldMap(left: number, top: number, right: number, bottom: number, widthOffset: number, heightOffset: number, width: number, height: number): void {
         const visibleX: number = right - left;
         const visibleY: number = bottom - top;
         const widthRatio: number = (((width - widthOffset) << 16) / visibleX) | 0;
         const heightRatio: number = (((height - heightOffset) << 16) / visibleY) | 0;
-        
+
         for (let x: number = 0; x < visibleX; x++) {
             let startX: number = (widthRatio * x) >> 16;
             let endX: number = (widthRatio * (x + 1)) >> 16;
@@ -1031,6 +1185,10 @@ export class MapView extends GameShell {
             startX += widthOffset;
             endX += widthOffset;
 
+            const colours = this.blendedGroundColour[x + left];
+            const overlays = this.floort2[x + left];
+            const shapes = this.floorsr[x + left];
+
             for (let y: number = 0; y < visibleY; y++) {
                 let startY: number = (heightRatio * y) >> 16;
                 let endY: number = (heightRatio * (y + 1)) >> 16;
@@ -1039,23 +1197,19 @@ export class MapView extends GameShell {
                     continue;
                 }
 
-                if (typeof this.overlayTiles[x + left] === 'undefined') {
-                    continue;
-                }
-
                 startY += heightOffset;
                 endY += heightOffset;
 
-                const overlay: number = this.overlayTiles[x + left][y + top];
+                const overlay: number = overlays[y + top];
                 if (overlay === 0) {
-                    Pix2D.fillRect2d(startX, startY, endX - startX, endY - startY, this.floormapColors[x + left][y + top]);
+                    Pix2D.fillRect(startX, startY, endX - startX, endY - startY, colours[y + top]);
                 } else {
-                    const info: number = this.overlayInfo[x + left][y + top];
+                    const info: number = shapes[y + top];
                     const shape: number = info & 0xfc;
                     if (shape == 0 || lengthX <= 1 || lengthY <= 1) {
-                        Pix2D.fillRect2d(startX, startY, lengthX, lengthY, overlay);
+                        Pix2D.fillRect(startX, startY, lengthX, lengthY, overlay);
                     } else {
-                        this.drawSmoothEdges(Pix2D.pixels, startY * Pix2D.width2d + startX, this.floormapColors[x + left][y + top], overlay, lengthX, lengthY, shape >> 2, info & 0x3);
+                        this.drawOverlayShape(Pix2D.pixels, startY * Pix2D.width + startX, colours[y + top], overlay, lengthX, lengthY, shape >> 2, info & 0x3);
                     }
                 }
             }
@@ -1074,12 +1228,9 @@ export class MapView extends GameShell {
                 continue;
             }
 
-            if (typeof this.locWalls[x + left] === 'undefined') {
-                continue;
-            }
-
-            startX += widthOffset;
-            endX += widthOffset;
+            const walls = this.locWall[x + left];
+            const mapscenes = this.locMapscene[x + left];
+            const mapfunctions = this.locMapfunction[x + left];
 
             for (let y: number = 0; y < visibleY; y++) {
                 let startY: number = (heightRatio * y) >> 16;
@@ -1089,10 +1240,7 @@ export class MapView extends GameShell {
                     continue;
                 }
 
-                startY += heightOffset;
-                endY += heightOffset;
-
-                let wall: number = this.locWalls[x + left][y + top] & 0xff;
+                let wall: number = walls[y + top] & 0xff;
                 if (wall != 0) {
                     let edgeX: number;
                     if (lengthX == 1) {
@@ -1114,67 +1262,129 @@ export class MapView extends GameShell {
                         wall -= 4;
                     }
                     if (wall == 27 || wall == 28) {
-                        // bugfix: drawing diagonal doors
+                        // custom: fix drawing diagonal doors
                         rgb = 0xcc0000;
                         wall -= 2;
                     }
 
                     if (wall == 1) {
-                        Pix2D.drawVerticalLine(startX, startY, rgb, lengthY);
+                        Pix2D.vline(startX, startY, lengthY, rgb);
                     } else if (wall == 2) {
-                        Pix2D.drawHorizontalLine(startX, startY, rgb, lengthX);
+                        Pix2D.hline(startX, startY, lengthX, rgb);
                     } else if (wall == 3) {
-                        Pix2D.drawVerticalLine(edgeX, startY, rgb, lengthY);
+                        Pix2D.vline(edgeX, startY, lengthY, rgb);
                     } else if (wall == 4) {
-                        Pix2D.drawHorizontalLine(startX, edgeY, rgb, lengthX);
+                        Pix2D.hline(startX, edgeY, lengthX, rgb);
                     } else if (wall == 9) {
-                        Pix2D.drawVerticalLine(startX, startY, 0xffffff, lengthY);
-                        Pix2D.drawHorizontalLine(startX, startY, rgb, lengthX);
+                        Pix2D.vline(startX, startY, lengthY, 0xffffff);
+                        Pix2D.hline(startX, startY, lengthX, rgb);
                     } else if (wall == 10) {
-                        Pix2D.drawVerticalLine(edgeX, startY, 0xffffff, lengthY);
-                        Pix2D.drawHorizontalLine(startX, startY, rgb, lengthX);
+                        Pix2D.vline(edgeX, startY, lengthY, 0xffffff);
+                        Pix2D.hline(startX, startY, lengthX, rgb);
                     } else if (wall == 11) {
-                        Pix2D.drawVerticalLine(edgeX, startY, 0xffffff, lengthY);
-                        Pix2D.drawHorizontalLine(startX, edgeY, rgb, lengthX);
+                        Pix2D.vline(edgeX, startY, lengthY, 0xffffff);
+                        Pix2D.hline(startX, edgeY, lengthX, rgb);
                     } else if (wall == 12) {
-                        Pix2D.drawVerticalLine(startX, startY, 0xffffff, lengthY);
-                        Pix2D.drawHorizontalLine(startX, edgeY, rgb, lengthX);
+                        Pix2D.vline(startX, startY, lengthY, 0xffffff);
+                        Pix2D.hline(startX, edgeY, lengthX, rgb);
                     } else if (wall == 17) {
-                        Pix2D.drawHorizontalLine(startX, startY, rgb, 1);
+                        Pix2D.hline(startX, startY, 1, rgb);
                     } else if (wall == 18) {
-                        Pix2D.drawHorizontalLine(edgeX, startY, rgb, 1);
+                        Pix2D.hline(edgeX, startY, 1, rgb);
                     } else if (wall == 19) {
-                        Pix2D.drawHorizontalLine(edgeX, edgeY, rgb, 1);
+                        Pix2D.hline(edgeX, edgeY, 1, rgb);
                     } else if (wall == 20) {
-                        Pix2D.drawHorizontalLine(startX, edgeY, rgb, 1);
+                        Pix2D.hline(startX, edgeY, 1, rgb);
                     } else if (wall == 25) {
                         for (let i: number = 0; i < lengthY; i++) {
-                            Pix2D.drawHorizontalLine(startX + i, edgeY - i, rgb, 1);
+                            Pix2D.hline(startX + i, edgeY - i, 1, rgb);
                         }
                     } else if (wall == 26) {
                         for (let i: number = 0; i < lengthY; i++) {
-                            Pix2D.drawHorizontalLine(startX + i, startY + i, rgb, 1);
+                            Pix2D.hline(startX + i, startY + i, 1, rgb);
                         }
                     }
                 }
 
-                const mapscene: number = this.locMapscenes[x + left][y + top];
+                const mapscene: number = mapscenes[y + top];
                 if (mapscene != 0) {
-                    this.imageMapscene[mapscene - 1].clip(startX - lengthX / 2, startY - lengthY / 2, lengthX * 2, lengthY * 2);
+                    this.mapscene[mapscene - 1].scalePlotSprite(startX - ((lengthX / 2) | 0), startY - ((lengthY / 2) | 0), lengthX * 2, lengthY * 2);
                 }
 
-                const mapfunction: number = this.locMapfunction[x + left][y + top];
+                const mapfunction: number = mapfunctions[y + top];
                 if (mapfunction != 0) {
                     this.visibleMapFunctions[visibleMapFunctionCount] = mapfunction - 1;
-                    this.visibleMapFunctionsX[visibleMapFunctionCount] = startX + lengthX / 2;
-                    this.visibleMapFunctionsY[visibleMapFunctionCount] = startY + lengthY / 2;
+                    this.visibleMapFunctionsX[visibleMapFunctionCount] = startX + ((lengthX / 2) | 0);
+                    this.visibleMapFunctionsY[visibleMapFunctionCount] = startY + ((lengthY / 2) | 0);
                     visibleMapFunctionCount++;
                 }
             }
         }
 
         for (let i: number = 0; i < visibleMapFunctionCount; i++) {
-            this.imageMapfunction[this.visibleMapFunctions[i]].draw(this.visibleMapFunctionsX[i] - 7, this.visibleMapFunctionsY[i] - 7);
+            this.mapfunction[this.visibleMapFunctions[i]].plotSprite(this.visibleMapFunctionsX[i] - 7, this.visibleMapFunctionsY[i] - 7);
+        }
+
+        if (MapView.shouldDrawFreemap) {
+            for (let x = 0; x < visibleX; x++) {
+                let startX = widthRatio * x >> 16;
+                let endX = widthRatio * (x + 1) >> 16;
+                let lengthX = endX - startX;
+                if (lengthX <= 0) {
+                    continue;
+                }
+
+                startX += widthOffset;
+                endX += widthOffset;
+
+                let multi = this.freePos[x + left];
+                for (let y = 0; y < visibleY; y++) {
+                    let startY = heightRatio * y >> 16;
+                    let endY = heightRatio * (y + 1) >> 16;
+                    let lengthY = endY - startY;
+                    if (lengthY <= 0) {
+                        continue;
+                    }
+
+                    startY += heightOffset;
+                    endY += heightOffset;
+
+                    if (multi[y + top]) {
+                        Pix2D.fillRectTrans(startX, startY, lengthX, lengthY, 0x00ff00, 96);
+                    }
+                }
+            }
+        }
+
+        if (MapView.shouldDrawMultimap) {
+            for (let x = 0; x < visibleX; x++) {
+                let startX = widthRatio * x >> 16;
+                let endX = widthRatio * (x + 1) >> 16;
+                let lengthX = endX - startX;
+                if (lengthX <= 0) {
+                    continue;
+                }
+
+                startX += widthOffset;
+                endX += widthOffset;
+
+                let multi = this.multiPos[x + left];
+                for (let y = 0; y < visibleY; y++) {
+                    let startY = heightRatio * y >> 16;
+                    let endY = heightRatio * (y + 1) >> 16;
+                    let lengthY = endY - startY;
+                    if (lengthY <= 0) {
+                        continue;
+                    }
+
+                    startY += heightOffset;
+                    endY += heightOffset;
+
+                    if (multi[y + top]) {
+                        Pix2D.fillRectTrans(startX, startY, lengthX, lengthY, 0xff0000, 96);
+                    }
+                }
+            }
         }
 
         if (MapView.shouldDrawItems) {
@@ -1183,10 +1393,6 @@ export class MapView extends GameShell {
                 let endX: number = (widthRatio * (x + 1)) >> 16;
                 const lengthX: number = endX - startX;
                 if (lengthX <= 0) {
-                    continue;
-                }
-
-                if (typeof this.objTiles[x + left] === 'undefined') {
                     continue;
                 }
 
@@ -1204,8 +1410,8 @@ export class MapView extends GameShell {
                     startY += heightOffset;
                     endY += heightOffset;
 
-                    if (this.objTiles[x + left][y + top]) {
-                        this.imageMapdot0?.draw(startX, startY);
+                    if (this.objPos[x + left][y + top]) {
+                        this.mapdot0?.plotSprite(startX, startY);
                     }
                 }
             }
@@ -1220,10 +1426,6 @@ export class MapView extends GameShell {
                     continue;
                 }
 
-                if (typeof this.npcTiles[x + left] === 'undefined') {
-                    continue;
-                }
-
                 startX += widthOffset;
                 endX += widthOffset;
 
@@ -1238,8 +1440,8 @@ export class MapView extends GameShell {
                     startY += heightOffset;
                     endY += heightOffset;
 
-                    if (this.npcTiles[x + left][y + top]) {
-                        this.imageMapdot1?.draw(startX, startY);
+                    if (this.npcPos[x + left][y + top]) {
+                        this.mapdot1?.plotSprite(startX, startY);
                     }
                 }
             }
@@ -1248,7 +1450,7 @@ export class MapView extends GameShell {
         if (this.flashTimer > 0) {
             for (let i: number = 0; i < visibleMapFunctionCount; i++) {
                 if (this.visibleMapFunctions[i] == this.currentKey) {
-                    this.imageMapfunction[this.visibleMapFunctions[i]].draw(this.visibleMapFunctionsX[i] - 7, this.visibleMapFunctionsY[i] - 7);
+                    this.mapfunction[this.visibleMapFunctions[i]].plotSprite(this.visibleMapFunctionsX[i] - 7, this.visibleMapFunctionsY[i] - 7);
 
                     if (this.flashTimer % 10 < 5) {
                         Pix2D.fillCircle(this.visibleMapFunctionsX[i], this.visibleMapFunctionsY[i], 15, 0xffff00, 128);
@@ -1259,27 +1461,55 @@ export class MapView extends GameShell {
         }
 
         if (this.zoom == this.targetZoom && MapView.shouldDrawLabels) {
-            for (let i: number = 0; i < this.labelCount; i++) {
-                let x = this.labelX[i];
-                let y = this.labelY[i];
+            for (let i: number = 0; i < this.mapLabelCount; i++) {
+                let x = this.mapLabelX[i];
+                let y = this.mapLabelY[i];
 
-                x -= this.originX;
-                y = this.originZ + this.sizeZ - y;
+                x -= this.mapOriginX;
+                y = this.mapOriginZ + this.mapHeight - y;
 
-                let drawX: number = (widthOffset + ((width - widthOffset) * (x - left)) / (right - left)) | 0;
+                const drawX: number = (widthOffset + ((width - widthOffset) * (x - left)) / (right - left)) | 0;
                 let drawY: number = (heightOffset + ((height - heightOffset) * (y - top)) / (bottom - top)) | 0;
-                let fontType: number = this.labelFont[i];
+                const labelSize: number = this.mapLabelSize[i];
 
-                // todo: WorldmapFont
-                let rgb = 0xffffff;
-                let font = this.b12;
-
-                if (fontType === 2) {
+                let rgb: number = 0xffffff;
+                let font: WorldMapFont | null = null;
+                if (labelSize == 0) {
+                    if (this.zoom == 3.0) {
+                        font = this.f11;
+                    } else if (this.zoom == 4.0) {
+                        font = this.f12;
+                    } else if (this.zoom == 6.0) {
+                        font = this.f14;
+                    } else if (this.zoom == 8.0) {
+                        font = this.f17;
+                    }
+                } else if (labelSize == 1) {
+                    if (this.zoom == 3.0) {
+                        font = this.f14;
+                    } else if (this.zoom == 4.0) {
+                        font = this.f17;
+                    } else if (this.zoom == 6.0) {
+                        font = this.f19;
+                    } else if (this.zoom == 8.0) {
+                        font = this.f22;
+                    }
+                } else if (labelSize == 2) {
                     rgb = 0xffaa00;
+
+                    if (this.zoom == 3.0) {
+                        font = this.f19;
+                    } else if (this.zoom == 4.0) {
+                        font = this.f22;
+                    } else if (this.zoom == 6.0) {
+                        font = this.f26;
+                    } else if (this.zoom == 8.0) {
+                        font = this.f30;
+                    }
                 }
 
                 if (font !== null) {
-                    let label = this.labelText[i];
+                    let label = this.mapLabel[i];
 
                     let lineCount = 1;
                     for (let j = 0; j < label.length; j++) {
@@ -1288,49 +1518,50 @@ export class MapView extends GameShell {
                         }
                     }
 
-                    drawY -= font.height2d * (lineCount - 1) / 2;
+                    drawY -= ((font.getHeight() * (lineCount - 1) / 2) | 0);
+                    drawY += (font.getYOffset() / 2) | 0;
 
                     while (true) {
-                        let newline = label.indexOf('/');
+                        const newline = label.indexOf('/');
                         if (newline === -1) {
-                            font.drawStringCenter(drawX + 1, drawY + 1, label, 0);
-                            font.drawStringCenter(drawX, drawY, label, rgb);
+                            font.centreString(label, drawX, drawY, rgb, true);
                             break;
                         }
 
-                        let part = label.substring(0, newline);
-                        font.drawStringCenter(drawX + 1, drawY + 1, part, 0);
-                        font.drawStringCenter(drawX, drawY, part, rgb);
+                        const part = label.substring(0, newline);
+                        font.centreString(part, drawX, drawY, rgb, true);
 
-                        drawY += font.height2d;
+                        drawY += font.getHeight();
                         label = label.substring(newline + 1);
                     }
                 }
             }
+        }
 
-            // Region labels for unified map
+        // custom: region labels for unified map
+        if (this.zoom == this.targetZoom && MapView.shouldDrawLabels) {
             const regionLabels: {label: string, x: number, z: number}[] = [
-                { label: 'Underground', x: 41 * 64 + 32, z: 86 * 64 + 32 },
-                { label: 'Misc', x: 41 * 64 + 32, z: 73 * 64 + 32 }
+                { label: 'Underground', x: 41 * 64 + 32, z: 71 * 64 + 32 },
+                { label: 'Misc', x: 41 * 64 + 32, z: 83 * 64 + 32 }
             ];
             for (const rl of regionLabels) {
-                const rx: number = rl.x - this.originX;
-                const ry: number = this.originZ + this.sizeZ - rl.z;
+                const rx: number = rl.x - this.mapOriginX;
+                const ry: number = this.mapOriginZ + this.mapHeight - rl.z;
                 const rdx: number = (widthOffset + ((width - widthOffset) * (rx - left)) / (right - left)) | 0;
                 const rdy: number = (heightOffset + ((height - heightOffset) * (ry - top)) / (bottom - top)) | 0;
-                this.b12?.drawStringCenter(rdx + 1, rdy + 1, rl.label, 0);
-                this.b12?.drawStringCenter(rdx, rdy, rl.label, 0xffaa00);
+                this.b12?.centreString(rl.label, rdx + 1, rdy + 1, 0);
+                this.b12?.centreString(rl.label, rdx, rdy, 0xffaa00);
             }
         }
 
         if (MapView.shouldDrawBorders) {
-            for (let mx: number = this.originX / 64; mx < (this.originX + this.sizeX) / 64; mx++) {
-                for (let mz: number = this.originZ / 64; mz < (this.originZ + this.sizeZ) / 64; mz++) {
+            for (let mx: number = this.mapOriginX / 64; mx < (this.mapOriginX + this.mapWidth) / 64; mx++) {
+                for (let mz: number = this.mapOriginZ / 64; mz < (this.mapOriginZ + this.mapHeight) / 64; mz++) {
                     let x: number = mx * 64;
                     let z: number = mz * 64;
 
-                    x -= this.originX;
-                    z = this.originZ + this.sizeZ - z;
+                    x -= this.mapOriginX;
+                    z = this.mapOriginZ + this.mapHeight - z;
 
                     const drawLeft: number = (widthOffset + ((width - widthOffset) * (x - left)) / (right - left)) | 0;
                     const drawTop: number = (heightOffset + ((height - heightOffset) * (z - 64 - top)) / (bottom - top)) | 0;
@@ -1341,26 +1572,22 @@ export class MapView extends GameShell {
                         continue;
                     }
 
-                    let color = 0xffffff;
-                    if (this.activeTileX !== -1 && this.activeTileZ !== -1) {
-                        color = 0xff0000;
-                    }
-
-                    Pix2D.drawRect(drawLeft, drawTop, drawRight - drawLeft, drawBottom - drawTop, color);
-                    this.b12?.drawStringRight(drawRight - 5, drawBottom - 5, mx + '_' + mz, color, false);
+                    Pix2D.drawRect(drawLeft, drawTop, drawRight - drawLeft, drawBottom - drawTop, 0xffffff);
+                    this.b12?.drawStringRight(mx + '_' + mz, drawRight - 5, drawBottom - 5, 0xffffff, false);
 
                     if (mx == 33 && mz >= 71 && mz <= 73) {
-                        this.b12?.drawStringCenter((drawRight + drawLeft) / 2, (drawBottom + drawTop) / 2, 'u_pass', 0xff0000);
+                        this.b12?.centreString('u_pass', ((drawRight + drawLeft) / 2) | 0, ((drawBottom + drawTop) / 2) | 0, 0xff0000);
                     } else if (mx >= 32 && mx <= 34 && mz >= 70 && mz <= 74) {
-                        this.b12?.drawStringCenter((drawRight + drawLeft) / 2, (drawBottom + drawTop) / 2, 'u_pass', 0xffff00);
+                        this.b12?.centreString('u_pass', ((drawRight + drawLeft) / 2) | 0, ((drawBottom + drawTop) / 2) | 0, 0xffff00);
                     }
                 }
             }
         }
     }
 
-    drawSmoothEdges(data: Int32Array, off: number, color: number, overlay: number, width: number, height: number, shape: number, rotation: number): void {
-        const step: number = Pix2D.width2d - width;
+    // jag::oldscape::rs2lib::worldmap::OverlayShapes::DrawOverlayShape
+    drawOverlayShape(data: Int32Array, off: number, underlay: number, overlay: number, width: number, height: number, shape: number, rotation: number): void {
+        const step: number = Pix2D.width - width;
         if (shape == 9) {
             shape = 1;
             rotation = (rotation + 1) & 0x3;
@@ -1379,7 +1606,7 @@ export class MapView extends GameShell {
                         if (x <= y) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1390,7 +1617,7 @@ export class MapView extends GameShell {
                         if (x <= y) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1401,7 +1628,7 @@ export class MapView extends GameShell {
                         if (x >= y) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1412,7 +1639,7 @@ export class MapView extends GameShell {
                         if (x >= y) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1425,7 +1652,7 @@ export class MapView extends GameShell {
                         if (x <= y >> 1) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1436,7 +1663,7 @@ export class MapView extends GameShell {
                         if (x >= y << 1) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1447,7 +1674,7 @@ export class MapView extends GameShell {
                         if (x <= y >> 1) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1458,7 +1685,7 @@ export class MapView extends GameShell {
                         if (x >= y << 1) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1471,7 +1698,7 @@ export class MapView extends GameShell {
                         if (x <= y >> 1) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1482,7 +1709,7 @@ export class MapView extends GameShell {
                         if (x >= y << 1) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1493,7 +1720,7 @@ export class MapView extends GameShell {
                         if (x <= y >> 1) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1504,7 +1731,7 @@ export class MapView extends GameShell {
                         if (x >= y << 1) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1517,7 +1744,7 @@ export class MapView extends GameShell {
                         if (x >= y >> 1) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1528,7 +1755,7 @@ export class MapView extends GameShell {
                         if (x <= y << 1) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1539,7 +1766,7 @@ export class MapView extends GameShell {
                         if (x >= y >> 1) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1550,7 +1777,7 @@ export class MapView extends GameShell {
                         if (x <= y << 1) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1563,7 +1790,7 @@ export class MapView extends GameShell {
                         if (x >= y >> 1) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1574,7 +1801,7 @@ export class MapView extends GameShell {
                         if (x <= y << 1) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1585,7 +1812,7 @@ export class MapView extends GameShell {
                         if (x >= y >> 1) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1596,7 +1823,7 @@ export class MapView extends GameShell {
                         if (x <= y << 1) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1606,10 +1833,10 @@ export class MapView extends GameShell {
             if (rotation == 0) {
                 for (let y: number = 0; y < height; y++) {
                     for (let x: number = 0; x < width; x++) {
-                        if (x <= width / 2) {
+                        if (x <= ((width / 2) | 0)) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1617,10 +1844,10 @@ export class MapView extends GameShell {
             } else if (rotation == 1) {
                 for (let y: number = 0; y < height; y++) {
                     for (let x: number = 0; x < width; x++) {
-                        if (y <= height / 2) {
+                        if (y <= ((height / 2) | 0)) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1628,10 +1855,10 @@ export class MapView extends GameShell {
             } else if (rotation == 2) {
                 for (let y: number = 0; y < height; y++) {
                     for (let x: number = 0; x < width; x++) {
-                        if (x >= width / 2) {
+                        if (x >= ((width / 2) | 0)) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1639,10 +1866,10 @@ export class MapView extends GameShell {
             } else if (rotation == 3) {
                 for (let y: number = 0; y < height; y++) {
                     for (let x: number = 0; x < width; x++) {
-                        if (y >= height / 2) {
+                        if (y >= ((height / 2) | 0)) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1652,10 +1879,10 @@ export class MapView extends GameShell {
             if (rotation == 0) {
                 for (let y: number = 0; y < height; y++) {
                     for (let x: number = 0; x < width; x++) {
-                        if (x <= y - height / 2) {
+                        if (x <= y - ((height / 2) | 0)) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1663,10 +1890,10 @@ export class MapView extends GameShell {
             } else if (rotation == 1) {
                 for (let y: number = height - 1; y >= 0; y--) {
                     for (let x: number = 0; x < width; x++) {
-                        if (x <= y - height / 2) {
+                        if (x <= y - ((height / 2) | 0)) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1674,10 +1901,10 @@ export class MapView extends GameShell {
             } else if (rotation == 2) {
                 for (let y: number = height - 1; y >= 0; y--) {
                     for (let x: number = width - 1; x >= 0; x--) {
-                        if (x <= y - height / 2) {
+                        if (x <= y - ((height / 2) | 0)) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1685,10 +1912,10 @@ export class MapView extends GameShell {
             } else if (rotation == 3) {
                 for (let y: number = 0; y < height; y++) {
                     for (let x: number = width - 1; x >= 0; x--) {
-                        if (x <= y - height / 2) {
+                        if (x <= y - ((height / 2) | 0)) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1698,10 +1925,10 @@ export class MapView extends GameShell {
             if (rotation == 0) {
                 for (let y: number = 0; y < height; y++) {
                     for (let x: number = 0; x < width; x++) {
-                        if (x >= y - height / 2) {
+                        if (x >= y - ((height / 2) | 0)) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1709,10 +1936,10 @@ export class MapView extends GameShell {
             } else if (rotation == 1) {
                 for (let y: number = height - 1; y >= 0; y--) {
                     for (let x: number = 0; x < width; x++) {
-                        if (x >= y - height / 2) {
+                        if (x >= y - ((height / 2) | 0)) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1720,10 +1947,10 @@ export class MapView extends GameShell {
             } else if (rotation == 2) {
                 for (let y: number = height - 1; y >= 0; y--) {
                     for (let x: number = width - 1; x >= 0; x--) {
-                        if (x >= y - height / 2) {
+                        if (x >= y - ((height / 2) | 0)) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1731,10 +1958,10 @@ export class MapView extends GameShell {
             } else if (rotation == 3) {
                 for (let y: number = 0; y < height; y++) {
                     for (let x: number = width - 1; x >= 0; x--) {
-                        if (x >= y - height / 2) {
+                        if (x >= y - ((height / 2) | 0)) {
                             data[off++] = overlay;
                         } else {
-                            data[off++] = color;
+                            data[off++] = underlay;
                         }
                     }
                     off += step;
@@ -1743,7 +1970,15 @@ export class MapView extends GameShell {
         }
     }
 
-    // ----
+    // custom: remap z-coordinates into the unified map space
+    remapZ(z: number): number {
+        const mz: number = (z >> 6);
+        if (mz >= 144) return z - (82 << 6);
+        if (mz >= 70 && mz <= 76) return z + (10 << 6);
+        return z;
+    }
+
+    // custom: fetch player positions from server
     fetchPlayerPositions(): void {
         fetch('/playerpositions')
             .then(res => res.json())
@@ -1755,6 +1990,7 @@ export class MapView extends GameShell {
             .catch(() => {});
     }
 
+    // custom: track player movement trails
     updateTrails(players: {x: number, z: number, level: number, name: string}[]): void {
         const now: number = performance.now();
         const activeNames: Set<string> = new Set();
@@ -1769,21 +2005,20 @@ export class MapView extends GameShell {
 
             const last = trail.length > 0 ? trail[trail.length - 1] : null;
             if (!last || last.x !== p.x || last.z !== p.z) {
-                // Detect teleport — add X markers
                 if (last) {
                     const dx: number = Math.abs(p.x - last.x);
                     const dz: number = Math.abs(p.z - last.z);
                     if (dx > this.teleportThreshold || dz > this.teleportThreshold) {
                         const lastZ: number = this.remapZ(last.z);
-                        const lastHx: number = last.x - this.originX;
-                        const lastHz: number = this.originZ + this.sizeZ - lastZ;
-                        if (lastHx >= 0 && lastHx < this.sizeX && lastHz >= 0 && lastHz < this.sizeZ) {
+                        const lastHx: number = last.x - this.mapOriginX;
+                        const lastHz: number = this.mapOriginZ + this.mapHeight - lastZ;
+                        if (lastHx >= 0 && lastHx < this.mapWidth && lastHz >= 0 && lastHz < this.mapHeight) {
                             this.teleportMarkers.push({ x: lastHx, z: lastHz, time: now });
                         }
                         const curZ: number = this.remapZ(p.z);
-                        const curHx: number = p.x - this.originX;
-                        const curHz: number = this.originZ + this.sizeZ - curZ;
-                        if (curHx >= 0 && curHx < this.sizeX && curHz >= 0 && curHz < this.sizeZ) {
+                        const curHx: number = p.x - this.mapOriginX;
+                        const curHz: number = this.mapOriginZ + this.mapHeight - curZ;
+                        if (curHx >= 0 && curHx < this.mapWidth && curHz >= 0 && curHz < this.mapHeight) {
                             this.teleportMarkers.push({ x: curHx, z: curHz, time: now });
                         }
                     }
@@ -1808,15 +2043,11 @@ export class MapView extends GameShell {
         }
     }
 
-    remapZ(z: number): number {
-        const mz: number = (z >> 6);
-        if (mz >= 144) return z - (66 << 6);
-        return z;
-    }
-
+    // custom: Bresenham line drawing with alpha blending
     drawLineAlpha(x1: number, y1: number, x2: number, y2: number, rgb: number, alpha: number): void {
         const pixels: Int32Array = Pix2D.pixels;
-        const w: number = Pix2D.width2d;
+        const w: number = Pix2D.width;
+        const h: number = pixels.length / w;
         const srcR: number = (rgb >> 16) & 0xff;
         const srcG: number = (rgb >> 8) & 0xff;
         const srcB: number = rgb & 0xff;
@@ -1828,9 +2059,8 @@ export class MapView extends GameShell {
         const sy: number = y1 < y2 ? 1 : -1;
         let err: number = dx - dy;
 
-        // eslint-disable-next-line no-constant-condition
         while (true) {
-            if (x1 >= Pix2D.left && x1 < Pix2D.right && y1 >= Pix2D.top && y1 < Pix2D.bottom) {
+            if (x1 >= 0 && x1 < w && y1 >= 0 && y1 < h) {
                 const off: number = x1 + y1 * w;
                 const dst: number = pixels[off];
                 const dstR: number = (dst >> 16) & 0xff;
@@ -1848,6 +2078,7 @@ export class MapView extends GameShell {
         }
     }
 
+    // custom: draw player positions, trails, and teleport markers
     drawPlayers(left: number, top: number, right: number, bottom: number, widthOffset: number, heightOffset: number, width: number, height: number): void {
         const now: number = performance.now();
 
@@ -1864,41 +2095,38 @@ export class MapView extends GameShell {
             const r: number = (fade * 255) | 0;
             const color: number = (r << 16);
             const size: number = 4;
-            Pix2D.drawLine(screenX - size, screenY - size, screenX + size, screenY + size, color);
-            Pix2D.drawLine(screenX + size, screenY - size, screenX - size, screenY + size, color);
+            this.drawLineAlpha(screenX - size, screenY - size, screenX + size, screenY + size, color, 256);
+            this.drawLineAlpha(screenX + size, screenY - size, screenX - size, screenY + size, color, 256);
         }
 
         for (const p of this.playerPositions) {
             const pz: number = this.remapZ(p.z);
-            const mapX: number = p.x - this.originX;
-            const mapY: number = this.originZ + this.sizeZ - pz;
+            const mapX: number = p.x - this.mapOriginX;
+            const mapY: number = this.mapOriginZ + this.mapHeight - pz;
 
-            if (mapX < 0 || mapX >= this.sizeX || mapY < 0 || mapY >= this.sizeZ) continue;
+            if (mapX < 0 || mapX >= this.mapWidth || mapY < 0 || mapY >= this.mapHeight) continue;
 
-            // Draw trail — recent segments bright, old segments at low alpha (stacks on overlap)
-            // Drawn independently of player dot visibility so trails render even when player is off-screen
+            // Draw trail
             const trail = this.playerTrails.get(p.name);
             if (trail && trail.length > 1) {
                 for (let i: number = 1; i < trail.length; i++) {
                     const prev = trail[i - 1];
                     const curr = trail[i];
 
-                    // Skip teleport gaps
                     const tdx: number = Math.abs(curr.x - prev.x);
                     const tdz: number = Math.abs(curr.z - prev.z);
                     if (tdx > this.teleportThreshold || tdz > this.teleportThreshold) continue;
 
                     const age: number = now - curr.time;
-                    // Recent (<15s): fade from full to floor; older: hold at floor alpha
                     const recentFade: number = Math.max(0, 1 - age / 15000);
                     const alpha: number = (80 + recentFade * 176) | 0;
 
                     const prevZ: number = this.remapZ(prev.z);
                     const currZ: number = this.remapZ(curr.z);
-                    const prevMapX: number = prev.x - this.originX;
-                    const prevMapY: number = this.originZ + this.sizeZ - prevZ;
-                    const currMapX: number = curr.x - this.originX;
-                    const currMapY: number = this.originZ + this.sizeZ - currZ;
+                    const prevMapX: number = prev.x - this.mapOriginX;
+                    const prevMapY: number = this.mapOriginZ + this.mapHeight - prevZ;
+                    const currMapX: number = curr.x - this.mapOriginX;
+                    const currMapY: number = this.mapOriginZ + this.mapHeight - currZ;
 
                     const sx1: number = (widthOffset + ((width - widthOffset) * (prevMapX - left)) / (right - left)) | 0;
                     const sy1: number = (heightOffset + ((height - heightOffset) * (prevMapY - top)) / (bottom - top)) | 0;
@@ -1914,39 +2142,106 @@ export class MapView extends GameShell {
 
             if (screenX < 0 || screenX >= width || screenY < 0 || screenY >= height) continue;
 
-            // Draw player dot
             Pix2D.fillCircle(screenX, screenY, 3, 0xffff00, 256);
 
-            // Draw name at higher zoom
             if (this.zoom >= 6 && this.b12) {
-                this.b12.drawStringCenter(screenX + 1, screenY - 6, p.name, 0);
-                this.b12.drawStringCenter(screenX, screenY - 7, p.name, 0xffffff);
+                this.b12.centreString(p.name, screenX + 1, screenY - 6, 0);
+                this.b12.centreString(p.name, screenX, screenY - 7, 0xffffff);
             }
         }
     }
 
     // ----
-    getTitleScreenState(): number {
-        return -1;
+
+    dragging = false;
+    activePointerId: number | null = null;
+
+    override mouseDown(x: number, y: number, e: MouseEvent) {
+        this.nextMouseClickX = x;
+        this.nextMouseClickY = y;
+
+        this.mouseX = x;
+        this.mouseY = y;
+
+        if (e.button === 2) {
+            this.nextMouseClickButton = 2;
+            this.mouseButton = 2;
+        } else {
+            this.nextMouseClickButton = 1;
+            this.mouseButton = 1;
+            canvas.style.cursor = 'grabbing';
+            this.dragging = true;
+        }
+
+        // e.preventDefault();
     }
 
-    isChatBackInputOpen(): boolean {
-        return false;
+    override mouseUp(_x: number, _y: number, e: MouseEvent) {
+        this.dragging = false;
+        canvas.style.cursor = 'grab';
+
+        this.mouseX = -1;
+        this.mouseY = -1;
+        this.mouseButton = 0;
+        this.nextMouseClickX = -1;
+        this.nextMouseClickY = -1;
+        this.nextMouseClickButton = 0;
+
+        // e.preventDefault();
     }
 
-    isShowSocialInput(): boolean {
-        return false;
+    override pointerDown(x: number, y: number, e: PointerEvent) {
+        this.idleTimer = performance.now();
+        this.mouseX = x;
+        this.mouseY = y;
+        this.mouseButton = 1;
+        this.nextMouseClickX = x;
+        this.nextMouseClickY = y;
+        this.nextMouseClickButton = 1;
     }
 
-    getChatInterfaceId(): number {
-        return -1;
+    override pointerUp(_x: number, _y: number, e: PointerEvent) {
+        this.mouseX = -1;
+        this.mouseY = -1;
+        this.mouseButton = 0;
+        this.nextMouseClickX = -1;
+        this.nextMouseClickY = -1;
+        this.nextMouseClickButton = 0;
     }
 
-    getViewportInterfaceId(): number {
-        return -1;
+    override pointerEnter() {
     }
 
-    getReportAbuseInterfaceId(): number {
-        return -1;
+    override pointerLeave() {
+    }
+
+    override pointerMove(x: number, y: number, _e: PointerEvent) {
+        if (!this.dragging) {
+            this.mouseX = x;
+            this.mouseY = y;
+        }
+    }
+
+    override windowMouseUp(e: MouseEvent) {
+        this.dragging = false;
+        canvas.style.cursor = 'grab';
+
+        this.mouseX = -1;
+        this.mouseY = -1;
+        this.mouseButton = 0;
+        this.nextMouseClickX = -1;
+        this.nextMouseClickY = -1;
+        this.nextMouseClickButton = 0;
+    }
+
+    override windowMouseMove(e: MouseEvent) {
+        if (this.dragging) {
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX - rect.left) | 0;
+            const y = (e.clientY - rect.top) | 0;
+
+            this.mouseX = x;
+            this.mouseY = y;
+        }
     }
 }

@@ -21,15 +21,15 @@ switch_int(~p_choice4("So what's this room for?", 1, "What's the big lever over 
         ~chatplayer("<p,confused>What's the big lever over there for?");
         ~chatnpc("<p,happy>Simple. With the lever you can do some fun stuff.");
         ~chatplayer("<p,confused>What kind of stuff?");
-        ~chatnpc("<p,happy>A balloon drop costs 5000 gold. For this you get 200 balloons dropped across the whole of the party room. You can then have fun popping the balloons! If there are items in the Party Drop Chest they will be inside");
-        ~chatnpc("<p,happy>the balloons! For 2000 gold you can summon the Party Room Knights who will dance for your delight.");
+        ~chatnpc("<p,happy>A balloon drop costs 1000 gold. For this you get 200 balloons dropped across the whole of the party room. You can then have fun popping the balloons! If there are items in the Party Drop Chest they will be inside");
+        ~chatnpc("<p,happy>the balloons! For 500 gold you can summon the Party Room Knights who will dance for your delight.");
         ~chatnpc("<p,laugh>Their singing isn't a delight though!");
     case 3 :
         ~chatplayer("<p,confused>What's the gold chest for?");
         ~chatnpc("<p,neutral>Any items that are in the chest will be dropped inside the balloons when you pull the lever!");
         ~chatplayer("<p,happy>Cool! Sounds like a fun way to do a drop party!");
         ~chatnpc("<p,laugh>Exactly!");
-        ~chatnpc("<p,neutral>A word of warning though. Any items that you put into the chest can't be taken out again and it costs 5000 gold pieces for each balloon drop.");
+        ~chatnpc("<p,neutral>A word of warning though. Any items that you put into the chest can't be taken out again and it costs 1000 gold pieces for each balloon drop.");
     case 4 :
         ~chatplayer("<p,happy>I wanna party!");
         ~chatnpc("<p,happy>I've won the Dance Trophy at the Kandarin Ball three years in a trot!");
@@ -38,4 +38,54 @@ switch_int(~p_choice4("So what's this room for?", 1, "What's the big lever over 
         npc_anim(partyroom_dance, 0);
 }
 
-// todo (for later versions): ai_timer to auto clean up the party chest (27 Jul 2004 and later will do this)
+[ai_timer,partyroom_pete]
+// not map_clock based since it starts when last call ended
+// resetdefaults doesn't affect so must be 1t timer
+%npc_int = add(%npc_int, 1);
+if(%npc_int < 1000) {
+    return;
+}
+npc_setmode(none);
+~npc_forcewalk(0_42_54_42_14);
+npc_facesquare(0_42_54_41_14);
+npc_delay(0);
+npc_anim(human_openchest, 0);
+npc_delay(0);
+if(loc_find(0_42_54_41_14, loc_2417) = true) {
+    loc_change(partyroom_chestopen, 500);
+    npc_delay(1);
+}
+npc_say("Right, let's have a look.");
+npc_delay(2);
+npc_anim(human_openchest, 0);
+npc_delay(3);
+def_int $slot = 0;
+def_int $dropped = 0;
+def_int $rand = random(5);
+huntall(npc_coord, 20, ^vis_off); // 20 tiles, no los/low check
+if(huntnext = true) { // this only checks 1 player, if it fails on them nothing happens
+    if(p_finduid(uid) = true) { // fails if no prot access
+        // check for junk items, if there are any pete will drop them for that user
+        // iterate through the slots of the chest in order and drop on random 1x1 free tile
+        while ($slot < inv_size(partyroom_dropinv)) {
+            def_obj $slotobj = inv_getobj(partyroom_dropinv, $slot);
+            // notes/stackables are untouched regardless of value
+            if ($slotobj ! null & oc_stackable($slotobj) = false & oc_param($slotobj, party_clean_exempt) = ^false & oc_cost($slotobj) < 100) {
+                inv_dropslot(partyroom_dropinv, map_findsquare(npc_coord, 0, 1, ^map_findsquare_none), $slot, 200);
+                $dropped = add($dropped, 1);
+            }
+            $slot = add($slot, 1);
+        }
+        if($dropped > 0) {
+            if($rand = 0) npc_say("No good!");
+            else if($rand = 1) npc_say("Tut tut!");
+            else if($rand = 2) npc_say("Reject!");
+            else if($rand = 3) npc_say("Chaff!");
+            else npc_say("Pfft!");
+        } else {
+            npc_say("Good, good.");
+        }
+    }
+}
+%npc_int = 0;
+npc_setmode(null);

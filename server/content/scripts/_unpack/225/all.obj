@@ -246,6 +246,7 @@ model=model_2724_obj
 2dzan=260
 2dxan=460
 weight=1lb
+param=party_clean_exempt,^true
 
 [edgevilledungeonkey]
 name=Brass key
@@ -708,9 +709,9 @@ param=slashattack_anim,human_scythe_sweep
 param=crushattack_anim,human_scythe_lunge
 param=stabattack_anim,human_scythe_slash
 param=defend_anim,human_scythe_block
-param=stab_sound,scythe_slash
+param=stab_sound,scythe_stab
 param=slash_sound,scythe_slash
-param=crush_sound,scythe_slash
+param=crush_sound,scythe_double
 tradeable=no
 
 [archery_ticket]

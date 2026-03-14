@@ -312,7 +312,7 @@ switch_int(%druidspirit) {
 [label,drezel_mort_myre]
 ~chatplayer("<p,neutral>Where's Mort Myre?");
 ~chatnpc("<p,neutral>Mort Myre is a decayed and dangerous swamp to the south east of here. It was once a beautiful forest but has since become filled with vile emanations from within Morytania.");
-~chatnpc("<p,neutral>The swamp decays everything. We put a fence around|it to stop unwary travellers going in. Anyone who dies in|the swamp is forever cursed to haunt it as a Ghast.|Ghasts attack travellers, turning food to rotten flesh.");
+~chatnpc("<p,neutral>The swamp decays everything. We put a fence around|it to stop unwary travellers going in. Anyone who dies in|the swamp is forever cursed to haunt it as a Ghast.|Ghasts attack travellers, turning food to rotten filth.");
 @multi5("Who is this Filliman?", drezel_who_filliman, "Where's Mort Myre?", drezel_mort_myre, "What's a Ghast?", drezel_ghast, "Yes, I'll go and look for him.", drezel_look, "Sorry, I don't think I can help.", drezel_nohelp);
 
 [label,drezel_ghast]

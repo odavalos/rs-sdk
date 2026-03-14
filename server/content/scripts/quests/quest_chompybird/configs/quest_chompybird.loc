@@ -3,14 +3,12 @@ name=Swamp bubbles
 desc=The noxious liquid bubbles horribly.
 model=model_swamp_bubbles
 anim=swampbubs
-hasalpha=yes
 
 [swampbubbles_swamp]
 name=Swamp bubbles
 desc=The noxious liquid bubbles horribly.
 model=model_swamp_bubbles
 anim=swampbubs
-hasalpha=yes
 recol1s=3297
 recol1d=1418
 

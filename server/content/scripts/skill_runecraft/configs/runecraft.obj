@@ -170,7 +170,11 @@ iop4=Locate
 weight=15g
 category=talismans
 param=rune_type,10
+tradeable=no
 //2858, 3381
+
+[obj_1459]
+// cert_law_talisman
 
 [soul_talisman]
 cost=4

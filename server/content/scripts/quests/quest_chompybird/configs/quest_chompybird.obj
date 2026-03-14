@@ -73,6 +73,7 @@ iop1=Drop
 iop4=Release All
 iop5=Release
 tradeable=no
+param=unbankable,^true
 
 [raw_chompy]
 name=Raw chompy

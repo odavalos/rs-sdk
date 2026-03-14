@@ -29,7 +29,7 @@ if (afk_event = ^true) {
 // play human animation
 anim(human_spinningwheel, 0);
 loc_anim(spinningwheel);
-// if sound is found, play here
+sound_synth(spinning, 0, 0);
 inv_del(inv, struct_param($struct, ingredient), 1);
 inv_add(inv, struct_param($struct, product), 1);
 mes(struct_param($struct, processmessage));

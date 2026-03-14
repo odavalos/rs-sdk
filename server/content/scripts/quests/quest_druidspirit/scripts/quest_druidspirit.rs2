@@ -295,24 +295,24 @@ if(%druidspirit < ^druidspirit_picked_sickle) {
 def_int $pts = 0;
 def_int $total_count = 0;
 
-def_int $count_pear = inv_total(inv, mortmyrepear);
-def_int $count_stem = inv_total(inv, mortmyrebuddingstem);
-def_int $count_mushroom = inv_total(inv, mortmyremushroom);
+def_int $count_pear = 0;
+def_int $count_stem = 0;
+def_int $count_mushroom = 0;
 
-def_int $count = min(sub(3, $total_count), $count_pear);
+def_int $count = min(sub(3, $total_count), inv_total(inv, mortmyrepear));
 $total_count = add($total_count, $count);
 $pts = add($pts, multiply(3, $count));
 $count_pear = $count;
 
 if($total_count < 3) {
-    $count = min(sub(3, $total_count), $count_stem);
+    $count = min(sub(3, $total_count), inv_total(inv, mortmyrebuddingstem));
     $total_count = add($total_count, $count);
     $pts = add($pts, multiply(2, $count));
     $count_stem = $count;
 }
-
+ 
 if($total_count < 3) {
-    $count = min(sub(3, $total_count), $count_mushroom);
+    $count = min(sub(3, $total_count),inv_total(inv, mortmyremushroom));
     $total_count = add($total_count, $count);
     $pts = add($pts, multiply(1, $count));
     $count_mushroom = $count;

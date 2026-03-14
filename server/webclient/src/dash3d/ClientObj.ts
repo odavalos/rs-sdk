@@ -3,17 +3,17 @@ import type Model from '#/dash3d/Model.js';
 import ModelSource from '#/dash3d/ModelSource.js';
 
 export default class ClientObj extends ModelSource {
-    readonly index: number;
+    readonly id: number;
     count: number;
 
-    constructor(index: number, count: number) {
+    constructor(id: number, count: number) {
         super();
-        this.index = index;
+        this.id = id;
         this.count = count;
     }
 
-    getModel(): Model | null {
-        const obj = ObjType.get(this.index);
-        return obj.getModel(this.count);
+    override getTempModel(): Model | null {
+        const obj = ObjType.list(this.id);
+        return obj.getModelLit(this.count);
     }
 }

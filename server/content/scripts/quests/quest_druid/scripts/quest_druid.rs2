@@ -13,7 +13,10 @@ if(npc_finduid($uid) = true) {
 
 [oplocu,cauldron_of_thunder]
 def_obj $useitem = last_useitem;
-p_arrivedelay;
+if(%druidquest ! ^druid_spoken_sanfew) {
+    ~displaymessage(^dm_default);
+    return;
+}
 if($useitem = raw_rat_meat) {
     mes("You dip the raw rat meat in the cauldron.");
     inv_del(inv, raw_rat_meat, 1);

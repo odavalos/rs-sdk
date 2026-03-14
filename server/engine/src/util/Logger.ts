@@ -13,10 +13,15 @@ export function printInfo(message: string) {
     console.log(kleur.magenta(`${now.toLocaleDateString()} ${now.toLocaleTimeString()}\t`), kleur.green('INFO\t'), message);
 }
 
-export function printError(message: string) {
+export function printError(message: string | Error) {
     const now = new Date();
 
-    console.error(kleur.magenta(`${now.toLocaleDateString()} ${now.toLocaleTimeString()}\t`), kleur.red('ERROR\t'), message);
+    if (message instanceof Error) {
+        console.error(kleur.magenta(`${now.toLocaleDateString()} ${now.toLocaleTimeString()}\t`), kleur.red('ERROR\t'), message.message);
+        console.error(message.stack);
+    } else {
+        console.error(kleur.magenta(`${now.toLocaleDateString()} ${now.toLocaleTimeString()}\t`), kleur.red('ERROR\t'), message);
+    }
 }
 
 export function printFatalError(message: string) {

@@ -24,7 +24,7 @@ sharelight=yes
 [dragonshipladdertop]
 name=Ladder
 desc=Takes me into the ship.
-model=model_loc_10
+model=model_loc_273
 active=yes
 op1=Climb-down
 mapscene=7
@@ -39,7 +39,7 @@ mapscene=7
 
 [dragonshipladder]
 name=Ladder
-model=model_loc_11
+model=model_loc_272
 active=yes
 op1=Climb-up
 mapscene=7

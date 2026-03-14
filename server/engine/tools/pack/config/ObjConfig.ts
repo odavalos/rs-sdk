@@ -207,7 +207,7 @@ export function packObjConfigs(configs: Map<string, ConfigLine[]>, modelFlags: n
         const debugname = ObjPack.getById(id);
         let config;
 
-        // todo: cert_ config names get used... what to do now...
+        // todo: cert_ config names get reused... what to do now...
         if (debugname.startsWith('cert_')) {
             const uncert = ObjPack.getByName(debugname.substring('cert_'.length));
             if (uncert === -1) {
@@ -219,24 +219,26 @@ export function packObjConfigs(configs: Map<string, ConfigLine[]>, modelFlags: n
                 { key: 'certtemplate', value: template_for_cert }
             ];
         } else {
-            config = configs.get(debugname)!;
+            config = configs.get(debugname);
 
-            // if no name we fill with the debug name
-            let hasName = false;
-            let hasModel = false;
-            for (let j = 0; j < config.length; j++) {
-                const key = config[j].key;
+            if (config) {
+                // if no name we fill with the debug name
+                let hasName = false;
+                let hasModel = false;
+                for (let j = 0; j < config.length; j++) {
+                    const key = config[j].key;
 
-                if (key === 'name') {
-                    hasName = true;
-                } else if (key === 'model') {
-                    hasModel = true;
+                    if (key === 'name') {
+                        hasName = true;
+                    } else if (key === 'model') {
+                        hasModel = true;
+                    }
                 }
-            }
 
-            if (!hasName && hasModel) {
-                const name = debugname.charAt(0).toUpperCase() + debugname.slice(1).replace(/_/g, ' ');
-                config.push({ key: 'name', value: name });
+                if (!hasName && hasModel) {
+                    const name = debugname.charAt(0).toUpperCase() + debugname.slice(1).replace(/_/g, ' ');
+                    config.push({ key: 'name', value: name });
+                }
             }
         }
 

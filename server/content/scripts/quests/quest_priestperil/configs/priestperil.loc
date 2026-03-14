@@ -16,7 +16,6 @@ op2=Close
 [lantern_post]
 model=loc_3434
 anim=hanginglantern
-hasalpha=yes
 active=no
 
 [ornatewall]
@@ -303,7 +302,6 @@ active=no
 [hanginglantern]
 model=loc_3474
 anim=hanginglantern
-hasalpha=yes
 active=no
 
 [wall_support]
@@ -350,11 +348,9 @@ length=2
 op1=Open
 
 [loc_3481]
-name=Coffin
-desc=An ornately decorated coffin. Something seems to be alive inside.
 model=loc_3481
-length=2
-op1=Open
+recol1s=0
+recol1d=6342
 
 [priestperil_tomb_top]
 model=loc_3482
@@ -442,7 +438,6 @@ name=Monument
 desc=A monument to a fallen priest.
 model=loc_3493
 anim=priestperil_gravemonument
-hasalpha=yes
 length=2
 active=yes
 op1=Study
@@ -454,7 +449,6 @@ name=Monument
 desc=A monument to a fallen priest.
 model=loc_3493
 anim=priestperil_gravemonument
-hasalpha=yes
 length=2
 active=yes
 op1=Study
@@ -466,7 +460,6 @@ name=Monument
 desc=A monument to a fallen priest.
 model=loc_3493
 anim=priestperil_gravemonument
-hasalpha=yes
 length=2
 active=yes
 op1=Study
@@ -478,7 +471,6 @@ name=Monument
 desc=A monument to a fallen priest.
 model=loc_3493
 anim=priestperil_gravemonument
-hasalpha=yes
 length=2
 active=yes
 op1=Study
@@ -490,7 +482,6 @@ name=Monument
 desc=A monument to a fallen priest.
 model=loc_3497
 anim=priestperil_gravemonument
-hasalpha=yes
 width=2
 length=2
 active=yes
@@ -503,7 +494,6 @@ name=Monument
 desc=A monument to a fallen priest.
 model=loc_3497
 anim=priestperil_gravemonument
-hasalpha=yes
 width=2
 length=2
 active=yes
@@ -516,7 +506,6 @@ name=Monument
 desc=A monument to a fallen priest.
 model=loc_3497
 anim=priestperil_gravemonument
-hasalpha=yes
 width=2
 length=2
 active=yes

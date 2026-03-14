@@ -15,6 +15,7 @@ import { ScriptOpcodeMap } from '#/engine/script/ScriptOpcode.js';
 import ScriptOpcodePointers from '#/engine/script/ScriptOpcodePointers.js';
 import Environment from '#/util/Environment.js';
 import { loadDir, loadPack } from '#tools/pack/NameMap.js';
+import VarBitType from '#/cache/config/VarBitType.js';
 
 export function generateCompilerSymbols() {
     fs.mkdirSync('data/symbols', { recursive: true });
@@ -50,6 +51,10 @@ export function generateCompilerSymbols() {
     let npcSymbols = '';
     const npcs = loadPack(`${Environment.BUILD_SRC_DIR}/pack/npc.pack`);
     for (let i = 0; i < npcs.length; i++) {
+        if (typeof npcs[i] === 'undefined') {
+            continue;
+        }
+
         npcSymbols += `${i}\t${npcs[i]}\n`;
     }
     fs.writeFileSync('data/symbols/npc.sym', npcSymbols);
@@ -57,6 +62,10 @@ export function generateCompilerSymbols() {
     let objSymbols = '';
     const objs = loadPack(`${Environment.BUILD_SRC_DIR}/pack/obj.pack`);
     for (let i = 0; i < objs.length; i++) {
+        if (typeof objs[i] === 'undefined') {
+            continue;
+        }
+
         objSymbols += `${i}\t${objs[i]}\n`;
     }
     fs.writeFileSync('data/symbols/obj.sym', objSymbols);
@@ -66,7 +75,7 @@ export function generateCompilerSymbols() {
     let writeInvSymbols = '';
     const invs = loadPack(`${Environment.BUILD_SRC_DIR}/pack/inv.pack`);
     for (let i = 0; i < invs.length; i++) {
-        if (!invs[i]) {
+        if (typeof invs[i] === 'undefined') {
             continue;
         }
 
@@ -80,7 +89,7 @@ export function generateCompilerSymbols() {
     let seqSymbols = '';
     const seqs = loadPack(`${Environment.BUILD_SRC_DIR}/pack/seq.pack`);
     for (let i = 0; i < seqs.length; i++) {
-        if (!seqs[i]) {
+        if (typeof seqs[i] === 'undefined') {
             continue;
         }
 
@@ -91,7 +100,7 @@ export function generateCompilerSymbols() {
     let idkSymbols = '';
     const idks = loadPack(`${Environment.BUILD_SRC_DIR}/pack/idk.pack`);
     for (let i = 0; i < idks.length; i++) {
-        if (!idks[i]) {
+        if (typeof idks[i] === 'undefined') {
             continue;
         }
 
@@ -102,7 +111,7 @@ export function generateCompilerSymbols() {
     let spotanimSymbols = '';
     const spotanims = loadPack(`${Environment.BUILD_SRC_DIR}/pack/spotanim.pack`);
     for (let i = 0; i < spotanims.length; i++) {
-        if (!spotanims[i]) {
+        if (typeof spotanims[i] === 'undefined') {
             continue;
         }
 
@@ -113,7 +122,7 @@ export function generateCompilerSymbols() {
     let locSymbols = '';
     const locs = loadPack(`${Environment.BUILD_SRC_DIR}/pack/loc.pack`);
     for (let i = 0; i < locs.length; i++) {
-        if (!locs[i]) {
+        if (typeof locs[i] === 'undefined') {
             continue;
         }
 
@@ -155,7 +164,7 @@ export function generateCompilerSymbols() {
     let varpSymbols = '';
     const varps = loadPack(`${Environment.BUILD_SRC_DIR}/pack/varp.pack`);
     for (let i = 0; i < varps.length; i++) {
-        if (!varps[i]) {
+        if (typeof varps[i] === 'undefined') {
             continue;
         }
 
@@ -164,11 +173,25 @@ export function generateCompilerSymbols() {
     }
     fs.writeFileSync('data/symbols/varp.sym', varpSymbols);
 
+    VarBitType.load('data/pack');
+    let varbitSymbols = '';
+    const varbs = loadPack(`${Environment.BUILD_SRC_DIR}/pack/varbit.pack`);
+    for (let i = 0; i < varbs.length; i++) {
+        if (typeof varbs[i] === 'undefined') {
+            continue;
+        }
+
+        const varbit = VarBitType.get(i);
+        const basevar = VarPlayerType.get(varbit.basevar);
+        varbitSymbols += `${i}\t${varbit.debugname}\t${ScriptVarType.getType(basevar.type)}\t${basevar.protect}\n`;
+    }
+    fs.writeFileSync('data/symbols/varbit.sym', varbitSymbols);
+
     VarNpcType.load('data/pack');
     let varnSymbols = '';
     const varns = loadPack(`${Environment.BUILD_SRC_DIR}/pack/varn.pack`);
     for (let i = 0; i < varns.length; i++) {
-        if (!varns[i]) {
+        if (typeof varns[i] === 'undefined') {
             continue;
         }
 
@@ -181,7 +204,7 @@ export function generateCompilerSymbols() {
     let varsSymbols = '';
     const varss = loadPack(`${Environment.BUILD_SRC_DIR}/pack/vars.pack`);
     for (let i = 0; i < varss.length; i++) {
-        if (!varss[i]) {
+        if (typeof varss[i] === 'undefined') {
             continue;
         }
 
@@ -194,7 +217,7 @@ export function generateCompilerSymbols() {
     let paramSymbols = '';
     const params = loadPack(`${Environment.BUILD_SRC_DIR}/pack/param.pack`);
     for (let i = 0; i < params.length; i++) {
-        if (!params[i]) {
+        if (typeof params[i] === 'undefined') {
             continue;
         }
 
@@ -206,6 +229,10 @@ export function generateCompilerSymbols() {
     let structSymbols = '';
     const structs = loadPack(`${Environment.BUILD_SRC_DIR}/pack/struct.pack`);
     for (let i = 0; i < structs.length; i++) {
+        if (typeof structs[i] === 'undefined') {
+            continue;
+        }
+
         structSymbols += `${i}\t${structs[i]}\n`;
     }
     fs.writeFileSync('data/symbols/struct.sym', structSymbols);
@@ -213,6 +240,10 @@ export function generateCompilerSymbols() {
     let enumSymbols = '';
     const enums = loadPack(`${Environment.BUILD_SRC_DIR}/pack/enum.pack`);
     for (let i = 0; i < enums.length; i++) {
+        if (typeof enums[i] === 'undefined') {
+            continue;
+        }
+
         enumSymbols += `${i}\t${enums[i]}\n`;
     }
     fs.writeFileSync('data/symbols/enum.sym', enumSymbols);
@@ -220,6 +251,10 @@ export function generateCompilerSymbols() {
     let huntSymbols = '';
     const hunts = loadPack(`${Environment.BUILD_SRC_DIR}/pack/hunt.pack`);
     for (let i = 0; i < hunts.length; i++) {
+        if (typeof hunts[i] === 'undefined') {
+            continue;
+        }
+
         huntSymbols += `${i}\t${hunts[i]}\n`;
     }
     fs.writeFileSync('data/symbols/hunt.sym', huntSymbols);
@@ -227,6 +262,10 @@ export function generateCompilerSymbols() {
     let mesanimSymbols = '';
     const mesanims = loadPack(`${Environment.BUILD_SRC_DIR}/pack/mesanim.pack`);
     for (let i = 0; i < mesanims.length; i++) {
+        if (typeof mesanims[i] === 'undefined') {
+            continue;
+        }
+
         mesanimSymbols += `${i}\t${mesanims[i]}\n`;
     }
     fs.writeFileSync('data/symbols/mesanim.sym', mesanimSymbols);
@@ -234,6 +273,10 @@ export function generateCompilerSymbols() {
     let synthSymbols = '';
     const synths = loadPack(`${Environment.BUILD_SRC_DIR}/pack/synth.pack`);
     for (let i = 0; i < synths.length; i++) {
+        if (typeof synths[i] === 'undefined') {
+            continue;
+        }
+
         synthSymbols += `${i}\t${synths[i]}\n`;
     }
     fs.writeFileSync('data/symbols/synth.sym', synthSymbols);
@@ -241,7 +284,7 @@ export function generateCompilerSymbols() {
     let categorySymbols = '';
     const categories = loadPack(`${Environment.BUILD_SRC_DIR}/pack/category.pack`);
     for (let i = 0; i < categories.length; i++) {
-        if (!categories[i]) {
+        if (typeof categories[i] === 'undefined') {
             continue;
         }
 
@@ -252,7 +295,7 @@ export function generateCompilerSymbols() {
     let scriptSymbols = '';
     const scripts = loadPack(`${Environment.BUILD_SRC_DIR}/pack/script.pack`);
     for (let i = 0; i < scripts.length; i++) {
-        if (!scripts[i]) {
+        if (typeof scripts[i] === 'undefined') {
             continue;
         }
 
@@ -328,7 +371,7 @@ export function generateCompilerSymbols() {
     let dbColumnSymbols = '';
     const dbtables = loadPack(`${Environment.BUILD_SRC_DIR}/pack/dbtable.pack`);
     for (let i = 0; i < dbtables.length; i++) {
-        if (!dbtables[i]) {
+        if (typeof dbtables[i] === 'undefined') {
             continue;
         }
 
@@ -355,7 +398,7 @@ export function generateCompilerSymbols() {
     let dbRowSymbols = '';
     const dbrows = loadPack(`${Environment.BUILD_SRC_DIR}/pack/dbrow.pack`);
     for (let i = 0; i < dbrows.length; i++) {
-        if (!dbrows[i]) {
+        if (typeof dbrows[i] === 'undefined') {
             continue;
         }
 

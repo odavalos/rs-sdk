@@ -6,7 +6,7 @@ export default class GroundDecor {
     readonly z: number;
     model: ModelSource | null;
     readonly typecode: number;
-    readonly info: number; // byte
+    readonly typecode2: number;
 
     constructor(y: number, x: number, z: number, model: ModelSource | null, typecode: number, info: number) {
         this.y = y;
@@ -14,6 +14,6 @@ export default class GroundDecor {
         this.z = z;
         this.model = model;
         this.typecode = typecode;
-        this.info = info;
+        this.typecode2 = info;
     }
 }
