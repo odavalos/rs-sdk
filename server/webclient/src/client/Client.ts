@@ -548,6 +548,7 @@ export class Client extends GameShell {
     // Bot SDK overlay for bot development (dynamically loaded when enabled)
     private botOverlay: InstanceType<typeof import('#/bot/index.js').BotOverlay> | null = null;
     private botAutoLoginAttempted: boolean = false;
+    private loginInProgress: boolean = false;
 
     // Callback fired when a game tick is received (PLAYER_INFO packet processed)
     private onGameTickCallback: (() => void) | null = null;
@@ -790,8 +791,8 @@ export class Client extends GameShell {
         this.loginUser = username;
         this.loginPass = password;
 
-        // If already in game, nothing to do
-        if (this.ingame) {
+        // If already in game or login already in progress, nothing to do
+        if (this.ingame || this.loginInProgress) {
             return;
         }
 
@@ -809,7 +810,12 @@ export class Client extends GameShell {
 
         // If on login screen (state 2), trigger login
         if (this.loginscreen === 2) {
-            await this.login(this.loginUser, this.loginPass, false);
+            this.loginInProgress = true;
+            try {
+                await this.login(this.loginUser, this.loginPass, false);
+            } finally {
+                this.loginInProgress = false;
+            }
         }
     }
 
