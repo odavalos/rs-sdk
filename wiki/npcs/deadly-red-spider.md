@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 31 |
+| **Combat Level** | 34 |
 | **Hitpoints** | 35 |
 | **Description** | I think this spider has been genetically modified. |
 | **Aggressive** | No |

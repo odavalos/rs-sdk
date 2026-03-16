@@ -26,6 +26,7 @@
 
 - Sold by: [Helmet Shop](../shops/helmet-shop.md) for 550 gp
 - Dropped by: [Wolfman](../npcs/wolfman.md) (32/512)
+- Dropped by: [Kalphite Soldier](../npcs/kalphite-soldier.md) (4/128)
 - Dropped by: [Chaos dwarf](../npcs/chaos-dwarf.md) (2/128)
 - Dropped by: [Black Heather](../npcs/black-heather.md) (1/128)
 - Dropped by: [Wolfwoman](../npcs/wolfwoman.md) (32/512)

@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 37 |
+| **Combat Level** | 39 |
 | **Hitpoints** | 38 |
 | **Description** | Leader of the Renegade Knights. |
 | **Aggressive** | No |

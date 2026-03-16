@@ -5,7 +5,7 @@
 | Detail | |
 |---|---|
 | **Type** | Armour |
-| **Members** | Yes |
+| **Members** | No |
 | **Weight** | 1lb |
 | **Value** | 500 gp |
 | **Equipable** | Yes — Hands |

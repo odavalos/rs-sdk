@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 31 |
+| **Combat Level** | 39 |
 | **Hitpoints** | 32 |
 | **Description** | It's one of Ibans' pets. |
 | **Aggressive** | No |

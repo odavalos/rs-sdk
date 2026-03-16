@@ -13,6 +13,7 @@
 
 | Area | Floor | Quantity |
 |------|-------|----------|
+| m43_53 | Floor 1 | 1 |
 | m44_53 | Ground | 1 |
 | m46_153 | Ground | 1 |
 | Wilderness | Floor 1 | 1 |

@@ -25,3 +25,5 @@
 
 - Sold by: [Scavvo's Rune Store](../shops/scavvos-rune-store.md) for 50000 gp
 - Dropped by: [Black Demon](../npcs/black-demon.md) (1/128)
+- Dropped by: [Kalphite Queen](../npcs/kalphite-queen.md) (14/128)
+- Dropped by: [Kalphite Guardian](../npcs/kalphite-guardian.md) (1/128)

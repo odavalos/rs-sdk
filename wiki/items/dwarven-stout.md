@@ -14,3 +14,7 @@
 | Area | Floor | Quantity |
 |------|-------|----------|
 | m44_154 | Ground | 1 |
+
+## Sources
+
+- Sold by: [The Toad and Chicken](../shops/the-toad-and-chicken.md) for 2 gp

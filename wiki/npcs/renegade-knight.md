@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 35 |
+| **Combat Level** | 37 |
 | **Hitpoints** | 48 |
 | **Description** | He isn't very friendly. |
 | **Aggressive** | No |

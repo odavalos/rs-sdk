@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 19 |
+| **Combat Level** | 24 |
 | **Hitpoints** | 20 |
 | **Description** | Not very fashion conscious. |
 | **Aggressive** | No |

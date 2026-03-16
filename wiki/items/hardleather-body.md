@@ -25,3 +25,4 @@
 ## Sources
 
 - Sold by: [Aaron's Archery Appendages](../shops/aarons-archery-appendages.md) for 170 gp
+- Dropped by: [Kalphite Worker](../npcs/kalphite-worker.md) (2/128)

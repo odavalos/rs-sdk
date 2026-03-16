@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 126 |
+| **Combat Level** | 120 |
 | **Hitpoints** | 142 |
 | **Description** | He looks mean and powerful. |
 | **Aggressive** | No |

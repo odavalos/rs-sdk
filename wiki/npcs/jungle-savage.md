@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 84 |
+| **Combat Level** | 90 |
 | **Hitpoints** | 90 |
 | **Description** | An aggresive native of the Kharazi jungle. |
 | **Aggressive** | No |

@@ -8,3 +8,7 @@
 | **Members** | No |
 | **Weight** | 550g |
 | **Value** | 2 gp |
+
+## Sources
+
+- Sold by: [The Toad and Chicken](../shops/the-toad-and-chicken.md) for 2 gp

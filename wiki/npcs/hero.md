@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 63 |
+| **Combat Level** | 69 |
 | **Hitpoints** | 82 |
 | **Description** | Heroic! |
 | **Aggressive** | No |

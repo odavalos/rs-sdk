@@ -25,3 +25,7 @@
 ## Sources
 
 - Sold by: [Helmet Shop](../shops/helmet-shop.md) for 1920 gp
+- Dropped by: [Kalphite Soldier](../npcs/kalphite-soldier.md) (1/128)
+- Dropped by: [Berry](../npcs/berry.md) (4/128)
+- Dropped by: [Twig](../npcs/twig.md) (4/128)
+- Dropped by: [Mountain Troll](../npcs/mountain-troll.md) (4/128)

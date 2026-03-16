@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 113 |
+| **Combat Level** | 112 |
 | **Hitpoints** | 3-107 |
 | **Description** | He runs the mage arena. |
 | **Aggressive** | No |

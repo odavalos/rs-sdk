@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 28 |
+| **Combat Level** | 33 |
 | **Hitpoints** | 22 |
 | **Description** | Watches stuff. But who watches him? |
 | **Aggressive** | No |

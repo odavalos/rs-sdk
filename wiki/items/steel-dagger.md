@@ -32,3 +32,4 @@
 
 - Sold by: [Varrock Swordshop](../shops/varrock-swordshop.md) for 125 gp
 - Dropped by: [Hobgoblin](../npcs/hobgoblin.md) (3/128)
+- Dropped by: [Kalphite Worker](../npcs/kalphite-worker.md) (3/128)

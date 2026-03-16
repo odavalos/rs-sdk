@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 15-19 |
+| **Combat Level** | 11-24 |
 | **Hitpoints** | 13-25 |
 | **Description** | A mourner, or plague healer. |
 | **Aggressive** | No |

@@ -31,12 +31,19 @@
 - Sold by: [Lowe's Archery Emporium](../shops/lowes-archery-emporium.md) for 3 gp
 - Sold by: [Hicktons Archery Emporium](../shops/hicktons-archery-emporium.md) for 3 gp
 - Sold by: [Gulluck and Sons](../shops/gulluck-and-sons.md) for 3 gp
+- Dropped by: [Unferth](../npcs/unferth.md) (22/128 (members))
 - Dropped by: [Goblin guard](../npcs/goblin-guard.md) (3/128)
+- Dropped by: [Ocga](../npcs/ocga.md) (22/128 (members))
 - Dropped by: [Imp](../npcs/imp.md) (8/128)
 - Dropped by: [Al-Kharid warrior](../npcs/al-kharid-warrior.md) (22/128 (members))
 - Dropped by: [Woman](../npcs/woman.md) (22/128 (members))
 - Dropped by: [Goblin](../npcs/goblin.md) (3/128)
+- Dropped by: [Breoca](../npcs/breoca.md) (22/128 (members))
 - Dropped by: [Dwarf](../npcs/dwarf.md) (7/128 (members))
 - Dropped by: [Rogue](../npcs/rogue.md) (22/128)
+- Dropped by: [Hygd](../npcs/hygd.md) (22/128 (members))
 - Dropped by: [Thief](../npcs/thief.md) (22/128 (members))
+- Dropped by: [Ceolburg](../npcs/ceolburg.md) (22/128 (members))
 - Dropped by: [Man](../npcs/man.md) (22/128 (members))
+- Dropped by: [Hild](../npcs/hild.md) (22/128 (members))
+- Dropped by: [Penda](../npcs/penda.md) (22/128 (members))

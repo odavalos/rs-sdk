@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 47-62 |
+| **Combat Level** | 61-73 |
 | **Hitpoints** | 47-59 |
 | **Description** | It rattles when it walks. |
 | **Aggressive** | No |

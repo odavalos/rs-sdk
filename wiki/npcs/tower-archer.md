@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 22-81 |
+| **Combat Level** | 19-64 |
 | **Hitpoints** | 30-90 |
 | **Description** | Defender of the north tower. |
 | **Aggressive** | Yes |

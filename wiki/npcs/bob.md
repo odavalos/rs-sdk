@@ -4,9 +4,9 @@
 |---|---|
 | **Combat Level** | None |
 | **Hitpoints** | N/A |
-| **Description** | He's dressed all in red. |
+| **Description** | The Jagex cat. |
 | **Aggressive** | No |
-| **Movement** | Wander |
+| **Movement** | Wander (range 30000) |
 
 ## Locations
 
@@ -14,12 +14,7 @@
 |------|-----|
 | Lumbridge | m50_50 |
 | m42_55 | m42_55 |
-
-## Interactions
-
-| Option | Action |
-|--------|--------|
-| Talk-to | Talk-to |
+| m45_55 | m45_55 |
 
 ## Drops
 
@@ -27,5 +22,5 @@ Bob has no drops.
 
 ## Notes
 
-- Associated with the **Murder** quest.
-- Has 2 visual variants (bob_sinclair, bob).
+- Associated with the **Death** quest.
+- Has 3 visual variants (death_growncat_black, bob_sinclair, bob).

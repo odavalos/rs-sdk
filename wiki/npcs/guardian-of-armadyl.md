@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 36-40 |
+| **Combat Level** | 43-45 |
 | **Hitpoints** | 40-50 |
 | **Description** | A guard who has devoted their life to Armadyl. |
 | **Aggressive** | No |

@@ -36,4 +36,5 @@ Always drops: Raw rat meat
 
 ## Notes
 
-- Has 3 visual variants (giantrat, giantrat1, dragonslayer_giant_rat).
+- Has 3 visual variants (giantrat, giantrat1, dragonslayer_giantrat).
+- Category: Giantrat.

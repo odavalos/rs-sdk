@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 83 |
+| **Combat Level** | 79 |
 | **Hitpoints** | 75 |
 | **Description** | Must be related to Elvarg. |
 | **Aggressive** | No |

@@ -1,0 +1,30 @@
+# Diseased sheep 2
+
+| Detail | |
+|---|---|
+| **Combat Level** | None |
+| **Hitpoints** | N/A |
+| **Description** | Even from here you can see this sheep's not well. |
+| **Aggressive** | No |
+| **Movement** | Wander (range 3) |
+
+## Location
+
+| Area | Map |
+|------|-----|
+| m40_52 | m40_52 |
+
+## Interactions
+
+| Option | Action |
+|--------|--------|
+| Prod | Prod |
+
+## Drops
+
+Diseased sheep 2 has no drops.
+
+## Notes
+
+- Associated with the **Sheepherder** quest.
+- Category: Diseased Sheep.

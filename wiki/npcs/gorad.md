@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 58 |
+| **Combat Level** | 68 |
 | **Hitpoints** | 80 |
 | **Description** | Big, dumb and ugly. |
 | **Aggressive** | No |

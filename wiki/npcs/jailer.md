@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 42 |
+| **Combat Level** | 47 |
 | **Hitpoints** | 47 |
 | **Description** | Guards prisoners for the black knights. |
 | **Aggressive** | No |

@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 48-53 |
+| **Combat Level** | 53-63 |
 | **Hitpoints** | 60 |
 | **Description** | A large dim looking humanoid. |
 | **Aggressive** | No |

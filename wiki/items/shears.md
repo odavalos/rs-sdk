@@ -22,6 +22,7 @@
 - Sold by: [Karamja General Store](../shops/karamja-general-store.md) for 1 gp
 - Sold by: [Khazard General Store](../shops/khazard-general-store.md) for 1 gp
 - Sold by: [Varrock General Store](../shops/varrock-general-store.md) for 1 gp
+- Sold by: [Burthorpe Supplies](../shops/burthorpe-supplies.md) for 1 gp
 - Sold by: [Rimmington General Store](../shops/rimmington-general-store.md) for 1 gp
 - Sold by: [Edgeville General Store](../shops/edgeville-general-store.md) for 1 gp
 - Sold by: [Lumbridge General Store](../shops/lumbridge-general-store.md) for 1 gp

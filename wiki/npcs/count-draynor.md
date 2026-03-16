@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 39 |
+| **Combat Level** | 34 |
 | **Hitpoints** | 35 |
 | **Description** | Stop looking and run! |
 | **Aggressive** | No |

@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 99 |
+| **Combat Level** | 111 |
 | **Hitpoints** | 105 |
 | **Description** | A mother dragon. |
 | **Aggressive** | No |

@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 43 |
+| **Combat Level** | 48 |
 | **Hitpoints** | 50 |
 | **Description** | Young but still dangerous. |
 | **Aggressive** | No |

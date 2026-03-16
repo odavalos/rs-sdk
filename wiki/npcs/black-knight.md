@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 31 |
+| **Combat Level** | 33 |
 | **Hitpoints** | 42 |
 | **Description** | A dark-hearted knight. |
 | **Aggressive** | No |

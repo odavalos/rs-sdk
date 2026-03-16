@@ -1,6 +1,6 @@
 # Steel spear(p)
 
-*A steel tipped spear.*
+*A poisoned steel tipped spear.*
 
 | Detail | |
 |---|---|

@@ -30,4 +30,5 @@
 - Dropped by: [Black Demon](../npcs/black-demon.md) (3/128)
 - Dropped by: [Green dragon](../npcs/green-dragon.md) (3/128)
 - Dropped by: [Blue dragon](../npcs/blue-dragon.md) (3/128)
+- Dropped by: [Kalphite Guardian](../npcs/kalphite-guardian.md) (3/128)
 - Dropped by: [Greater demon](../npcs/greater-demon.md) (3/128)

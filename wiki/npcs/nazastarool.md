@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 65-88 |
+| **Combat Level** | 68-93 |
 | **Hitpoints** | 70-80 |
 | **Description** | A giant zombie of huge strength and devastating power. |
 | **Aggressive** | No |

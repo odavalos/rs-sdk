@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 28 |
+| **Combat Level** | 46 |
 | **Hitpoints** | 40 |
 | **Description** | A jungle version of the chicken, but more vicious. |
 | **Aggressive** | No |

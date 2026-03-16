@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 7 |
+| **Combat Level** | 8 |
 | **Hitpoints** | 14 |
 | **Description** | Not very civilised looking. |
 | **Aggressive** | No |

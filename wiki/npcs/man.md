@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 2-26 |
+| **Combat Level** | 2-24 |
 | **Hitpoints** | 7-60 |
 | **Description** | One of RuneScape's many citizens. |
 | **Aggressive** | No |

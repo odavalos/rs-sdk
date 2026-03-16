@@ -21,3 +21,7 @@
 | Strength Bonus | +29 |
 | Level Requirement | 41 |
 | Attack Speed | 5 |
+
+## Sources
+
+- Dropped by: [Kalphite Queen](../npcs/kalphite-queen.md) (3/128)

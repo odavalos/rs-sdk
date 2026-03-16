@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 21-25 |
+| **Combat Level** | 23-25 |
 | **Hitpoints** | 25 |
 | **Description** | It's one of General Khazard's guards. |
 | **Aggressive** | No |

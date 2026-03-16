@@ -8,3 +8,13 @@
 | **Members** | No |
 | **Weight** | 550g |
 | **Value** | 2 gp |
+
+## Spawn Locations
+
+| Area | Floor | Quantity |
+|------|-------|----------|
+| m45_55 | Ground | 1 |
+
+## Sources
+
+- Sold by: [The Toad and Chicken](../shops/the-toad-and-chicken.md) for 2 gp

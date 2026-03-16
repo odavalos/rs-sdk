@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 50-53 |
+| **Combat Level** | 59-62 |
 | **Hitpoints** | 13-57 |
 | **Description** | A holy warrior. |
 | **Aggressive** | No |

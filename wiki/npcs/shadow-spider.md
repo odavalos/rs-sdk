@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 49 |
+| **Combat Level** | 52 |
 | **Hitpoints** | 55 |
 | **Description** | Is it a spider or is it a shadow? |
 | **Aggressive** | No |

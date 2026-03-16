@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 78 |
+| **Combat Level** | 89 |
 | **Hitpoints** | 78 |
 | **Description** | A giant spider. |
 | **Aggressive** | No |

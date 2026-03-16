@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 20-42 |
+| **Combat Level** | 20-37 |
 | **Hitpoints** | 22-50 |
 | **Description** | He tries to keep order around here. |
 | **Aggressive** | No |
@@ -34,6 +34,8 @@
 | m41_52 | m41_52 |
 | m41_53 | m41_53 |
 | m42_55 | m42_55 |
+| m44_157 | m44_157 |
+| m45_55 | m45_55 |
 | m46_53 | m46_53 |
 | Varrock | m50_52 |
 | Varrock (north) | m50_53 |
@@ -71,7 +73,7 @@ Always drops: Bones
 
 ## Notes
 
-- Has 10 visual variants (guard1, guard2, murderguard, guard_carnillean, bioguard1, ranging_guild_guard, lathastrainer1, lathastrainer2, lathastrainer3, ardougne_guard).
+- Has 21 visual variants (guard1, guard2, death_guard1, death_guard2, murderguard, troll_sguard1, troll_sguard2, troll_sguard3, troll_sguard4, troll_sguard5, troll_sguard6, troll_sguard7, troll_sguard8, eadgar_storeroom_guard, guard_carnillean, bioguard1, ranging_guild_guard, lathastrainer1, lathastrainer2, lathastrainer3, ardougne_guard).
 - Can be pickpocketed for Thieving experience.
 - Category: Guard.
 - Can drop medium clue scrolls.

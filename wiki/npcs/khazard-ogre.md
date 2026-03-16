@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 55 |
+| **Combat Level** | 63 |
 | **Hitpoints** | 60 |
 | **Description** | Khazard's strongest ogre warrior. |
 | **Aggressive** | Yes |

@@ -1,20 +1,21 @@
 # Black robe
 
-*I feel closer to the Gods when I am wearing this.*
+*I can do magic better in this.*
 
 | Detail | |
 |---|---|
 | **Type** | Armour |
 | **Members** | No |
 | **Weight** | 2lb |
-| **Value** | 40 gp |
+| **Value** | 13 gp |
 | **Equipable** | Yes — Body |
 
 ## Combat Stats
 
 | Stat | Value |
 |------|-------|
-| Prayer Bonus | +5 |
+| Magic Attack | +3 |
+| Magic Defence | +3 |
 
 ## Sources
 

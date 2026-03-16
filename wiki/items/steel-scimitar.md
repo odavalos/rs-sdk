@@ -24,5 +24,6 @@
 
 - Sold by: [Zeke's Superior Scimitars](../shops/zekes-superior-scimitars.md) for 400 gp
 - Dropped by: [Wolfman](../npcs/wolfman.md) (32/512)
+- Dropped by: [Kalphite Soldier](../npcs/kalphite-soldier.md) (3/128)
 - Dropped by: [Wolfwoman](../npcs/wolfwoman.md) (32/512)
 - Dropped by: [Lesser demon](../npcs/lesser-demon.md) (3/128)

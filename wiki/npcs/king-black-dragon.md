@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 238 |
+| **Combat Level** | 276 |
 | **Hitpoints** | 240 |
 | **Description** | The biggest meanest dragon around. |
 | **Aggressive** | No |

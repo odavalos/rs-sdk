@@ -22,3 +22,4 @@
 ## Sources
 
 - Sold by: [Authentic Throwing Weapons](../shops/authentic-throwing-weapons.md) for 7 gp
+- Dropped by: [Kalphite Worker](../npcs/kalphite-worker.md) (2/128)

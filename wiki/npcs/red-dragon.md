@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 135 |
+| **Combat Level** | 152 |
 | **Hitpoints** | 140 |
 | **Description** | A big powerful dragon. |
 | **Aggressive** | No |

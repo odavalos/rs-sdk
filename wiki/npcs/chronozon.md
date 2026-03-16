@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 139 |
+| **Combat Level** | 170 |
 | **Hitpoints** | 60 |
 | **Description** | Chronozon the blood demon. |
 | **Aggressive** | No |

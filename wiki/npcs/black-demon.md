@@ -61,6 +61,6 @@ Always drops: Ashes
 
 ## Notes
 
-- Has 2 visual variants (black_demon, grandtree_black_demon).
+- Has 2 visual variants (black_demon, grandtree_blackdemon).
 - Will flee from combat when attacked.
 - Category: Black Demon.

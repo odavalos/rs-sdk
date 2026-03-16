@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 37 |
+| **Combat Level** | 38 |
 | **Hitpoints** | 65 |
 | **Description** | A military man. |
 | **Aggressive** | No |

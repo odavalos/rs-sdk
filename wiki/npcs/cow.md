@@ -45,5 +45,5 @@ Always drops: Cow hide
 
 ## Notes
 
-- Has 3 visual variants (cow, cow2, cow3).
+- Has 3 visual variants (cow, cow2, cow_beef).
 - Category: Cow.

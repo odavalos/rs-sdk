@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 60 |
+| **Combat Level** | 70 |
 | **Hitpoints** | 60 |
 | **Description** | Funnily enough, doesn't actually buy or sell ogres. |
 | **Aggressive** | No |

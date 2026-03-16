@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 53 |
+| **Combat Level** | 57 |
 | **Hitpoints** | 59 |
 | **Description** | A cold hearted elemental warrior. |
 | **Aggressive** | No |

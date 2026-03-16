@@ -28,6 +28,7 @@
 - Sold by: [Bob's Brilliant Axes](../shops/bobs-brilliant-axes.md) for 200 gp
 - Sold by: [Gulluck and Sons](../shops/gulluck-and-sons.md) for 200 gp
 - Dropped by: [Wolfman](../npcs/wolfman.md) (32/512)
+- Dropped by: [Kalphite Soldier](../npcs/kalphite-soldier.md) (4/128)
 - Dropped by: [Bandit](../npcs/bandit.md) (1/128)
 - Dropped by: [Fire giant](../npcs/fire-giant.md) (3/128)
 - Dropped by: [Wolfwoman](../npcs/wolfwoman.md) (32/512)

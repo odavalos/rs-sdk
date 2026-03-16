@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 29 |
+| **Combat Level** | 26 |
 | **Hitpoints** | 40 |
 | **Description** | A crazy evil necromancer. |
 | **Aggressive** | No |

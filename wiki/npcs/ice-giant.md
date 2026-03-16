@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 54 |
+| **Combat Level** | 49 |
 | **Hitpoints** | 70 |
 | **Description** | He's got icicles in his beard. |
 | **Aggressive** | No |

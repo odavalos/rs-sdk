@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 95 |
+| **Combat Level** | 92 |
 | **Hitpoints** | 130 |
 | **Description** | The spirit of a long dead warrior. |
 | **Aggressive** | Yes |

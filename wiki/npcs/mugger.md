@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 4 |
+| **Combat Level** | 6 |
 | **Hitpoints** | 8 |
 | **Description** | He jumps out and attacks people. |
 | **Aggressive** | No |

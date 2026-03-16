@@ -14,6 +14,7 @@
 | Area | Floor | Quantity |
 |------|-------|----------|
 | Karamja (west) | Ground | 1 |
+| m39_52 | Ground | 1 |
 | m51_47 | Floor 1 | 1 |
 | Wilderness | Ground | 1 |
 

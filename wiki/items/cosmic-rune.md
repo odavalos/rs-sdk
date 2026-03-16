@@ -26,6 +26,7 @@
 - Dropped by: [Dark wizard](../npcs/dark-wizard.md) (1/128)
 - Dropped by: [Moss giant](../npcs/moss-giant.md) (2/128)
 - Dropped by: [Hobgoblin](../npcs/hobgoblin.md) (1/128)
+- Dropped by: [Kalphite Worker](../npcs/kalphite-worker.md) (1/128)
 - Dropped by: [Thug](../npcs/thug.md) (1/128)
 - Dropped by: [Ice giant](../npcs/ice-giant.md) (1/128)
 - Dropped by: [Necromancer](../npcs/necromancer.md) (1/128)

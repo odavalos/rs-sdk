@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 70 |
+| **Combat Level** | 81 |
 | **Hitpoints** | 60 |
 | **Description** | Tough looking. |
 | **Aggressive** | No |

@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 59 |
+| **Combat Level** | 68 |
 | **Hitpoints** | 38 |
 | **Description** | Wears a stylish suit of armour. |
 | **Aggressive** | No |

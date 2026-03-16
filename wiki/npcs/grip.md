@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 26 |
+| **Combat Level** | 22 |
 | **Hitpoints** | 25 |
 | **Description** | Looks like he's been in the wars... |
 | **Aggressive** | No |

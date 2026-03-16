@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 21 |
+| **Combat Level** | 22 |
 | **Hitpoints** | 27 |
 | **Description** | A wilderness outlaw. |
 | **Aggressive** | No |

@@ -14,4 +14,3 @@
 | Area | Floor | Quantity |
 |------|-------|----------|
 | m53_52 | Ground | 1 |
-| m54_52 | Ground | 1 |

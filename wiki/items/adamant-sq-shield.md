@@ -20,3 +20,11 @@
 | Slash Defence | +26 |
 | Crush Defence | +22 |
 | Range Defence | +24 |
+
+## Sources
+
+- Dropped by: [Pee Hat](../npcs/pee-hat.md) (4/128)
+- Dropped by: [Rock](../npcs/rock.md) (4/128)
+- Dropped by: [Stick](../npcs/stick.md) (4/128)
+- Dropped by: [Troll General](../npcs/troll-general.md) (4/128)
+- Dropped by: [Kraka](../npcs/kraka.md) (4/128)

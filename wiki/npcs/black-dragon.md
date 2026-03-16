@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 199 |
+| **Combat Level** | 227 |
 | **Hitpoints** | 190 |
 | **Description** | A fierce dragon with black scales! |
 | **Aggressive** | No |

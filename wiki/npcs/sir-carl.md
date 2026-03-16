@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 53 |
+| **Combat Level** | 62 |
 | **Hitpoints** | 57 |
 | **Description** | A mighty looking warrior. |
 | **Aggressive** | No |

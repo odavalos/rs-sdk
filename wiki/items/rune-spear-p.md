@@ -1,6 +1,6 @@
 # Rune spear(p)
 
-*A rune tipped spear.*
+*A poisoned rune tipped spear.*
 
 | Detail | |
 |---|---|

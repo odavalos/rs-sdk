@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 74 |
+| **Combat Level** | 83 |
 | **Hitpoints** | 80 |
 | **Description** | Tries to keep the peace. |
 | **Aggressive** | No |

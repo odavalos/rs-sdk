@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 10 |
+| **Combat Level** | 12 |
 | **Hitpoints** | 12 |
 | **Description** | Overgrown vermin. |
 | **Aggressive** | No |

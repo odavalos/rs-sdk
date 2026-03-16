@@ -39,6 +39,7 @@
 - Dropped by: [Zombie](../npcs/zombie.md) (4/128)
 - Dropped by: [Soldier](../npcs/soldier.md) (2/128)
 - Dropped by: [Moss giant](../npcs/moss-giant.md) (3/128)
+- Dropped by: [Kalphite Guardian](../npcs/kalphite-guardian.md) (8/128)
 - Dropped by: [Necromancer](../npcs/necromancer.md) (3/128)
 - Dropped by: [Shadow warrior](../npcs/shadow-warrior.md) (4/128)
 - Dropped by: [Skeleton](../npcs/skeleton.md) (2/128)

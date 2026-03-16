@@ -13,7 +13,7 @@
 
 | Stat | Value |
 |------|-------|
-| Attack Bonus | -26 |
+| Attack Bonus | -31 |
 | Strength Bonus | -26 |
 | Stab Defence | -26 |
 | Slash Defence | -26 |

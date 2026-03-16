@@ -26,7 +26,10 @@
 
 - Sold by: [Helmet Shop](../shops/helmet-shop.md) for 300 gp
 - Dropped by: [Tower guard](../npcs/tower-guard.md) (1/128)
+- Dropped by: [Berry](../npcs/berry.md) (4/128)
 - Dropped by: [Colonel Radick](../npcs/colonel-radick.md) (1/128)
+- Dropped by: [Twig](../npcs/twig.md) (4/128)
 - Dropped by: [Soldier](../npcs/soldier.md) (1/128)
 - Dropped by: [Moss giant](../npcs/moss-giant.md) (2/128)
 - Dropped by: [White Knight](../npcs/white-knight.md) (1/128)
+- Dropped by: [Mountain Troll](../npcs/mountain-troll.md) (4/128)

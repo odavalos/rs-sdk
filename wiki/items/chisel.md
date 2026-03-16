@@ -26,6 +26,7 @@
 - Sold by: [Khazard General Store](../shops/khazard-general-store.md) for 1 gp
 - Sold by: [Varrock General Store](../shops/varrock-general-store.md) for 1 gp
 - Sold by: [General Store](../shops/general-store.md) for 1 gp
+- Sold by: [Burthorpe Supplies](../shops/burthorpe-supplies.md) for 1 gp
 - Sold by: [Rommiks Crafty Supplies](../shops/rommiks-crafty-supplies.md) for 1 gp
 - Sold by: [Rimmington General Store](../shops/rimmington-general-store.md) for 1 gp
 - Sold by: [Craftingshop Free](../shops/craftingshop-free.md) for 1 gp

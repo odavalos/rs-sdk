@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 14 |
+| **Combat Level** | 15 |
 | **Hitpoints** | 17 |
 | **Description** | Rogueish. |
 | **Aggressive** | No |

@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 48 |
+| **Combat Level** | 53 |
 | **Hitpoints** | 60 |
 | **Description** | An aggressive humanoid. |
 | **Aggressive** | No |
@@ -33,7 +33,7 @@
 
 ## Drops
 
-Always drops: Big bones
+Always drops: Jogre bones
 
 | Item | Rarity |
 |------|--------|

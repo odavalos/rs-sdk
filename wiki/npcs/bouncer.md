@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 132 |
+| **Combat Level** | 137 |
 | **Hitpoints** | 116 |
 | **Description** | Nice doggy. |
 | **Aggressive** | Yes |

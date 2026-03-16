@@ -35,6 +35,7 @@
 - Dropped by: [Zombie](../npcs/zombie.md) (5/128)
 - Dropped by: [Black Heather](../npcs/black-heather.md) (3/128)
 - Dropped by: [Hobgoblin](../npcs/hobgoblin.md) (2/128)
+- Dropped by: [Kalphite Worker](../npcs/kalphite-worker.md) (2/128)
 - Dropped by: [Speedy Keith](../npcs/speedy-keith.md) (3/128)
 - Dropped by: [Ice giant](../npcs/ice-giant.md) (3/128)
 - Dropped by: [White Knight](../npcs/white-knight.md) (3/128)

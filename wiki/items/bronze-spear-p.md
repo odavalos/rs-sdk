@@ -1,6 +1,6 @@
 # Bronze spear(p)
 
-*A bronze tipped spear.*
+*A poisoned bronze tipped spear.*
 
 | Detail | |
 |---|---|

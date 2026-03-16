@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 17 |
+| **Combat Level** | 23 |
 | **Hitpoints** | 20 |
 | **Description** | The boss! |
 | **Aggressive** | No |

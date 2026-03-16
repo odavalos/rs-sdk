@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 102 |
+| **Combat Level** | 111 |
 | **Hitpoints** | 104 |
 | **Description** | A cold hearted lady. |
 | **Aggressive** | No |

@@ -20,3 +20,9 @@
 | Magic Attack | -4 |
 | Strength Bonus | +31 |
 | Attack Speed | 6 |
+
+## Sources
+
+- Dropped by: [Berry](../npcs/berry.md) (4/128)
+- Dropped by: [Twig](../npcs/twig.md) (4/128)
+- Dropped by: [Mountain Troll](../npcs/mountain-troll.md) (4/128)

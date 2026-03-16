@@ -4,7 +4,7 @@
 |---|---|
 | **Combat Level** | 36 |
 | **Hitpoints** | 52 |
-| **Description** | Nice armour! |
+| **Description** | The Knight seems to be watching something. |
 | **Aggressive** | No |
 | **Movement** | Wander |
 | **Respawn** | 100 ticks |
@@ -62,3 +62,8 @@ Always drops: Bones
 | Iron ore | 1/128 |
 | Pot of flour | 1/128 |
 | Gems (varies) | 1/128 |
+
+## Notes
+
+- Associated with the **Death** quest.
+- Has 2 visual variants (death_white_knight, white_knight).

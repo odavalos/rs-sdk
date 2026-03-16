@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 65 |
+| **Combat Level** | 84 |
 | **Hitpoints** | 59 |
 | **Description** | Intimidating! |
 | **Aggressive** | No |

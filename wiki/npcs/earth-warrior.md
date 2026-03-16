@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 47 |
+| **Combat Level** | 51 |
 | **Hitpoints** | 54 |
 | **Description** | A strange inhuman elemental warrior. |
 | **Aggressive** | No |

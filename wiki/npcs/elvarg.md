@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 86 |
+| **Combat Level** | 83 |
 | **Hitpoints** | 120 |
 | **Description** | Rawr! A dragon! |
 | **Aggressive** | No |

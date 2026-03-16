@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 74 |
+| **Combat Level** | 65 |
 | **Hitpoints** | 80 |
 | **Description** | A servant of Zamorak. |
 | **Aggressive** | No |

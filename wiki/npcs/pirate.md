@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 20-25 |
+| **Combat Level** | 23-26 |
 | **Hitpoints** | 20-23 |
 | **Description** | Yar! Shiver me timbers! |
 | **Aggressive** | No |

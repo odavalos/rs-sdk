@@ -4,22 +4,22 @@
 |---|---|
 | **Combat Level** | None |
 | **Hitpoints** | N/A |
-| **Description** | The head cook of Lumbridge castle. |
+| **Description** | Human is his speciality. |
 | **Aggressive** | No |
-| **Movement** | Stationary (indoors) |
+| **Movement** | Wander |
 
-## Location
+## Locations
 
 | Area | Map |
 |------|-----|
 | Lumbridge | m50_50 |
-
-## Interactions
-
-| Option | Action |
-|--------|--------|
-| Talk-to | Talk-to |
+| m44_157 | m44_157 |
 
 ## Drops
 
 Cook has no drops.
+
+## Notes
+
+- Associated with the **Troll** quest.
+- Has 4 visual variants (troll_cook, troll_cook2, troll_cook3, cook).

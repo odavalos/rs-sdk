@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 6 |
+| **Combat Level** | 11 |
 | **Hitpoints** | 10 |
 | **Description** | Builds ships for a living. |
 | **Aggressive** | No |

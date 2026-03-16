@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 53 |
+| **Combat Level** | 47 |
 | **Hitpoints** | 80 |
 | **Description** | He looks a bit aggressive. |
 | **Aggressive** | No |

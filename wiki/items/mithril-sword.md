@@ -25,3 +25,4 @@
 
 - Sold by: [Varrock Swordshop](../shops/varrock-swordshop.md) for 845 gp
 - Dropped by: [Moss giant](../npcs/moss-giant.md) (2/128)
+- Dropped by: [Kalphite Guardian](../npcs/kalphite-guardian.md) (4/128)

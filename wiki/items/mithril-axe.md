@@ -27,4 +27,5 @@
 - Dropped by: [Black dragon](../npcs/black-dragon.md) (3/128)
 - Dropped by: [Green dragon](../npcs/green-dragon.md) (3/128)
 - Dropped by: [Blue dragon](../npcs/blue-dragon.md) (3/128)
+- Dropped by: [Kalphite Guardian](../npcs/kalphite-guardian.md) (2/128)
 - Dropped by: [Red dragon](../npcs/red-dragon.md) (3/128)

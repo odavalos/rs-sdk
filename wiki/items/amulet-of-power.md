@@ -30,3 +30,4 @@
 ## Sources
 
 - Sold by: [Davon's Amulet Store](../shops/davons-amulet-store.md) for 4230 gp
+- Dropped by: [Kalphite Queen](../npcs/kalphite-queen.md) (5/128)

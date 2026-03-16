@@ -1,6 +1,6 @@
 # Dragon spear(p)
 
-*A dragon tipped spear.*
+*A poisoned dragon tipped spear.*
 
 | Detail | |
 |---|---|

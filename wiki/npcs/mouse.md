@@ -8,12 +8,6 @@
 | **Aggressive** | No |
 | **Movement** | Stationary |
 
-## Interactions
-
-| Option | Action |
-|--------|--------|
-| Feed | Feed |
-
 ## Drops
 
 Mouse has no drops.

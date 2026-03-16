@@ -14,7 +14,7 @@
 
 | Stat | Value |
 |------|-------|
-| Prayer Bonus | +5 |
+| Prayer Bonus | +6 |
 
 ## Spawn Locations
 

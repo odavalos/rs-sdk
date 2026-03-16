@@ -1,6 +1,6 @@
 # Adamant spear(p)
 
-*An adamantite tipped spear.*
+*A poisoned adamantite tipped spear.*
 
 | Detail | |
 |---|---|

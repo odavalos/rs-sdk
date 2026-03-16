@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 5 |
+| **Combat Level** | 2 |
 | **Hitpoints** | 8 |
 | **Description** | Looks kind of shifty... |
 | **Aggressive** | No |

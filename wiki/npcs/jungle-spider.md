@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 42 |
+| **Combat Level** | 44 |
 | **Hitpoints** | 50 |
 | **Description** | A venomous deadly spider. |
 | **Aggressive** | No |

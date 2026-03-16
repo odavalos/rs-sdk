@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 19 |
+| **Combat Level** | 23 |
 | **Hitpoints** | 31 |
 | **Description** | A tree gnome guard. |
 | **Aggressive** | No |

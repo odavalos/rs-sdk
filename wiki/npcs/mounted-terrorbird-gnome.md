@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 29-46 |
+| **Combat Level** | 31-49 |
 | **Hitpoints** | 36-55 |
 | **Description** | These gnomes know how to get around! |
 | **Aggressive** | No |

@@ -2,12 +2,12 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 25 |
-| **Hitpoints** | 22 |
+| **Combat Level** | 28-48 |
+| **Hitpoints** | 22-50 |
 | **Description** | A soldier of the town of Yanille. |
 | **Aggressive** | No |
 | **Movement** | Wander |
-| **Respawn** | 100 ticks |
+| **Respawn** | 50-100 ticks |
 
 ## Combat Stats
 
@@ -28,7 +28,8 @@
 |------|-----|
 | Ardougne area | m40_48 |
 | m39_48 | m39_48 |
-| m45_73 | m45_73 |
+| m44_56 | m44_56 |
+| m45_55 | m45_55 |
 
 ## Drops
 
@@ -56,3 +57,7 @@ Always drops: Bones
 | Coins (x35) | 2/128 |
 | Mind talisman | 3/128 |
 | Iron ore | 1/128 |
+
+## Notes
+
+- Has 8 visual variants (yanille_soldier, death_ig_solider_drilling, death_ig_solider_training, death_ig_solider_wander, death_ig_solider_sitting1, death_ig_solider_sitting2, death_ig_solider_sitting3, death_ig_solider_wounded).

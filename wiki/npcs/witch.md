@@ -2,11 +2,11 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 20 |
+| **Combat Level** | 25 |
 | **Hitpoints** | 10 |
 | **Description** | The hat's a dead give away. |
 | **Aggressive** | No |
-| **Movement** | Wander |
+| **Movement** | Wander (range 3) |
 | **Respawn** | 100 ticks |
 
 ## Combat Stats
@@ -37,3 +37,4 @@ Always drops: Bones
 ## Notes
 
 - Has 3 visual variants (witch1, witch2, fortwitch).
+- Category: Witch.

@@ -21,12 +21,6 @@
 | Range Defence | 200 |
 | Attack Style | Crush |
 
-## Location
-
-| Area | Map |
-|------|-----|
-| m40_150 | m40_150 |
-
 ## Drops
 
 Always drops: Big bones

@@ -24,4 +24,5 @@
 
 ## Sources
 
+- Dropped by: [Kalphite Queen](../npcs/kalphite-queen.md) (10/128)
 - Dropped by: [Shadow warrior](../npcs/shadow-warrior.md) (1/128)

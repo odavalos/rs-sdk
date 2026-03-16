@@ -12,3 +12,4 @@
 ## Sources
 
 - Dropped by: [Black Demon](../npcs/black-demon.md) (1/128)
+- Dropped by: [Kalphite Guardian](../npcs/kalphite-guardian.md) (1/128)

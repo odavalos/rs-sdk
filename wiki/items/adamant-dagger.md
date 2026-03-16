@@ -24,3 +24,4 @@
 ## Sources
 
 - Sold by: [Varrock Swordshop](../shops/varrock-swordshop.md) for 800 gp
+- Dropped by: [Kalphite Guardian](../npcs/kalphite-guardian.md) (2/128)

@@ -13,6 +13,7 @@
 
 | Area | Floor | Quantity |
 |------|-------|----------|
+| Gnome Stronghold | Ground | 1 |
 | Karamja | Ground | 1 |
 | m37_150 | Ground | 1 |
 | m40_47 | Ground | 1 |

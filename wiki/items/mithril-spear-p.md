@@ -1,6 +1,6 @@
 # Mithril spear(p)
 
-*A mithril tipped spear.*
+*A poisoned mithril tipped spear.*
 
 | Detail | |
 |---|---|

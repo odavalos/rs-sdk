@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 15 |
+| **Combat Level** | 16 |
 | **Hitpoints** | 17 |
 | **Description** | An undead worker of dark magic. |
 | **Aggressive** | No |

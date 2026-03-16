@@ -1,6 +1,6 @@
 # Iron spear(p)
 
-*An iron tipped spear.*
+*A poisoned iron tipped spear.*
 
 | Detail | |
 |---|---|

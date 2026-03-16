@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 32 |
+| **Combat Level** | 28 |
 | **Hitpoints** | 32 |
 | **Description** | Tiny, annoying, stinging thing. |
 | **Aggressive** | No |

@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 73 |
+| **Combat Level** | 88 |
 | **Hitpoints** | 100 |
 | **Description** | Eek! A werewolf! |
 | **Aggressive** | No |

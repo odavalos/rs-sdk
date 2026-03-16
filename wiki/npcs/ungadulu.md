@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 70-179 |
+| **Combat Level** | 70-169 |
 | **Hitpoints** | 65-150 |
 | **Description** | The Kharazi tribes elusive Shaman. |
 | **Aggressive** | No |

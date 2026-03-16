@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 93 |
+| **Combat Level** | 86 |
 | **Hitpoints** | 111 |
 | **Description** | A very large elemental adversary. |
 | **Aggressive** | No |

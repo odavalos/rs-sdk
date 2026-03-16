@@ -2,7 +2,7 @@
 
 | Detail | |
 |---|---|
-| **Combat Level** | 48 |
+| **Combat Level** | 42 |
 | **Hitpoints** | 60 |
 | **Description** | His beard seems to have a life of it's own. |
 | **Aggressive** | No |

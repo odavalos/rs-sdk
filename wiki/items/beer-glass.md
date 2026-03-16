@@ -14,3 +14,4 @@
 | Area | Floor | Quantity |
 |------|-------|----------|
 | Karamja (west) | Ground | 1 |
+| m45_55 | Ground | 1 |

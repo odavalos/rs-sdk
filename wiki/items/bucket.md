@@ -18,6 +18,7 @@
 | m36_153 | Ground | 1 |
 | m41_154 | Ground | 1 |
 | m43_53 | Ground | 1 |
+| m44_56 | Ground | 1 |
 | m46_54 | Ground | 1 |
 | m49_149 | Ground | 1 |
 | m50_150 | Ground | 1 |
@@ -36,6 +37,7 @@
 - Sold by: [West Ardougne General Store](../shops/west-ardougne-general-store.md) for 2 gp
 - Sold by: [Varrock General Store](../shops/varrock-general-store.md) for 2 gp
 - Sold by: [General Store](../shops/general-store.md) for 4 gp
+- Sold by: [Burthorpe Supplies](../shops/burthorpe-supplies.md) for 2 gp
 - Sold by: [Rimmington General Store](../shops/rimmington-general-store.md) for 2 gp
 - Sold by: [Edgeville General Store](../shops/edgeville-general-store.md) for 2 gp
 - Sold by: [Lumbridge General Store](../shops/lumbridge-general-store.md) for 2 gp
