@@ -2,6 +2,7 @@ import { PlayerInfoProt } from '@2004scape/rsbuf';
 
 import WordEnc from '#/cache/wordenc/WordEnc.js';
 import Player from '#/engine/entity/Player.js';
+import World from '#/engine/World.js';
 import Packet from '#/io/Packet.js';
 import ClientGameMessageHandler from '#/network/game/client/ClientGameMessageHandler.js';
 import MessagePublic from '#/network/game/client/model/MessagePublic.js';
@@ -38,6 +39,21 @@ export default class MessagePublicHandler extends ClientGameMessageHandler<Messa
         out.gdata(player.chatMessage, 0, player.chatMessage.length);
         out.release();
         player.masks |= PlayerInfoProt.CHAT;
+
+        // Broadcast chat globally to players outside visual range
+        const filtered: string = WordEnc.filter(unpack);
+        for (const other of World.playerLoop.all()) {
+            if (other.slot === player.slot) {
+                continue;
+            }
+            // Skip players within overhead chat bubble range
+            const dx = Math.abs(player.x - other.x);
+            const dz = Math.abs(player.z - other.z);
+            if (player.level === other.level && dx <= 14 && dz <= 14) {
+                continue;
+            }
+            other.messageGame(`${player.displayName}: ${filtered}`);
+        }
 
         player.socialProtect = true;
         return true;

@@ -1205,10 +1205,25 @@ export class BotSDK {
         if (message.type === 'sdk_state' && message.state) {
             // Filter out player chat messages unless showChat is enabled
             // Type 2 = public chat, Type 3 = private message received
-            if (!this.config.showChat && message.state.gameMessages) {
+            if (this.config.showChat === false && message.state.gameMessages) {
                 message.state.gameMessages = message.state.gameMessages.filter(
                     msg => msg.type !== 2 && msg.type !== 3
                 );
+            }
+
+            // Parse sender from global chat messages (type 0, format "Name: text")
+            if (message.state.gameMessages) {
+                for (const msg of message.state.gameMessages) {
+                    if (msg.type === 0 && !msg.sender && msg.text.includes(': ')) {
+                        const colonIdx = msg.text.indexOf(': ');
+                        const possibleName = msg.text.substring(0, colonIdx);
+                        // Player names are 1-12 chars, alphanumeric/spaces only
+                        if (possibleName.length <= 12 && /^[a-zA-Z0-9 ]+$/.test(possibleName)) {
+                            msg.sender = possibleName;
+                            msg.text = msg.text.substring(colonIdx + 2);
+                        }
+                    }
+                }
             }
 
             this.state = message.state;
