@@ -2204,6 +2204,7 @@ export class BotActions {
         'arrow tips': { component: 1123, slot: 1 },
         'throwing knives': { component: 1123, slot: 2 },
         'knives': { component: 1123, slot: 2 },
+        'nails': { component: 1123, slot: 3 },
     };
 
     /**
@@ -2314,7 +2315,7 @@ export class BotActions {
             const currentXp = state.skills.find(s => s.name === 'Smithing')?.experience || 0;
             if (currentXp > smithingBefore) {
                 // Find the smithed item
-                const smithedItem = this.sdk.findInventoryItem(/dagger|axe|mace|helm|sword|shield|body|legs|skirt|claws|knives|bolts|arrowtips|arrowheads|arrow|dart/i);
+                const smithedItem = this.sdk.findInventoryItem(/dagger|axe|mace|helm|sword|shield|body|legs|skirt|claws|knives|bolts|arrowtips|arrowheads|arrow|dart|nails/i);
                 return {
                     success: true,
                     message: 'Smithed item successfully',
@@ -2341,7 +2342,7 @@ export class BotActions {
             if (!state.interface?.isOpen) {
                 const finalXp = this.sdk.getSkill('Smithing')?.experience || 0;
                 if (finalXp > smithingBefore) {
-                    const smithedItem = this.sdk.findInventoryItem(/dagger|axe|mace|helm|sword|shield|body|legs|skirt|claws|knives|bolts|arrowtips|arrowheads|arrow|dart/i);
+                    const smithedItem = this.sdk.findInventoryItem(/dagger|axe|mace|helm|sword|shield|body|legs|skirt|claws|knives|bolts|arrowtips|arrowheads|arrow|dart|nails/i);
                     return {
                         success: true,
                         message: 'Smithed item successfully',
