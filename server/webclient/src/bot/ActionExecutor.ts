@@ -224,6 +224,13 @@ export class ActionExecutor {
                         'Failed to cast spell on item'
                     );
 
+                case 'spellOnGroundItem':
+                    return this.wrapBool(
+                        this.client.spellOnGroundItem(action.x, action.z, action.itemId, action.spellComponent),
+                        `Casting spell on ground item ${action.itemId} at (${action.x}, ${action.z})`,
+                        'Failed to cast spell on ground item'
+                    );
+
                 case 'setTab':
                     return this.wrapBool(
                         this.client.setTab(action.tabIndex),

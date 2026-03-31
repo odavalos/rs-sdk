@@ -2202,6 +2202,7 @@ export class BotActions {
         'dart tips': { component: 1123, slot: 0 },
         'arrowheads': { component: 1123, slot: 1 },
         'arrow tips': { component: 1123, slot: 1 },
+        'arrowtips': { component: 1123, slot: 1 },
         'throwing knives': { component: 1123, slot: 2 },
         'knives': { component: 1123, slot: 2 },
         'nails': { component: 1123, slot: 3 },

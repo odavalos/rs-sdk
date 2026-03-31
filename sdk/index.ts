@@ -936,6 +936,11 @@ export class BotSDK {
         return this.sendAction({ type: 'spellOnItem', slot, spellComponent, reason: 'SDK' });
     }
 
+    /** Cast spell on ground item (e.g., Telekinetic Grab). */
+    async sendSpellOnGroundItem(x: number, z: number, itemId: number, spellComponent: number): Promise<ActionResult> {
+        return this.sendAction({ type: 'spellOnGroundItem', x, z, itemId, spellComponent, reason: 'SDK' });
+    }
+
     /** Switch to a UI tab by index. */
     async sendSetTab(tabIndex: number): Promise<ActionResult> {
         return this.sendAction({ type: 'setTab', tabIndex, reason: 'SDK' });

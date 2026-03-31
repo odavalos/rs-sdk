@@ -337,6 +337,7 @@ export type BotAction =
     | { type: 'setCombatStyle'; style: number; reason: string }
     | { type: 'spellOnNpc'; npcIndex: number; spellComponent: number; reason: string }
     | { type: 'spellOnItem'; slot: number; spellComponent: number; reason: string }
+    | { type: 'spellOnGroundItem'; x: number; z: number; itemId: number; spellComponent: number; reason: string }
     | { type: 'setTab'; tabIndex: number; reason: string }
     | { type: 'say'; message: string; reason: string }
     | { type: 'bankDeposit'; slot: number; amount: number; reason: string }

@@ -1099,6 +1099,45 @@ export class Client extends GameShell {
     }
 
     /**
+     * Cast a spell on a ground item (e.g., Telekinetic Grab)
+     * Sends OPOBJT packet
+     */
+    spellOnGroundItem(worldX: number, worldZ: number, itemId: number, spellComponent: number): boolean {
+        if (!this.ingame || !this.out || !this.localPlayer) {
+            return false;
+        }
+
+        const sceneX = worldX - this.mapBuildBaseX;
+        const sceneZ = worldZ - this.mapBuildBaseZ;
+
+        if (sceneX < 0 || sceneX >= 104 || sceneZ < 0 || sceneZ >= 104) {
+            return false;
+        }
+
+        // Try to move towards the ground item
+        this.tryMove(
+            this.localPlayer.routeX[0],
+            this.localPlayer.routeZ[0],
+            sceneX,
+            sceneZ,
+            false,
+            0, 0,
+            0, 0,
+            0,
+            2  // MOVE_OPCLICK
+        );
+
+        // Send OPOBJT packet: x, z, itemId, spellComponent
+        this.writePacketOpcode(ClientProt.OPOBJT);
+        this.out.p2(worldX);
+        this.out.p2(worldZ);
+        this.out.p2(itemId);
+        this.out.p2(spellComponent);
+
+        return true;
+    }
+
+    /**
      * Pick up a ground item at the specified world coordinates
      * Use the groundItems from BotState to get item locations
      */
