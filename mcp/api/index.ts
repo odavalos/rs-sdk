@@ -43,7 +43,10 @@ class BotManager {
 
     // Load credentials from bot.env if no password provided
     if (!password) {
-      const envPath = join(process.cwd(), 'bots', name, 'bot.env');
+      // Try cwd first, then fall back to the repo root (one level up from mcp/)
+      const cwdPath = join(process.cwd(), 'bots', name, 'bot.env');
+      const repoPath = join(import.meta.dir, '..', 'bots', name, 'bot.env');
+      const envPath = existsSync(cwdPath) ? cwdPath : repoPath;
 
       if (!existsSync(envPath)) {
         throw new Error(`Bot "${name}" not found. Create it first with: bun bots/create-bot.ts ${name}`);
