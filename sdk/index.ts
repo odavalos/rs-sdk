@@ -1231,6 +1231,23 @@ export class BotSDK {
                 }
             }
 
+            // Wrap skills array with a Proxy so both state.skills[0] and state.skills.Woodcutting work
+            if (message.state.skills) {
+                const nameMap: Record<string, SkillState> = {};
+                for (const skill of message.state.skills) {
+                    if (/^Stat\d+$/i.test(skill.name)) continue;
+                    nameMap[skill.name] = skill;
+                }
+                message.state.skills = new Proxy(message.state.skills, {
+                    get(target, prop, receiver) {
+                        if (typeof prop === 'string' && prop in nameMap) {
+                            return nameMap[prop];
+                        }
+                        return Reflect.get(target, prop, receiver);
+                    }
+                }) as SkillState[];
+            }
+
             this.state = message.state;
             // Use server timestamp if available, otherwise use local time
             this.stateReceivedAt = message.stateReceivedAt || Date.now();

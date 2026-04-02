@@ -124,10 +124,11 @@ export function formatWorldState(state: BotWorldState, stateAgeMs?: number): str
         }
     }
 
-    // Skills
+    // Skills (filter out unknown/placeholder skills like Stat18, Stat19)
     lines.push('');
     lines.push('## Skills');
     for (const skill of state.skills || []) {
+        if (/^Stat\d+$/i.test(skill.name)) continue;
         const boosted = skill.level !== skill.baseLevel ? `${skill.level}/` : '';
         lines.push(`${skill.name}: ${boosted}${skill.baseLevel} (${skill.experience.toLocaleString()} xp)`);
     }
