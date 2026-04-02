@@ -1039,6 +1039,18 @@ export class BotSDK {
             lastWaypoint.x === destX &&
             lastWaypoint.z === destZ;
 
+        // Detect unreachable destinations: if the pathfinder couldn't reach the
+        // destination and the remaining distance is still very large, the target
+        // is likely on a different plane (underground areas share level 0 but use
+        // Z offsets of +6400, making them allocated but disconnected from the surface).
+        // The "just past a gate" case has a remaining distance of ~10-20 tiles, not hundreds.
+        if (!reachedDestination && waypoints.length > 0) {
+            const remainDist = Math.abs(lastWaypoint!.x - destX) + Math.abs(lastWaypoint!.z - destZ);
+            if (remainDist > 100) {
+                return { success: false, waypoints: [], error: `Destination (${destX}, ${destZ}) is unreachable — path ends ${remainDist} tiles away at (${lastWaypoint!.x}, ${lastWaypoint!.z}). The target may be underground or on a different plane that requires a ladder/stairs to access.` };
+            }
+        }
+
         return { success: true, waypoints, reachedDestination };
     }
 
