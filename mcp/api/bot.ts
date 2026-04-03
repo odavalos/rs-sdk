@@ -3,78 +3,85 @@
  *
  * This module provides domain-aware methods that handle game mechanics automatically.
  * Actions wait for effects to complete (not just acknowledgment from server).
+ * All methods automatically dismiss blocking UI (level-up dialogs, etc.) before executing.
  *
- * Import via: const { bot } = await import('./api/index');
- * Or use directly if passed as parameter: bot.chopTree(), bot.walkTo(), etc.
+ * All methods return result objects with { success: boolean, message?: string, ... }
+ * Check result.success before continuing. On failure, result.message explains why.
+ *
+ * Target parameters accept NearbyNpc/NearbyLoc/InventoryItem objects, strings, or RegExp patterns.
  */
 
 /**
  * Available methods on the bot object:
  *
  * == Movement ==
- * - walkTo(x, z, tolerance?) - Walk to coordinates, returns when arrived or stuck
+ * - walkTo(x, z, tolerance?) - Pathfind to coordinates, opens doors along the way
+ *
+ * == Interaction ==
+ * - talkTo(target) - Walk to NPC, start dialog
+ * - interactNpc(target, option?) - Walk to NPC, interact with option (e.g. 'trade', 'fish')
+ * - interactLoc(target, option?) - Walk to loc, interact with option (e.g. 'mine', 'smelt')
+ * - navigateDialog(choices) - Auto-click through dialog option sequence
  *
  * == Woodcutting ==
  * - chopTree(target?) - Chop a tree, wait for logs. target can be location, name pattern, or regex
  *
  * == Firemaking ==
- * - burnLogs(logs?) - Burn logs on ground. If logs specified, drops them first
- *
- * == Mining ==
- * - mineRock(target?) - Mine a rock, wait for ore
- *
- * == Fishing ==
- * - fish(target?) - Fish at a spot, wait for fish
- *
- * == Cooking ==
- * - cookFood(food?, range?) - Cook food on range/fire
+ * - burnLogs(logsTarget?) - Burn logs on ground. If logs specified, drops them first
  *
  * == Combat ==
  * - attackNpc(target, timeout?) - Attack NPC and wait for combat to complete
- * - eatFood(food) - Eat food item from inventory
+ * - castSpellOnNpc(target, spellComponent, timeout?) - Cast combat spell on NPC
+ * - pickpocketNpc(target) - Pickpocket NPC, detects XP gain vs stun
+ * - eatFood(target) - Eat food item from inventory, returns HP gained
  *
  * == Items & Inventory ==
  * - pickupItem(target) - Pick up ground item by name/pattern
- * - equipItem(item) - Equip item from inventory
- * - unequipItem(item) - Unequip item to inventory
- * - dropItem(item) - Drop item from inventory
- * - useItemOnLoc(item, loc) - Use item on location (e.g., logs on fire)
- * - useItemOnNpc(item, npc) - Use item on NPC
- * - useItemOnItem(item1, item2) - Use one item on another
+ * - equipItem(target) - Equip item from inventory
+ * - unequipItem(target) - Unequip item to inventory
+ * - useItemOnLoc(item, loc, options?) - Use inventory item on loc (e.g. fish on range)
+ * - useItemOnNpc(item, npc, options?) - Use inventory item on NPC
  *
  * == Doors ==
- * - openDoor(target?) - Open door, target can be location or pattern
+ * - openDoor(target?) - Open door/gate, target can be location or pattern
  *
  * == Shopping ==
- * - openShop(target?) - Open shop by talking to NPC
- * - buyFromShop(item, amount?) - Buy item from open shop
- * - sellToShop(item, amount?) - Sell inventory item to shop
+ * - openShop(target?) - Open shop by talking to shopkeeper NPC
+ * - buyFromShop(target, amount?) - Buy item from open shop
+ * - sellToShop(target, amount?) - Sell inventory item to open shop
+ * - closeShop(timeout?) - Close open shop interface
  *
  * == Banking ==
- * - openBank(timeout?) - Open bank (walks to banker if needed)
- * - depositItem(item, amount?) - Deposit item to bank
- * - depositAll() - Deposit entire inventory
- * - withdrawItem(item, amount?) - Withdraw item from bank
+ * - openBank(timeout?) - Open nearest bank (walks to banker if needed)
+ * - depositItem(target, amount?) - Deposit item to bank (-1 for all)
+ * - withdrawItem(target, amount?) - Withdraw item from bank
+ * - closeBank(timeout?) - Close bank interface
  *
  * == Crafting ==
- * - smithAtAnvil(product, options?) - Smith bars at anvil
+ * - smithAtAnvil(product?, options?) - Smith bars at anvil
  * - fletchLogs(product?) - Fletch logs into bows/arrows
  * - craftLeather(product?) - Craft leather at workbench
- * - spinWool() - Spin wool into ball of wool
- * - makePotery(product?) - Create pottery items
- *
- * == Prayer ==
- * - buryBones(bones) - Bury bones from inventory
+ * - craftJewelry(options?) - Craft jewelry at furnace (options: barPattern, product, gem)
+ * - stringAmulet(target?, options?) - String an amulet with ball of wool
  *
  * == Magic ==
- * - castSpell(spellName, target?) - Cast spell on target or self
+ * - castSpellOnNpc(target, spellComponent, timeout?) - Cast combat spell on NPC
+ * - enchantItem(target, level, options?) - Enchant jewelry (level 1-5)
+ *
+ * == Prayer ==
+ * - activatePrayer(prayer) - Activate a prayer by name or index
+ * - deactivatePrayer(prayer) - Deactivate a prayer by name or index
+ * - deactivateAllPrayers() - Deactivate all active prayers
+ *
+ * == Waiting ==
+ * - waitForSkillLevel(skillName, targetLevel, timeout?) - Wait until skill reaches level
+ * - waitForInventoryItem(pattern, timeout?) - Wait for item to appear in inventory
+ * - waitForDialogClose(timeout?) - Wait for dialog to close
+ * - waitForIdle(timeout?) - Wait until player is idle
  *
  * == UI ==
  * - dismissBlockingUI() - Close any blocking UI (dialogs, level-ups, etc.)
- * - skipTutorial() - Navigate through tutorial dialogs
- *
- * All methods return result objects with { success: boolean, message?: string, ... }
- * Check result.success before continuing. On failure, result.message explains why.
+ * - skipTutorial(options?) - Navigate through tutorial island
  *
  * Example usage:
  *   const tree = sdk.findNearbyLoc(/^tree$/i);
