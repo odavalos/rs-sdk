@@ -250,10 +250,21 @@ const SyncModule = {
         }
     },
 
-    handleBotMessage(ws: any, message: BotClientMessage) {
+    async handleBotMessage(ws: any, message: BotClientMessage) {
         if (message.type === 'connected') {
             const username = message.username || this.extractUsernameFromClientId(message.clientId) || 'default';
             const clientId = message.clientId || `bot-${Date.now()}`;
+
+            // Authenticate bot using per-bot password (same as SDK auth)
+            const authResult = await authenticateSDK(username, message.password || '');
+            if (!authResult.success) {
+                console.log(`[Gateway] Bot auth failed: ${clientId} -> ${username} (${authResult.error})`);
+                try {
+                    ws.send(JSON.stringify({ type: 'error', error: `Authentication failed: ${authResult.error}` }));
+                    ws.close();
+                } catch {}
+                return;
+            }
 
             const existingSession = botSessions.get(username);
             if (existingSession && existingSession.ws !== ws && existingSession.ws) {
@@ -531,7 +542,7 @@ async function handleMessage(ws: any, data: string) {
     const wsInfo = wsToType.get(ws);
     if (wsInfo) {
         if (wsInfo.type === 'bot') {
-            SyncModule.handleBotMessage(ws, parsed);
+            await SyncModule.handleBotMessage(ws, parsed);
         } else if (wsInfo.type === 'sdk') {
             await SyncModule.handleSDKMessage(ws, parsed);
         }
@@ -542,7 +553,7 @@ async function handleMessage(ws: any, data: string) {
     if (parsed.type?.startsWith('sdk_')) {
         await SyncModule.handleSDKMessage(ws, parsed);
     } else if (parsed.type === 'connected' || parsed.type === 'state' || parsed.type === 'actionResult') {
-        SyncModule.handleBotMessage(ws, parsed);
+        await SyncModule.handleBotMessage(ws, parsed);
     }
 }
 

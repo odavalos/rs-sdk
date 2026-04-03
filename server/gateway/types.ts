@@ -19,6 +19,7 @@ export interface BotClientMessage {
     goal?: string;
     clientId?: string;
     username?: string;
+    password?: string;
     dataUrl?: string;       // For screenshot_response
     screenshotId?: string;  // For screenshot_response correlation
 }

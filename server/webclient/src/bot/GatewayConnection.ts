@@ -34,12 +34,14 @@ export class GatewayConnection {
     private connected: boolean = false;
     private handler: GatewayMessageHandler;
     private botUsername: string;
+    private botPassword: string | null;
     /** When true, prevents auto-reconnect (used during graceful disconnect) */
     private preventReconnect: boolean = false;
 
     constructor(handler: GatewayMessageHandler) {
         this.handler = handler;
         this.botUsername = getBotUsername();
+        this.botPassword = getBotPassword();
     }
 
     connect(): void {
@@ -60,6 +62,7 @@ export class GatewayConnection {
                 this.send({
                     type: 'connected',
                     username: this.botUsername,
+                    password: this.botPassword || '',
                     clientId: `${this.botUsername}-${Date.now()}`
                 });
 
